@@ -1,3 +1,5 @@
+# Intro
+
 - There are repositories in git with no master one. They all are alike tracking changes sets.
 - System Configuration
 
@@ -15,6 +17,7 @@
     > Project_Folder/.git/config  
 
 ---
+
 ## Help
 
 `git help`
@@ -24,6 +27,7 @@ Show man page for specific command (Use F, B & Q for Navigation)
 `git help log` or `man git-log`
 
 ---
+
 ## Git Architecture
 
 Changes sets use hash to refer to each change set or commit
@@ -41,6 +45,7 @@ Git uses Three tree architecture
 HEAD points to parent commit for next commit, in other words, it's where the next commit is gonna happen. Wherever you [checkout a branch](#switch-branch), the HEAD points to that branch where the next commit is gonna take place. Inside the .git folder, HEAD and refs where this is recorded. HEAD file looks to branch, refs folder has the branch with commits details.
 
 ---
+
 ## Config Commands
 
  System level
@@ -73,7 +78,7 @@ Enable Colors for User Interface in git
 
 `git config --global color.ui true`
 
-*Examples*
+### Examples
 
 `git config user.email "my.name@email.com"`
 
@@ -84,36 +89,41 @@ Enable Colors for User Interface in git
 [`git config --global core.execludesfile path_to_dir/.gitignore_global`](#gitignore-global)
 
 ---
+
 ## Notes
 
-##### Basic flow:
+### Basic flow
+
 - Make changes
 - Add changes
 - Commit changes
 
-##### Commit message best practice:
+### Commit message best practice
+
 - Short single-line summary (less than 50 characters)
 - Optionally followed by a blank line and a more complete description
 - Keep each line to less than 72 characters
 - write commit messages in present tense, not past tense
-	- "fix bug" or "fixes big" not "fixed bug"
+  - "fix bug" or "fixes big" not "fixed bug"
 - bullet points are usually asterisks or hyphens
 - can add ticket tracking numbers, CR numbers from bugs or support requests
 - can develop shorthand for your organization
-	- `[css,js]` messing with css/js
-	- `bugfix:`indicates to bug fix
-	- `#38405 - `tracking number
+  - `[css,js]` messing with css/js
+  - `bugfix:` indicates to bug fix
+  - `#38405 -` tracking number
 - Be clear and descriptive
-	- Bad: `Fix type`
-	- Good: `Add missing > in project section of HTML`
-	- Bad: `Update login code`
-	- Good: `Change user authentication to use Blowfish`
-- Bad: `Updates member report, we should discuss if this right next week`
+  - Bad: `Fix type`
+  - Good: `Add missing > in project section of HTML`
+  - Bad: `Update login code`
+  - Good: `Change user authentication to use Blowfish`
+  - Bad: `Updates member report, we should discuss if this right next week`
 
-##### Others:
+### Others
+
 - Track empty folders by adding empty file in them. Usually named `.gitkeep` placed inside the empty folder and committed.
 
-##### Gitignore:
+### Gitignore
+
 - Read about .gitignore at [this documentation](https://git-scm.com/docs/gitignore). Basically it's wild card matching patterns to not track specified/matched files and folders. These patterns listed in `.gitignore` file and this file should be shared.
 - [A collection of  `.gitignore`  templates](https://github.com/github/gitignore)
 - [Article about ignoring files](https://help.github.com/articles/ignoring-files/)
@@ -122,6 +132,7 @@ Enable Colors for User Interface in git
 Noting that it could be named anything and it's probably shouldn't be shared with others
 
 ---
+
 ## Working with git
 
 Initialize the project in current path
@@ -196,7 +207,7 @@ Revert changes directly and flip any commit changes. This will make a new commit
 `git revert 1389856a7793eacbe9a37bed5ad451904882360d` - use `--no-commit` for no commit message
 `git revert 1389856a7793eacb..HEAD` - to revert multiple commit from HEAD to specified hash
 
-Delete un-tracked files 
+Delete un-tracked files
 
 `git clean -n` for testing and `git clean -f` for actual cleaning
 
@@ -226,6 +237,7 @@ Stash modified files temporarily usually for swapping between branches. Stashes 
 `git stash clear` - Clear the stash of all stashes  
 
 ---
+
 ## Git Log
 
 Show commit messages, messages with limited number, messages since/until specific date, messages with author, regex search
@@ -252,16 +264,19 @@ Show commit messages, messages with limited number, messages since/until specifi
 <a name="git-log-branch"></a>`git log --oneline branch_name` - while branch_name could be any branch even remote one like `origin/master` and would be the local copy of the remote branch
 
 ---
+
 ## Git Reset
 
 `git reset` relocate/reset the HEAD to the specified commit. Use with **caution**.  Once HEAD is relocated, the commit chain starts from that point forward. All commits the HEAD skipped while being relocated back to the specified commit are simply ignored and wont be viewed using `git log` so you might want to save their hashes before resetting. There are three types of resetting the HEAD
 
 -\-soft
+
 - doesn't change staging index or working directory
 
 `git reset --soft 1389856a7793eacbe9a37bed5ad451904882360d` or `git reset --soft 1389856`
 
 -\-mixed (default)
+
 - changes staging index to match repository
 - doesn't change working directory
 - Similar to `git reset HEAD fileName.html` but here is getting the `fileName.html` from the the repository commit pointed to by the HEAD to the staging index so the end result that the file is actually un-staged
@@ -269,19 +284,23 @@ Show commit messages, messages with limited number, messages since/until specifi
 `git reset --mixed 1389856a7793`
 
 -\-hard
+
 - changes staging index and working directory to match repository
 
 `git reset --hard 1389856a7793`
 
 ---
+
 ## Referencing Commits
 
-#### tree-ish
+### tree-ish
+
 To reference to a commit or a tree-ish the following might be used
+
 - Full sha-1 hash
 - Short sha-1 hash
-	- at least 4 characters (small projects)
-	- unambiguous (8-10 characters for mid-level projects)
+  - at least 4 characters (small projects)
+  - unambiguous (8-10 characters for mid-level projects)
 - HEAD pointer (which of course points to the tip of the currently checked out branch)
 - Branch reference, tag reference
 - Ancestry. Using any of the previous methods with referring to that object ancestry like `HEAD^`, `1389856a7793^`, `master^` or `HEAD~1` to go up one level. Grandparent also could be referred like `HEAD^^`, `1389856a7793^^`, `master^^` or `HEAD~2`. And so on.
@@ -295,6 +314,7 @@ List a tree of files and folders in the repository based on the reference passed
 `git ls-tree 1389856a7793` - same of the above if `1389856a7793` is the sha-1 of `folderName` at last commit of branch `master`
 
 ---
+
 ## Branches
 
 `git branch` - See what branches are there and what's you're working on right now  
@@ -316,35 +336,36 @@ Use `git log --graph --oneline --decorate --all` to see commit quick differences
 `git merge --no-ff other_branch_name` - Enforce new commit message for the merge so no fast-forward merge  
 <a name="abort-merge"></a>`git merge --abort` - Exit merge status if you're in the middle of a merge waiting to resolve conflict
 
-#### Conflict
+### Conflict
 
 If there are changes and multiple commits on the working branch (merge receiver) and the branch we want to merge then there might be a conflict in the merging process.
 
-##### *To resolve a conflict there are three options*
+### *To resolve a conflict there are three options*
 
 - [abort merge](#abort-merge)
 - resolve the conflicts manually
-	- Use `git status` and edit each file by hand then remove the `<<<<<<< HEAD` of start and ending of comparison and the `=======` in between. Noting that these marks are inside the file since the conflict appeared and once you removed them then you resolved the conflict
-	- Once finished all editing, do `git add fileName.html` for the files edited then `git commit` without message
+  - Use `git status` and edit each file by hand then remove the `<<<<<<< HEAD` of start and ending of comparison and the `=======` in between. Noting that these marks are inside the file since the conflict appeared and once you removed them then you resolved the conflict
+  - Once finished all editing, do `git add fileName.html` for the files edited then `git commit` without message
 - use a merge tool
-	- Use `git mergetool --tool=` to set the tool you want
-	- Use `git mergetool` for candidates
+  - Use `git mergetool --tool=` to set the tool you want
+  - Use `git mergetool` for candidates
 
-##### *Conflict Avoiding Tips*
+### *Conflict Avoiding Tips*
 
 - keep lines short
 - keep commits small and focused
 - beware stray edits to whitespace
-	- spaces, tabs, line returns
+  - spaces, tabs, line returns
 - merge often, if you can !
 - track changes to master, keep getting the master changes to your branch to be in sync
 
 ---
+
 #### Remote Repositories
 
 - Remote repository is centralized repository (by convention) for sharing different changes that are going on
 - Remote repository is a simply git repository with HEAD pointer, commits & branches
-- As the following image shows, we make changes on our local repository (my computer: master) then we do `push` to upload changes to the remote repository (remote server: master). git also sync the changes to our another local reference to the remote server branch (my computer: origin/master). *origin/master* points to hash in `.git/refs/remotes/origin/master`. This is one step process    
+- As the following image shows, we make changes on our local repository (my computer: master) then we do `push` to upload changes to the remote repository (remote server: master). git also sync the changes to our another local reference to the remote server branch (my computer: origin/master). *origin/master* points to hash in `.git/refs/remotes/origin/master`. This is one step process
 ![Push to Remote Branch](git_assets/remote-push.jpg "Push to Remote Branch")
 - As the following image shows, users make changes on the remote repository (remote server: master) then we `fetch` these changes to our local branch that references to the remote server branch (my computer: origin/master). **Note** that this is first step of downloading the changes, next step is merging so it's two step process    
 ![Fetch to Local Branch Reference](git_assets/remote-fetch.jpg "Fetch to Local Branch Reference")
@@ -356,40 +377,40 @@ If there are changes and multiple commits on the working branch (merge receiver)
 - Create remote repository on github. Create local repository using `git init` if you don't have one
 - Or use `git clone <url> <folder_name_optional>` to download remote repository files to start contributing. This creates a local tracking branch or simply a reference `origin/master`. **Note** that this command doesn't require existence of local git initialization
 - Use `git remote` like `git branch` but for the remotes. Examples
-	- `git remote` - list all the remotes
-	- `git remote -v` - list all the remotes for pushing and for fetching, usually same but doesn't have to be
-	- `git branch -r` - list remote branches
-	- `git branch -a` - list all branches
+  - `git remote` - list all the remotes
+  - `git remote -v` - list all the remotes for pushing and for fetching, usually same but doesn't have to be
+  - `git branch -r` - list remote branches
+  - `git branch -a` - list all branches
 - `git remote add <alias> <url>` - alias is any name you like as an alias for the remote repository and url is the url where the remote could be found. By convention, alias goes for `origin`
 - <a name="change-remote-url"></a>`git remote set-url origin https://github.com/USERNAME/REPOSITORY.git` - Change remote url
 - Details about remotes stored in `.git/Config`
 - `git remote rm origin` - Remove the remote
-- `git push -u origin master` or <a name="remove-remote-branch"></a>`git push -u origin master:master` - `origin` is the alias for the remote and `master` is the local branch name that we wanna push. In case of `master:master` it means `local_branch:remote_branch` but since they have same naming it's not necessary to do it that way. The `-u` is to add the remote tracking for this `master` branch in the `.git/config ` file.
+- `git push -u origin master` or <a name="remove-remote-branch"></a>`git push -u origin master:master` - `origin` is the alias for the remote and `master` is the local branch name that we wanna push. In case of `master:master` it means `local_branch:remote_branch` but since they have same naming it's not necessary to do it that way. The `-u` is to add the remote tracking for this `master` branch in the `.git/config` file.
 - `git push` - Use for already tracking branch, like if you already on master and have origin/master on your config to track the remote
 - To make any local branch tracking remote branch you have 3 options
-	- Use `-u` when pushing to the remote branch
-	- Add the config manually - *master* is the remote & local branch name and *origin* is the alias for the remote and `refs/heads/master` is what will be used when doing merge to local branch
-		- `git config branch.master.remote origin`
-		- `git config branch.master.merge refs/heads/master`
-		
-		The config in `.git/config` will be like the following for multiple branches examples
-		> [remote "origin"]  
-		> 	url = https://git***/References.git  
-		> 	fetch = +refs/heads/*:refs/remotes/origin/*  
-		> [branch "master"]  
-		> 	remote = origin  
-		> 	merge = refs/heads/master   
-		> [branch "test_branch_local"]  
-		> 	remote = origin  
-		> 	merge = refs/heads/test_branch_remote  
-		> [branch "another_branch"]  
-		> 	remote = origin  
-		> 	merge = refs/heads/another_branch   
-		> [branch "another_local_branch"]  
-		> 	remote = origin  
-		> 	merge = refs/heads/another_branch  
-		
-	- Use `git branch --track master_local origin/master_remote` while usually `master_local` & `master_remote` are just `master`
+  - Use `-u` when pushing to the remote branch
+  - Add the config manually - *master* is the remote & local branch name and *origin* is the alias for the remote and `refs/heads/master` is what will be used when doing merge to local branch
+  - `git config branch.master.remote origin`
+  - `git config branch.master.merge refs/heads/master`
+  
+    > The config in `.git/config` will be like the following for multiple branches examples
+    > [remote "origin"]  
+    > url = <https://github/References.git>
+    > fetch = +refs/heads/*:refs/remotes/origin/*  
+    > [branch "master"]  
+    > remote = origin  
+    > merge = refs/heads/master
+    > [branch "test_branch_local"]  
+    > remote = origin  
+    > merge = refs/heads/test_branch_remote  
+    > [branch "another_branch"]  
+    > remote = origin  
+    > merge = refs/heads/another_branch
+    > [branch "another_local_branch"]  
+    > remote = origin  
+    > merge = refs/heads/another_branch  
+
+  - Use `git branch --track master_local origin/master_remote` while usually `master_local` & `master_remote` are just `master`
 - [`git log --oneline origin/master`](#git-log-branch) - to see commits of my copy of the remote branch `master`
 - [`git diff origin/master..master`](#compare-branches) - to see commits of my copy of the remote branch `master`
 - `git fetch origin` - sync remote repository to local `origin/master` tracking branch. Might use `git fetch` if only one remote alias is there
@@ -400,19 +421,21 @@ If there are changes and multiple commits on the working branch (merge receiver)
 - [`git push origin :branch_name`](#remove-remote-branch) or `git push origin --delete branch_name` - Remove the remote branch
 
 ##### Notes of good practices about fetching
+
 - fetch before you work
 - fetch before you push
 - fetch often
 
-##### Notes
+##### Additional Notes
+
 - Usual procedure to push changes is to *fetch*, *merge* then *push*. Specially if you can't push directly because someone pushed changes to the remote before you
 - To keep track the remote, fetch often
 - To make someone else push and fetch to/from your remote, simply add him/her as a collaborator or member. This way he/she could has a read and write access.
 - To work on open source project, it can't be everyone can do a commit !!. The contributor will have to
-	- Look to the network/contributors to make sure there isn't someone else working on same change
-	- Look to the issues list and see if someone posted there about the problem or the feature and maybe even started discussion about it. There is no sense in duplicating someone else's effort
-	- Post in the issue list to make sure others see that you got this
-	- `Fork` the project to your own gitlab/github repository then make changes and after being completely done, go back to the project page and make a `pull request`. It's like raising your hand and saying "I have something here I wanna show you". You submit a message with your request identifying the problem/feature and how it's good for the project. Finally if all are OK, your branch will be grabbed and merged in
+  - Look to the network/contributors to make sure there isn't someone else working on same change
+  - Look to the issues list and see if someone posted there about the problem or the feature and maybe even started discussion about it. There is no sense in duplicating someone else's effort
+  - Post in the issue list to make sure others see that you got this
+  - `Fork` the project to your own gitlab/github repository then make changes and after being completely done, go back to the project page and make a `pull request`. It's like raising your hand and saying "I have something here I wanna show you". You submit a message with your request identifying the problem/feature and how it's good for the project. Finally if all are OK, your branch will be grabbed and merged in
 
 ##### Collaboration Workflow Example
 
@@ -421,6 +444,7 @@ Say we are two members. Member_1 is the repository owner and already has read/wr
 Member_1 has local repository setup and pushed at least the master branch up to the remote repository. One day, Member_1 decided to implement new feature called Feature_1, at that day:
 
 Member_1:
+
 - `git checkout master` - Make sure I'm on my `master` branch
 - `git fetch` - To know what changes are there since last time I checked in
 - `git merge origin/master` - I found new features or changes added when fetched so I get these features by merging them to master after fetching. Now my master branch is in sync with the remote branch
@@ -432,8 +456,9 @@ Member_1:
 Member_2 also already has local repository setup and been working on it for couple of weeks, if that's not case, he would have to do `git clone <url>` in order to get the repository
 
 Member_2:
+
 - `get checkout master` - Make sure I'm on the master branch
-- `get fetch` - Get latest changes. `git branch -r` will show the new branch now 
+- `get fetch` - Get latest changes. `git branch -r` will show the new branch now
 - `git merge origin/master` - Some changes found and get them to my local master branch
 - `git checkout -b new_branch_feature_1 origin/new_branch_feature_1` - Create a local branch called `new_branch_feature_1` and track it using `-b` option and its starting point is `origin/new_branch_feature_1`. That way I have the new branch I found remotely on my local machine
 - `git log` - See what are the changes on that new branch
@@ -445,6 +470,7 @@ Member_2:
 Member_2 sends and email to Member_1 says I made a quick change as `Feature_2` on the new branch. Member_1 now will see the new change
 
 Member_1:
+
 - `git fetch`
 - `git log -p new_branch_feature_1..origin/new_branch_feature_1` - To see changes done by Member_2 before merging them into my branch. Starting from my local copy of `new_branch_feature_1` up to where `origin/new_branch_feature_1`
 - `git merge origin/new_branch_feature_1` - I liked the changes, I merged them to my local branch
@@ -455,6 +481,7 @@ Member_1:
 - `git push` - Push my changes on master branch to the remote including all my work
 
 ---
+
 #### Command line / Terminal tip
 
 Use `__git_PS1` to show the branch name in the terminal. To make it shows as a source (left side username of the terminal showing current path) use the command `export PS1='\W$(__git_PS1 "(%s)") > '`. To make it permanent edit`.bash_profile` and the exact same command to it.
@@ -462,35 +489,34 @@ Use `__git_PS1` to show the branch name in the terminal. To make it shows as a s
 `git config --global alias.logg "log --graph --decorate --oneline --abbrev-commit --all"` - Creating alias in the config. Now `git logg` would execute same as `git log --graph --decorate --oneline --abbrev-commit --all`. It's like text replacement
 
 ---
+
 #### Gitlab / Github
 
 To avoid entering credentials every time you wanna communicate with the remote repository and also for better security, I recommend using SSH. There are many guides explaining what and why and even how but here are the quick steps. Apply the commands in git bash
 
 - Check if there is public SSH key using one of the following commands:
-	- `cat ~/.ssh/id_rsa.pub` - If you see a string starting with ssh-rsa you already have an SSH key pair and you can skip the generate portion of the next section and skip to the copy to clipboard step. If you don't see the string or would like to generate a SSH key pair with a custom name continue onto the next step. If you do, you can add your SSH key to the ssh-agent.
-	- `ls -al ~/.ssh` - The command lists the files in your .ssh directory, if they exist. Check the directory listing to see if you already have a public SSH key. By default, the filenames of the public keys are one of  id_dsa.pub, id_ecdsa.pub, id_ed25519.pub or id_rsa.pub. If you see an existing public and private key pair listed (for example  _id_rsa.pub_  and  _id_rsa_) that you would like to use then you can add your SSH key to the ssh-agent. If you don't then continue onto the next step.
+  - `cat ~/.ssh/id_rsa.pub` - If you see a string starting with ssh-rsa you already have an SSH key pair and you can skip the generate portion of the next section and skip to the copy to clipboard step. If you don't see the string or would like to generate a SSH key pair with a custom name continue onto the next step. If you do, you can add your SSH key to the ssh-agent.
+  - `ls -al ~/.ssh` - The command lists the files in your .ssh directory, if they exist. Check the directory listing to see if you already have a public SSH key. By default, the filenames of the public keys are one of  id_dsa.pub, id_ecdsa.pub, id_ed25519.pub or id_rsa.pub. If you see an existing public and private key pair listed (for example  `_id_rsa.pub_`  and  `_id_rsa_`) that you would like to use then you can add your SSH key to the ssh-agent. If you don't then continue onto the next step.
 - Generating a new SSH key pair
-	- `ssh-keygen -t rsa -b 4096 -C "<your_email@example.com>"` - This creates a new ssh key, using the provided email as a label. When you're prompted to "Enter a file in which to save the key," press Enter. This accepts the default file location.
-	- At the prompt, you might type a secure passphrase. it is not required and you can skip creating a password by
+  - `ssh-keygen -t rsa -b 4096 -C "<your_email@example.com>"` - This creates a new ssh key, using the provided email as a label. When you're prompted to "Enter a file in which to save the key," press Enter. This accepts the default file location.
+  - At the prompt, you might type a secure passphrase. it is not required and you can skip creating a password by
 pressing enter.
 `Enter passphrase (empty for no passphrase): [Type a passphrase]`
 `Enter same passphrase again: [Type passphrase again]`
 **Note**: If you want to change the password of your SSH key pair, you can use `ssh-keygen -p <keyname>` or `ssh-keygen -p`
 - Copy the public key to your clipboard using the following command
-	- `clip < ~/.ssh/id_rsa.pub` - Git Bash for Windows, Linux or Mac
-	- `pbcopy < ~/.ssh/id_rsa.pub` - Mac
-	- `xclip -sel clip < ~/.ssh/id_rsa.pub` - GNU/Linux (requires the xclip package)
-	- `type %userprofile%\.ssh\id_rsa.pub | clip` - Windows Command Line
-	- `cat ~/.ssh/id_rsa.pub | clip` - Git Bash on Windows / Windows PowerShell
+  - `clip < ~/.ssh/id_rsa.pub` - Git Bash for Windows, Linux or Mac
+  - `pbcopy < ~/.ssh/id_rsa.pub` - Mac
+  - `xclip -sel clip < ~/.ssh/id_rsa.pub` - GNU/Linux (requires the xclip package)
+  - `type %userprofile%\.ssh\id_rsa.pub | clip` - Windows Command Line
+  - `cat ~/.ssh/id_rsa.pub | clip` - Git Bash on Windows / Windows PowerShell
 - Add the key to your profile settings in gitub or gitlab
 - [`git remote set-url origin git@gitlab.com:username/repository.git`](#change-remote-url) - Change your remote URL to the ssh one.
 - Optional:
-	- Make sure ssh agent is running - `eval $(ssh-agent -s)`
-	- Add current keys to ssh agent - `ssh-add ~/.ssh/id_rsa`
-	- For hosting git on local server, refer to the following urls
-		- https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols
-		- https://stackoverflow.com/a/11008133
-		- https://stackoverflow.com/q/10888300
-		- https://stackoverflow.com/q/5507489
-		
-	
+  - Make sure ssh agent is running - `eval $(ssh-agent -s)`
+  - Add current keys to ssh agent - `ssh-add ~/.ssh/id_rsa`
+  - For hosting git on local server, refer to the following urls
+    - <https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols>
+    - <https://stackoverflow.com/a/11008133>
+    - <https://stackoverflow.com/q/10888300>
+    - <https://stackoverflow.com/q/5507489>

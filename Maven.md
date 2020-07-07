@@ -1,4 +1,4 @@
-### Examples
+# Examples
 
 `mvn help:describe -Dplugin=archetype` - To get help about a plugin which is `archetype` in this case
 
@@ -28,7 +28,7 @@
 
 `mvn archetype:generate -DgroupId=com.example -DartifactId=sampleApp -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false` - Notice the parameter [`-DarchetypeArtifactId=maven-archetype-quickstart`](https://maven.apache.org/archetypes/maven-archetype-quickstart/dependency-info.html) which identifies already existing archetype so we create a sample built on it.
 
-### Repository
+## Repository
 
 - search.maven.org
 - Local repository in ~/.m2
@@ -41,4 +41,4 @@
 [Settings Reference](https://maven.apache.org/settings.html)  
 [Configure Plugins](https://maven.apache.org/guides/mini/guide-configuring-plugins.html)  
 [Dependency Management](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html)  
-[Full Guides & References Links](https://maven.apache.org/guides/index.html)  
+[Full Guides & References Links](https://maven.apache.org/guides/index.html)
