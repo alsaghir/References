@@ -33,6 +33,14 @@
 - search.maven.org
 - Local repository in ~/.m2
 
+## Archiva
+
+Archiva could be used for deployment directly in the folder and scan the jars with its POM. This also could be done from command line like this
+
+```powershell
+mvn org.apache.maven.plugins:maven-deploy-plugin:3.0.0-M1:deploy-file -Durl=http://10.0.10.107:8088/repository/arrow/ -DrepositoryId=arrow -Dfile=dfc.jar -Dfiles=dfc.jar -Dclassifiers=debug -Dtypes=jar -DgroupId=com.documentum -DartifactId=dfc -Dversion=16.4.0000.0185 -Dpackaging=jar
+```
+
 ### References
 
 [Plugins](https://maven.apache.org/plugins/index.html)  
