@@ -15,7 +15,7 @@
 
 `CONNECT 'jdbc:derby://localhost:1527/seconddb;create=true';` Connect to running instance specifying database and create it if not created
 
-`CONNECT 'jdbc:derby://localhost:1527/D:/Programs/Databases/SPDB;user=u;password=p;create=true;'` Same as previous one with username and password differences
+`CONNECT 'jdbc:derby://localhost:1527/D:/Programs/Databases/SPDB;user=u;password=p;create=true';` Same as previous one with username and password differences
 
 `call SYSCS_UTIL.SYSCS_CREATE_USER('u','p');` At first time connection and creating the database. Specify username and password using this command
 
