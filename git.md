@@ -361,6 +361,30 @@ If there are changes and multiple commits on the working branch (merge receiver)
 
 ---
 
+## Rebase
+
+`git rebase master new_feature` - Replay commits strarting from the current head of the master since there are some commits on master I need to merge on top of them, not ignoring them.
+
+Before Rebasing
+
+![Rebasing graph](git_assets/rebase_first.jpg "Before Rebasing")
+
+After Rebasing
+
+![Rebasing graph](git_assets/rebase_second.jpg "Before Rebasing")
+
+`git merge-base master new_feature` - Whill give the sha of base commit that is clean point between branches before start diverging
+
+`git rebase --continue` - in case of conflict, this one says that I've resolved this commit so go ahead and commit it. This of course should be used after modifying conflicting file(s) and resolving the conflicts then adding the change file through `git add fileName.txt` then the `git rebase --continue` should be applied.
+
+`git rebase --skip` - skip this commit and continue with other commits
+
+`git rebase --abort` - do not do rebase at all
+
+`git pull --rebase` - doing pull but rebase your current commits on current local branch to start off the comming commits from remote branch. So it will now make commit of merge because of the pull. Good to use on local non-important commits
+
+---
+
 #### Remote Repositories
 
 - Remote repository is centralized repository (by convention) for sharing different changes that are going on
