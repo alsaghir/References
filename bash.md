@@ -39,8 +39,8 @@ color_my_prompt
 
 Check the following
 
-https://github.com/git/git/blob/master/contrib/completion/git-completion.bash
-https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
+<https://github.com/git/git/blob/master/contrib/completion/git-completion.bash>
+<https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh>
 
 ```bash
 source /D/Programs/scripts/git-completion.bash
