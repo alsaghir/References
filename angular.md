@@ -23,37 +23,44 @@
 
 in `angular.json` add the following
 
-```json
-// projects >> <project_name> >> architect >> build >> configurations
+- projects >> <project_name> >> architect >> build >> configurations
 
+```json
 "ar-EG": {
               "localize": ["ar-EG"]
             }
+```
 
-// WARNING replace <project_name> with your project name
+***WARNING*** replace <project_name> with your project name
 
-// projects >> <project_name> >> architect >> serve >> configurations
+- projects >> <project_name> >> architect >> serve >> configurations
 
+```json
 "ar-EG": {
               "browserTarget": "<project_name>:build:ar-EG"
             }
+```
 
-// projects >> <project_name>
+- projects >> <project_name>
 
+```json
 "i18n": {
         "sourceLocale": "en-US",
         "locales": {
           "ar-EG": "src/locale/messages.ar-EG.xlf"
         }
       }
+```
 
+- projects >> <project_name> >> architect >> build >> options
 
-// projects >> <project_name> >> architect >> build >> options
-
+```json
 "i18nMissingTranslation": "error"
+```
 
-// projects >> <project_name> >> architect >> build >> options
+- projects >> <project_name> >> architect >> build >> options
 
+```json
 "allowedCommonJsDependencies": ["node-forge"]
 ```
 

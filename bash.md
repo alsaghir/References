@@ -34,3 +34,37 @@ function color_my_prompt {
 
 color_my_prompt
 ```
+
+#### Git auto complete
+
+Check the following
+
+https://github.com/git/git/blob/master/contrib/completion/git-completion.bash
+https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
+
+```bash
+source /D/Programs/scripts/git-completion.bash
+source /D/Programs/scripts/git-prompt.sh
+```
+
+### MSYS2 Shell Custom Script
+
+To be used as separated script like in `msys2_shell_custom.cmd` or in **Cmder**
+
+```powershell
+set "CHERE_INVOKING=1" & set "MSYSTEM=MINGW64" & set "MSYS2_PATH_TYPE=inherit" & set "PATH=%PATH%" & "bash.exe" --login -i
+```
+
+You may replace `bash.exe` with absolute path if not in PATH environment variable
+
+For IDE and multiple apps that has no issues with path like Cmder, this maybe used without `PATH=%PATH%` part.
+
+```powershell
+set "CHERE_INVOKING=1" & set "MSYSTEM=MINGW64" & set "MSYS2_PATH_TYPE=inherit" & "bash.exe" --login -i
+```
+
+### Know what shel you're using
+
+`echo $0` - `$0` is the name of the running process
+`echo $SHELL` - Shell you have on default environment you can check the value of the `SHELL` environment variable
+`ps -p "$$"` - where `$$` is PID of the current instance of shell and `ps -p <PID>` to find the process having the PID
