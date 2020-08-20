@@ -11,9 +11,14 @@
 
 ## Common Commands
 
-`ng xi18n --output-path src/locale` Generate locale file
+Generate locale file with different options
 
-`ng serve --configuration=ar-EG --base-href /ar-EG/` Run with specific configuration
+`ng xi18n --output-path src/locale`
+`ng xi18n --i18n-locale fr`
+
+Run with specific configuration
+
+`ng serve --port 4300 --configuration=ar-EG --base-href /ar-EG/`
 
 `MSYS2_ARG_CONV_EXCL="--base-href" ng serve --configuration=ar-EG --base-href=/ar-EG/` Run with specific configuration from git bash
 
