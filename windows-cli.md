@@ -22,3 +22,17 @@
 `/Q` Quiet mode, won't prompt for confirmation to delete folders.  
 `/S` Run the operation on all folders of the selected path.  
 `foldername` The absolute path or relative folder name, e.g. o:/backup/test1 or test1
+
+## PowerShell
+
+In `CMDer` for example use the following
+
+PowerShell -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command "Invoke-Expression 'Import-Module ''D:\Programs\PowerShell\profile.ps1'''"
+
+`profile.ps1` content as following
+
+```powershell
+Set-PSReadlineKeyHandler -Key Tab -Function Complete
+D:
+cd D:\Programs
+```
