@@ -381,22 +381,23 @@ After Rebasing
 
 `git rebase --abort` - do not do rebase at all
 
-`git pull --rebase` - doing pull but rebase your current commits on current local branch to start off the comming commits from remote branch. So it will now make commit of merge because of the pull. Good to use on local non-important commits
+`git pull --rebase` - doing pull but rebase your current commits on current local branch to start off the comming commits from remote branch. No merge commit will be done. Good to use on local non-important commits and branch that is not shared remotly yet.
 
 ---
 
-#### Remote Repositories
+### Remote Repositories
 
 - Remote repository is centralized repository (by convention) for sharing different changes that are going on
 - Remote repository is a simply git repository with HEAD pointer, commits & branches
 - As the following image shows, we make changes on our local repository (my computer: master) then we do `push` to upload changes to the remote repository (remote server: master). git also sync the changes to our another local reference to the remote server branch (my computer: origin/master). *origin/master* points to hash in `.git/refs/remotes/origin/master`. This is one step process
 ![Push to Remote Branch](git_assets/remote-push.jpg "Push to Remote Branch")
-- As the following image shows, users make changes on the remote repository (remote server: master) then we `fetch` these changes to our local branch that references to the remote server branch (my computer: origin/master). **Note** that this is first step of downloading the changes, next step is merging so it's two step process    
+- As the following image shows, users make changes on the remote repository (remote server: master) then we `fetch` these changes to our local branch that references to the remote server branch (my computer: origin/master). **Note** that this is first step of downloading the changes, next step is merging so it's two step process
 ![Fetch to Local Branch Reference](git_assets/remote-fetch.jpg "Fetch to Local Branch Reference")
-- As the following image shows, we `merge` the local branch that references to the remote server branch (my computer: origin/master) to our local branch (my computer: master). **Note** that git is smart that it doesn't actually make two local different branches (origin/master and master) but this is just for elaboration. It creates a pointer other than the local HEAD of master, that pointer is origin/master that should try always to be in sync with remote master   
+- As the following image shows, we `merge` the local branch that references to the remote server branch (my computer: origin/master) to our local branch (my computer: master). **Note** that git is smart that it doesn't actually make two local different branches (origin/master and master) but this is just for elaboration. It creates a pointer other than the local HEAD of master, that pointer is origin/master that should try always to be in sync with remote master
 ![Merge to Local Branch](git_assets/remote-merge.jpg "Merge to Local Branch")
+- Check [Adding Remote](https://docs.github.com/en/github/using-git/adding-a-remote) guide for adding multiple remote references
 
-##### Working with Remotes (gitlab, github ...etc)
+#### Working with Remotes (gitlab, github ...etc)
 
 - Create remote repository on github. Create local repository using `git init` if you don't have one
 - Or use `git clone <url> <folder_name_optional>` to download remote repository files to start contributing. This creates a local tracking branch or simply a reference `origin/master`. **Note** that this command doesn't require existence of local git initialization
@@ -544,3 +545,8 @@ pressing enter.
     - <https://stackoverflow.com/a/11008133>
     - <https://stackoverflow.com/q/10888300>
     - <https://stackoverflow.com/q/5507489>
+- References
+  - [GitHub-Forking.md](https://gist.github.com/Chaser324/ce0505fbed06b947d962)
+  - [GitHub flow](https://guides.github.com/introduction/flow/)
+  - [Git flow](https://nvie.com/posts/a-successful-git-branching-model/)
+  
