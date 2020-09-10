@@ -38,6 +38,27 @@ add the following to created file
 </module>
 ```
 
+## Add user / Connect using CLI
+
+Use `add-user.bat` then `jboss-cli.bat --connect`
+
+## Global directory
+
+Simply make folder in wildfly folder or anywhere and connect using CLI then apply
+
+`/subsystem=ee/global-directory=common-libs:add(path=ex, relative-to=jboss.home.dir)`
+
+while `ex` is the created folder and since it's inside wildfly folder then it's relative to `jboss.home.dir`. `common-libs` is then name of the module/global directory to be added in standalone.xml
+
+## Deployment logging
+
+To use each deployment logging API then add the following
+
+```xml
+<add-logging-api-dependencies value="false" />
+<use-deployment-logging-config value="true" />
+```
+
 ## Config files in wildfly-15.0.1.Final\modules\arrow\main
 
 <https://docs.jboss.org/author/display/WFLY/Class+Loading+in+WildFly#ClassLoadinginWildFly-GlobalModules>

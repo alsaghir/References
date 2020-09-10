@@ -81,3 +81,8 @@ in `angular.json` add the following
     "allowSyntheticDefaultImports": true
 }
 ```
+
+## Common packages
+
+`npm install --save bootstrap`
+`ng add @angular/material`
