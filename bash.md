@@ -8,7 +8,7 @@ To ignore / in MingW bash we use MSYS2_ARG_CONV_EXCL like this
 
 ## Tips for daily usage
 
-### in .bashrc or/and .bash_profile
+### in `.bashrc` or/and `.bash_profile`
 
 #### History Config
 
@@ -49,7 +49,7 @@ source /D/Programs/scripts/git-prompt.sh
 
 ### MSYS2 Shell Custom Script
 
-To be used as separated script like in `msys2_shell_custom.cmd` or in **Cmder**
+To be used as separated script like in `msys2_shell_custom.cmd` or in **ConEmu**
 
 ```powershell
 set "CHERE_INVOKING=1" & set "MSYSTEM=MINGW64" & set "MSYS2_PATH_TYPE=inherit" & set "PATH=%PATH%" & "bash.exe" --login -i
@@ -57,13 +57,29 @@ set "CHERE_INVOKING=1" & set "MSYSTEM=MINGW64" & set "MSYS2_PATH_TYPE=inherit" &
 
 You may replace `bash.exe` with absolute path if not in PATH environment variable
 
-For IDE and multiple apps that has no issues with path like Cmder, this maybe used without `PATH=%PATH%` part.
+For IDE and multiple apps that has no issues with path like ConEmu, this maybe used without `PATH=%PATH%` part.
 
 ```powershell
 set "CHERE_INVOKING=1" & set "MSYSTEM=MINGW64" & set "MSYS2_PATH_TYPE=inherit" & "bash.exe" --login -i
 ```
 
-### Know what shel you're using
+### PowerShell Custom Start
+
+```powershell
+PowerShell -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command "Invoke-Expression 'Import-Module ''D:\Programs\scripts\profile.ps1'''"
+```
+
+Where `profile.ps1` contains the following
+
+```powershell
+Set-PSReadlineKeyHandler -Key Tab -Function Complete
+D:
+cd D:\Programs
+```
+
+First line makes PowerShell auto-complete work. Second and third lines for path initializations.
+
+### Know what shell you're using
 
 `echo $0` - `$0` is the name of the running process
 `echo $SHELL` - Shell you have on default environment you can check the value of the `SHELL` environment variable
