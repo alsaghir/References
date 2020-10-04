@@ -4,37 +4,76 @@
 
 On VM use local virtual host (private) & another adapter with NAT to access the internet. Enable both network cards/adapters on installation wizard.
 
+### Kickstart file installation method
+
+- Better use everything DVD so the packages could be found directly and installed
+- Use kick-start installation file already existing on installed system. It's located in `/root/anaconda-ks.cfg`
+- Stick the USB device and run the command `fdisk -l` which will show the USB device
+- Assuming the device is `/dev/sdb1`. Mount the device with specific directory using `mkdir /mnt/kickstart-usb && /dev/sdb1 /mnt/kickstart-usb`
+- Copy the kick-start file using `cp /root/anaconda-ks.cfg /mnt/kickstart-usb-ks.cfg`
+- Go to target machine and boot CentOS installation in rescue mode to determine the correct target volume and attach two USB devices
+  - The kick-start USB device that we just used and has the kick-start file.
+  - The installation USB with the recommended everything ISO installation ISO
+- Boot to `Troubleshooting` then `Rescue a CentOS Linux system` then press `3) Skip to shell` to enter rescue mode
+- Use `fdisk -l` and determine the disk to install the system on. Assuming at this point its name would be `/dev/sdb`
+- Get back the kick-start USB device on CentOS running system to modify the kick-start file on it
+- Modify the file on the drive and make some changes like
+  - Comment line `graphical` to `#graphical`
+  - Add command to text installer instead of graphical by adding the line `text` after the commented `#graphical` previously done
+  - Change the host name in the line `network --hostnam=whatever.com`
+  - Change the target disk instead of `=sda` to `=sdb` as this is determined from targeted machine in previous step.
+  - Change `clearpart --none --initlabel` to `clearpart -all -drives=sdb` to clear the disk before installation
+  - Add packages under the `%packages` to be installed after installation is done
+- Validate the kick-start file by `dnf install system-config-kickstart -y` then `ksvalidator /mnt/kickstart-usb/ks.cfg`. No output means no error
+- Get the name of the partition that our kick-start file is located on using the command `blkid /dev/sdb1` and copy the UUID which assumed to be `5555-6666`
+- Go to target machine and connect back the kick-start USB to it
+- On boot menu, press the escape key to enter custom boot screen
+- Custom boot `boot:` will show. Start installation using `linux ks=hd:5555-6666:ks.cfg` where
+  - `hd` is the protocol to access the file. There are others supported like `http://aaa/ks.cfg`
+  - `5555-6666` is the UUID from previous step
+  - `ks.cfg` file name on USB drive
+- Press `Enter` and finally reboot the machine and verify using login then `hostnamectl` to see the hostname
+
 ### Adapter connection
 
 `ip address show` or `ip a s` - will show connections with its assigned IP addresses and configs  
 `nmcli conn show` - List adapters connections  
 `nmcli conn up enps33` - Bringing up the connection called `enps33`  
 `sudo sed -i s/ONBOOT=no/ONBOOT=yes/ /etc/sysconfig/network-scripts/ifcfg-ens34` - Make connection up and running on boot. This also should be done with each adapter like `ens34`  
-`grep ONBOOT /etc/sysconfig/network-scripts/ifcfg-ens34` - will show that edit is effected
+`grep ONBOOT /etc/sysconfig/network-scripts/ifcfg-ens34` - will show that edit is effected  
+`systemctl restart network` - Bring up the interfaces with latest configurations  
+`nmcli connection edit ens33` - Edit connection instead of manually editing `/etc/sysconfig/network-scripts/ifcfg-ens34`  
+
+`hostnamectl` - Will show hostname info. `cat /etc/hostname` also shows the hostname.  
+`hostnamectl --static set-hostname "apollo"` - Set hostname to `apollo`  
+`hostnamectl --pretty set-hostname "Apollo"` - Set hostname shows somewhere as info as pretty word to `Apollo`
 
 ### Packages
 
-`yum update` - update installed packages
-
-`yum install -y redhat-lsb-core net-tools epel-release kernel-headers kernel-devel`
-
-`yum groupinstall -y "Development Tools"` or `dnf group install gnome-desktop`- Group of packages installation by name (must be exact and case sensitive within double quotation marks) or by id
-
-`systemctl set-default graphical.target` - After installing desktop, use this to make it default UI for the system
-
-`systemctl isolate graphical.target` - to take effect immediately
-
-`sudo dnf install open-vm-tools open-vm-tools-desktop xorg-x11-drv-vmware` - For running CentOS on VMware workstation.
+- `yum update` - update installed packages
+- `yum install -y redhat-lsb-core net-tools epel-release kernel-headers kernel-devel`
+- `yum groupinstall -y "Development Tools"` or `dnf group install gnome-desktop` - Group of packages installation by name (must be exact and case sensitive within double quotation marks) or by id
+- `systemctl set-default graphical.target` - After installing desktop, use this to make it default UI for the system
+- `systemctl isolate graphical.target` - to take effect immediately
+- `sudo dnf install open-vm-tools open-vm-tools-desktop xorg-x11-drv-vmware` - For running CentOS on VMware workstation.
+- `dnf group install "Basic Web Server"` - For apache Http web server packages
+- `dnf list installed`
+- `dnf provides nslookup` - List what provides the tool/command called `nslookup`.
+- `dnf remove zip` - Removes zip package from the system.
+- `rpm -i nmap.rpm` - Installs package `nmap.rpm`. `rpm -U nmap.rpm` - upgrade the package. `rpm -e nmap` - remove the package.
 
 ## Terminal tips
 
 `!$` - is the last argument passed to latest command  
-`systemctl` - service management tool  
-`ls -l $(tty)` - Evaluates to `ls -l /dev/pts/1` because `$()` evaluates what's in it first then the result combined to the outer command.
+`systemctl` - Service management tool that uses SystemD to manage services. `systemctl` used with `status servicename` for info, `start|stop servicename` for start/stop, `enable|disable servicename` for enabling/disabling boot the service with the system and `restart servicename` for restarting the service  
+`systemctl list-unit-files` - Services are saved in unit files. This command lists all services  
+`ls -l $(tty)` - Evaluates to `ls -l /dev/pts/1` because `$()` evaluates what's in it first then the result combined to the outer command
 
 ### Commands & Tools
 
-- `dnf list installed`
+- `sync` - Sync all cached file data of the current user. Do before removing USB device.
+- `ehect /dev/sdd` - Eject USB drive physically
+- `fallocate -l10M file1` - Create `file1` with size `10M`
 - `man` - Documentation using man page. `man ls` will show document for `ls` command.
 - `tty` & `who` - shows which `tty` you're currently on and shows who is logged in on the system.
 - `ls -aF` - List files and folders identifying folders, files & links with colors and slashes. `-l` option shows permissions. `-rt` For time data sorted with most recent updated files. `-h` for readable size format.
@@ -57,7 +96,7 @@ On VM use local virtual host (private) & another adapter with NAT to access the 
 - `lsblk` - List block devices which are in this case are disks & partitions. Disks are in `/dev/` path
 - `fdisk -l` - List disks
 - `dd` - For disk image manipulation. `dd if=/dev/sr0 of=netinstall.iso` will create `netinstall.iso` of mounted device `/dev/sr0`.
-- `dd if=/dev/zero of=/dev/sda count=1 bs=512` - `bs=512` specifying the block size and only one operation device so `count=1` will delete partition table of `/dev/sda`.
+- `dd if=/dev/zero of=/dev/sda count=1 bs=512` - `bs=512` specifying the block size and only one operation device so `count=1` will delete partition table of `/dev/sda`. `status=progress` could be added to show progress.
 - `df` - Disk free tool of local file systems
 - `df -hT` - Disk free of local file systems with file system
 
@@ -70,14 +109,16 @@ On VM use local virtual host (private) & another adapter with NAT to access the 
 - `umask` - Sets default permission for new files
 - `chmod` - Changes the permission of a file. Examples are `chmod 467 file1`, `chmod u=r,g=rw,o=rwx`, `chmod u=r,go=rw`, `chmod +x`, `chmod o=` means nothing to others, `chmod a+x` means all plus execute, `chmod o-t` means others minus sticky bit.
 - Sticky bit is special permission for directories to prevent deletion/renaming/movement. `t` means execute permission is set and `T` means execution permission is not set. To create a directory with sticky bit use `mkdir -m 1777 test` as the `1` here is special permission for sticky bit.
--  Permissions in Linux are not cumulative and it goes in the order user, group, and then other. If you are a user you get only the permissions of the user; group permissions and other's permissions do not apply to you.
+- Permissions in Linux are not cumulative and it goes in the order user, group, and then other. If you are a user you get only the permissions of the user; group permissions and other's permissions do not apply to you.
 - The position that the `x` bit takes in the `rwxrwxrwx` for the user octal (1st group of `rwx`) and the group octal (2nd group of `rwx`) can take an additional state where the `x` becomes an `s`. When this occurs this file when executed (if it's a program and not just a shell script) will run with the permissions of the owner or the group of the file. So if the file is owned by root and the SUID bit is turned on, the program will run as root. Even if you execute it as a regular user. The same thing applies to the GUID bit. Executable bit disabled using uppercase `S`.
+- set GUID using `chmod 2555 [path_to_file]` and SUID using `chmod 4555 [path_to_file]`
 - `id -u` prints user id. `id -un` prints username. `id -gn` prints primary group name. `id -Gn` prints secondary groups names.
 - Primary group used when creating file. When accessing file, secondary groups used.
 - `chgrp wheel file2` - Change group of `file2`
 - `newgrp wheel` - make `wheel` is my primary group creating another shell with it. Use `exit` to get back and verify with `id -gn`.
 - `chown` - used to change the ownership of a file. `chown root file2` changes the user owner of `file2` to owner. `chown tux.tux file2` - changes the user owner and group owner to `tux`.
 - `cp -a` - Copying a file with permission included.
+- `usermod -aG wheel userwhatever` - Will append group `wheel` to user `userwhatever`
 
 ### SU
 
@@ -87,7 +128,6 @@ On VM use local virtual host (private) & another adapter with NAT to access the 
 - `sudo visudo` - Edit to add users or groups. User like `tux ALL=(root) ALL` will add user `tux` from any host connecting as `root` o run all commands.
 - `vi /etc/ssh/sshd_config` - Edit to uncomment & modify option to `PermitRootLogin no` then `systemctl restart sshd`
 - `ssh-keygen -t ed25519 -C "<comment>"` or `$ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"` - Generates new SSH key with type specified using `-t` option.
-- `ssh-copy-id -i id_rsa.pub server1` - Copy public key to another server called `server1` which is a alias. Normally it should put the original server IP, port & user.
 - In `~` you can make new `.ssh` folder and inside it add config file `vi config` to create server alias like that
 
 ```bash
@@ -97,7 +137,53 @@ Host server1
     Port 22
 ```
 
-- `scp file1 server1:/tmp` - Copy from current server to `server1`. Reverse could be done using `scp server1:/tmp file1`
+- `scp file1 server1:/tmp` - Copy from current server to `server1`. Reverse could be done using `scp server1:/tmp file1`. You may specify private key using `-i .ssh/id_rsa`
+- `sftp -i .ssh/id_rsa username@10.0.0.1` - Connects to server using `sftp` with specific private key using user called `username` to IP address `10.0.0.1`. Then you may use `put file1` to upload `file1` and `get file1` to download it. End it with `bye` command
+
+### SSH key-pair usage
+
+Either after generating keys pair on the client directly use
+
+`ssh-copy-id -i id_rsa.pub server1` - Copy public key to another server called `server1` which is a alias. Normally it should put the original server IP, port & user  
+
+OR
+
+- Copy key from `id_rsa.pub` on the client to `~/.ssh/authorized_keys` on the server. Could be done directly using
+
+```bash
+cat /c/Users/whatever/.ssh/id_rsa.pub | ssh zxc@172.32.0.2 -T "cat > ~/.ssh/authorized_keys"
+```
+
+- On server do the following while you're on `~`
+
+```bash
+sudo chmod 700 .ssh
+sudo chmod 600 .ssh/authorized_keys
+```
+
+- On server, make sure to `sudo vi /etc/ssh/sshd_config` and set `PubkeyAuthentication yes` and `PasswordAuthentication no` (optional)
+- On server, finally, restart `sshd` service using `sudo systemctl restart sshd`.
+
+### SELinux
+
+- More control over processes
+- States are `Enforcing`, `Permissive` and `Disabled`. First state only enforces SELinux polices. Second only logs policy exceptions to `/var/log/audit/audit_log`. Third makes SELinux doesn't participate in system security.
+- For first two states, policies are `Strict` and `targeted`.
+- `Strict` - All activity is subject to SELinux restrictions. In `Targeted` policy, policy only enforced on specific processes (e.g. `httpd`, `named`, `ntpd`, `snmpd`...etc.)
+- `sestatus` - will show info about SELinux. `ls -Z` will show info about files. 
+- `unconfined_u:object_r:user_home_t:s0` - Maps to `unconfined_u` which is the user context (`unconfined` means out of the scope of SELinux protection when using targeted policy). `object_r` the role context. `user_home_t` type context (`user_home_t` for files and folders in home of user). `s0` is MLS or multi-level security context.
+- TE or Type Enforcement is the most common method used to determine the result of security policy. Role-Based Access Control (RBAC) & Multi-Level Security (MLS) are not used in targeted mode.
+- `ps axZ` - Processes have a context which could be displayed using `ps axZ`
+- `setenforce` and `setenforce 1` - to list and switch mode between `enforcing`, `permissive` and `disabled`. However, this is for current session only. Edit `/etc/sysconfig/selinux` to effect permanently.
+- `chcon` - Changes context of files. E.g. `sudo chcon -R -t user_home_t foldername` makes `foldername` can't be used by http service as it belongs to home folder according to its context type. `-R` means recursively.
+- `setsebool` - Set the value of Boolean
+- Troubleshooting using `setenforce 0` then `aureport --avc` to change to permissive mode then view the AVC events in the audit log.
+
+### FireWall
+
+- `sudo filewall-cmd` With `--get-zones` or `--get-active-zones` or `--zone=public --list-all` to list zones or active zones or all services in specified zones
+- `sudo firewall-cmd --reload` - To reload rules and take effect of new rules
+- `sudo firewall-cmd --zone=public --permanent` With `--remove-port=80/tcp` to remove that rule or `--add-port=80/tcp` to add the rule or `--add-service=http` to allow access to http service as a rule
 
 ### Redirecting & Piping
 
@@ -132,6 +218,41 @@ Host server1
   - `s` : local socket file.
   - `p` : named pipe.
   - `l` : symbolic link.
+
+### Users & Groups
+
+- `useradd anne` - Create user called `anne`
+- `passwd anne` - Give user a password
+- `passwd -e anne` - Set password in expired state
+- `groupadd engineering` - Creates a group. Verify using `cat /etc/group`
+- `sudo usermod -aG engineering anne` - Add `anne` to group `engineering`
+
+## Linux FileSystem (File System Hierarchy Standard FHS)
+
+- `/` - Root. Highest level in the hierarchy
+- `/bin` - Command binaries. Symbolic link to `/usr/bin`
+- `/boot` - Boot loader & kernel
+- `/dev` - System devices (disks, USB drive, null (device sending data to nowhere)).
+- `/etc` - System configuration files
+- `/home` - User home directories
+- `/lib` - System libraries
+- `/media` - Mount point for removable media
+- `/opt` - Often used for third-party packages
+- `/proc` - System information
+- `/root` - Root's home directory
+- `/run` - Process information
+- `/sbin` - System binaries
+- `/sys` - System information
+- `/tmp` - Temporary information
+- `/usr` - Some programs live here
+- `/var` - Contains log files and others that change over time
+
+## Troubleshooting
+
+- `sudo systemd-analyze blame` - List of startup services and time taken to execute. `sudo systemd-analyze plot > startup.svg` Will create plot graph of time taken to boot
+- `/var/log` - To see apps logs. `messages` log is for processes with no specific log file like when connecting USB device you can `tail -f /var/log/messages` to know if the device is recognized by the system and `audit/audit.log`/`sudo aureport`
+- `sudo cat secure` - Secure logs including use of `sudo` in the system
+- `top` - for processes monitoring
 
 ## References
 
