@@ -4,36 +4,6 @@
 
 On VM use local virtual host (private) & another adapter with NAT to access the internet. Enable both network cards/adapters on installation wizard.
 
-### Kickstart file installation method
-
-- Better use everything DVD so the packages could be found directly and installed
-- Use kick-start installation file already existing on installed system. It's located in `/root/anaconda-ks.cfg`
-- Stick the USB device and run the command `fdisk -l` which will show the USB device
-- Assuming the device is `/dev/sdb1`. Mount the device with specific directory using `mkdir /mnt/kickstart-usb && /dev/sdb1 /mnt/kickstart-usb`
-- Copy the kick-start file using `cp /root/anaconda-ks.cfg /mnt/kickstart-usb-ks.cfg`
-- Go to target machine and boot CentOS installation in rescue mode to determine the correct target volume and attach two USB devices
-  - The kick-start USB device that we just used and has the kick-start file.
-  - The installation USB with the recommended everything ISO installation ISO
-- Boot to `Troubleshooting` then `Rescue a CentOS Linux system` then press `3) Skip to shell` to enter rescue mode
-- Use `fdisk -l` and determine the disk to install the system on. Assuming at this point its name would be `/dev/sdb`
-- Get back the kick-start USB device on CentOS running system to modify the kick-start file on it
-- Modify the file on the drive and make some changes like
-  - Comment line `graphical` to `#graphical`
-  - Add command to text installer instead of graphical by adding the line `text` after the commented `#graphical` previously done
-  - Change the host name in the line `network --hostnam=whatever.com`
-  - Change the target disk instead of `=sda` to `=sdb` as this is determined from targeted machine in previous step.
-  - Change `clearpart --none --initlabel` to `clearpart -all -drives=sdb` to clear the disk before installation
-  - Add packages under the `%packages` to be installed after installation is done
-- Validate the kick-start file by `dnf install system-config-kickstart -y` then `ksvalidator /mnt/kickstart-usb/ks.cfg`. No output means no error
-- Get the name of the partition that our kick-start file is located on using the command `blkid /dev/sdb1` and copy the UUID which assumed to be `5555-6666`
-- Go to target machine and connect back the kick-start USB to it
-- On boot menu, press the escape key to enter custom boot screen
-- Custom boot `boot:` will show. Start installation using `linux ks=hd:5555-6666:ks.cfg` where
-  - `hd` is the protocol to access the file. There are others supported like `http://aaa/ks.cfg`
-  - `5555-6666` is the UUID from previous step
-  - `ks.cfg` file name on USB drive
-- Press `Enter` and finally reboot the machine and verify using login then `hostnamectl` to see the hostname
-
 ### Adapter connection
 
 `ip address show` or `ip a s` - will show connections with its assigned IP addresses and configs  
@@ -50,7 +20,7 @@ On VM use local virtual host (private) & another adapter with NAT to access the 
 
 ### Packages
 
-- `yum update` - update installed packages
+- `yum update -y` - update installed packages. **IMPORTANT**
 - `yum install -y redhat-lsb-core net-tools epel-release kernel-headers kernel-devel`
 - `yum groupinstall -y "Development Tools"` or `dnf group install gnome-desktop` - Group of packages installation by name (must be exact and case sensitive within double quotation marks) or by id
 - `systemctl set-default graphical.target` - After installing desktop, use this to make it default UI for the system
@@ -90,6 +60,12 @@ On VM use local virtual host (private) & another adapter with NAT to access the 
 - `find` - Searching in folders tool with advanced options
 - `touch newline1` or `> newfile1` - Create new empty file called `newfile1`. Second command is actually means writing nothing to file.
 - `set -o` - List shell options. `set -o noclobber` will set `noclobber` on. Use `set +o noclobber` to set it off.
+- `ifdown ens33` & `ifup ens33` - Brings the network adapter `ens33` down and up.
+- `localectl` - Tool related to anything for locale and language handling.
+- `systemctl status chronyd` - `chronyd` is related to time handling. Also `timedatectl`
+- `lsmod` & `modinfo sr_mod` - List kernel modules and shows info about specific kernel module by specifying its name
+- `modprobe -r -v sr_mod` - Removes kernel module named `sr_mod`. `modprobe blutooth` will enable the kernel module in the system. Parament effect needs script in `/etc/sysconfig/modules` to be added to effect the system on reboot for enabling modules. For preventing disabled modules from coming back, editing `/etc/default/grub` to add `rdblacklist=sr_mod` to the key `GRUB_CMDLINE_LINUX` is required then run `grub2-mkconfig -o /boot/grub2/grub.cfg/` and finally `echo "blacklist sr_mod" >> /etc/modprobe.d/blacklist.conf`
+- `ls /lib/modules/$(uname -r)/kernel` - List of modules kernel on the system
 
 ### Disks
 
@@ -257,3 +233,143 @@ sudo chmod 600 .ssh/authorized_keys
 ## References
 
 <https://www.server-world.info/en/note?os=CentOS_8&p=initial_conf&f=9>
+
+## Tips & Guides
+
+### Tricks with ordered steps
+
+Customize boot loader
+
+```bash
+
+# Create backup just in case
+cp /etc/default/grub /etc/default/grub.BAK
+
+# Edit the GRP2 boot loader as you wish then save it
+vi /etc/default/grub
+
+# Now we want to build
+# the file to get configuration
+# from the file we just edited
+
+# Check what system you're on EFI or BIOS
+demsg | grep "EFI v"
+
+# If no output from previous command. Means BIOS
+grub2-mkconfig -o /boot/grub2/grub.cfg
+
+# If EFI based system is indicated. Means EFI
+grub2-mkconfig -o /boot/efi/EFI/centos/grub.cfg
+```
+
+Rescue mode
+
+```bash
+# In rescue mode, you may chroot into
+# the installed system root file system
+chroot /mnt/sysimage/
+
+# Exit the mode
+exit
+reboot
+
+# Change root password of the system
+passwd
+
+# Plugin new USB device and operate it.
+# /dev/sdb1 considered to be the USB drive
+mkdir /mnt/whatever-usb-is-for && mount /dev/sdb1 /mnt/whatever-usb-is-for
+
+# Copy config to backup to the USB
+cp /mnt/sysimage/etc/postfix/main.cf /mnt/whatever-usb-is-for
+
+# Identify bios or efi
+dmesg | grep "EFI v"
+
+# List disks and identify the star partition
+fdisk -l
+
+# In Bios based system
+# Install grub2 if got corrupted on 
+# /dev/sda (without number so it's not sda1)
+# assuming that /dev/sda1 was the star partition
+grub2-install /dev/sda
+
+# In EFI based system
+# Install grub2 if got corrupted on
+yum reinstall grub2-efi shim -y
+```
+
+Recommended groups & packages to install
+
+```bash
+dnf group install -y base development rpm-development-tools
+dnf install -y vim net-tools screen netcat rsync wget curl -y
+```
+
+#### Static IP address for network adapter
+
+```bash
+# Show network adapters
+ip address show
+
+# Calculate network addresses
+ipcalc -b -m -n 10.0.2.15/24
+
+# Find out the gateway
+route
+
+# Edit the config for specific adapter (ens33 as example here)
+vi /etc/sysconfig/network-scripts/ifcfg-ens33
+```
+
+- Set the following keys to following values then save and close the file
+- No DHCP `BOOTPROTO=none`
+- Disables network manager taking control on boot for configuration files related to this adapter
+  `NM_CONTROLLED="no"`
+  `PEERDNS="no"`
+  `PEERROUTES="no"`
+- Add network details
+
+  ```properties
+  IPADDR=192.168.101.100
+  NETMASK=255.255.255.0
+  BROADCAST=10.0.2.255
+  NETWORK=10.0.2.0
+  GATEWAY=10.0.2.0
+  ```
+
+  ```bash
+  # Restart the network daemon
+  systemctl restart network
+  ```
+
+#### Kickstart file installation method
+
+- Better use everything DVD so the packages could be found directly and installed
+- Use kick-start installation file already existing on installed system. It's located in `/root/anaconda-ks.cfg`
+- Stick the USB device and run the command `fdisk -l` which will show the USB device
+- Assuming the device is `/dev/sdb1`. Mount the device with specific directory using `mkdir /mnt/kickstart-usb && /dev/sdb1 /mnt/kickstart-usb`
+- Copy the kick-start file using `cp /root/anaconda-ks.cfg /mnt/kickstart-usb-ks.cfg`
+- Go to target machine and boot CentOS installation in rescue mode to determine the correct target volume and attach two USB devices
+  - The kick-start USB device that we just used and has the kick-start file.
+  - The installation USB with the recommended everything ISO installation ISO
+- Boot to `Troubleshooting` then `Rescue a CentOS Linux system` then press `3) Skip to shell` to enter rescue mode
+- Use `fdisk -l` and determine the disk to install the system on. Assuming at this point its name would be `/dev/sdb`
+- Get back the kick-start USB device on CentOS running system to modify the kick-start file on it
+- Modify the file on the drive and make some changes like
+  - Comment line `graphical` to `#graphical`
+  - Add command to text installer instead of graphical by adding the line `text` after the commented `#graphical` previously done
+  - Change the host name in the line `network --hostnam=whatever.com`
+  - Change the target disk instead of `=sda` to `=sdb` as this is determined from targeted machine in previous step.
+  - Change `clearpart --none --initlabel` to `clearpart -all -drives=sdb` to clear the disk before installation
+  - Add packages under the `%packages` to be installed after installation is done
+- Validate the kick-start file by `dnf install system-config-kickstart -y` then `ksvalidator /mnt/kickstart-usb/ks.cfg`. No output means no error
+- Get the name of the partition that our kick-start file is located on using the command `blkid /dev/sdb1` and copy the UUID which assumed to be `5555-6666`
+- Go to target machine and connect back the kick-start USB to it
+- On boot menu, press the escape key to enter custom boot screen
+- Custom boot `boot:` will show. Start installation using `linux ks=hd:5555-6666:ks.cfg` where
+  - `hd` is the protocol to access the file. There are others supported like `http://aaa/ks.cfg`
+  - `5555-6666` is the UUID from previous step
+  - `ks.cfg` file name on USB drive
+- Press `Enter` and finally reboot the machine and verify using login then `hostnamectl` to see the hostname
