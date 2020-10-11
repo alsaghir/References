@@ -32,13 +32,6 @@ On VM use local virtual host (private) & another adapter with NAT to access the 
 - `dnf remove zip` - Removes zip package from the system.
 - `rpm -i nmap.rpm` - Installs package `nmap.rpm`. `rpm -U nmap.rpm` - upgrade the package. `rpm -e nmap` - remove the package.
 
-## Terminal tips
-
-`!$` - is the last argument passed to latest command  
-`systemctl` - Service management tool that uses SystemD to manage services. `systemctl` used with `status servicename` for info, `start|stop servicename` for start/stop, `enable|disable servicename` for enabling/disabling boot the service with the system and `restart servicename` for restarting the service  
-`systemctl list-unit-files` - Services are saved in unit files. This command lists all services  
-`ls -l $(tty)` - Evaluates to `ls -l /dev/pts/1` because `$()` evaluates what's in it first then the result combined to the outer command
-
 ### Commands & Tools
 
 - `sync` - Sync all cached file data of the current user. Do before removing USB device.
@@ -75,6 +68,43 @@ On VM use local virtual host (private) & another adapter with NAT to access the 
 - `dd if=/dev/zero of=/dev/sda count=1 bs=512` - `bs=512` specifying the block size and only one operation device so `count=1` will delete partition table of `/dev/sda`. `status=progress` could be added to show progress.
 - `df` - Disk free tool of local file systems
 - `df -hT` - Disk free of local file systems with file system
+
+UNIX system file system
+
+> Traditionally, UNIX systems have had various types of nodes in their filesystems:
+>
+> - directory
+> - file
+> - symlink
+> - block device
+> - character device
+> - FIFO
+> - UNIX domain socket
+>
+> While there are now exceptions, generally block devices containing filesystems are mounted on directories.
+>
+> Since you want to mount a file, you must first create a loop block device that is backed by the file. This can be done using `losetup`, but `mount -o loop` is a shortcut that handles that behind the scenes.
+
+```bash
+# Create loop device of a file
+losetup -fP /tmp/test-image.dd
+
+# Check loop device
+lsblk -i NAME, TYPE, SIZE,MOUNTPOINT,FSTYPE,MODEL
+
+# Make partition table on that loop device using gpt or msdos
+parted /dev/loop0 mklable gpt
+
+# Check the partition table
+parted /dev/loop0 print
+
+# create device maps to make loop device similar to real hardware partition
+kpartx -a /dev/loop0
+
+# Remove loop device but it must be unmounted
+unmoun /dev/loop0
+losetup -d /dev/loop0
+```
 
 ### Permissions
 
@@ -229,6 +259,9 @@ sudo chmod 600 .ssh/authorized_keys
 - `/var/log` - To see apps logs. `messages` log is for processes with no specific log file like when connecting USB device you can `tail -f /var/log/messages` to know if the device is recognized by the system and `audit/audit.log`/`sudo aureport`
 - `sudo cat secure` - Secure logs including use of `sudo` in the system
 - `top` - for processes monitoring
+- `system status httpd.service -l` - Troubleshooting a service and see its status and recent logs
+- `journalctl -xe` - To see system logs. `journalctl -u sshd.service --since "yesterday"` & `journalctl -p err -b` & `journalctl -p err -b -o verbose` & `journalctl -f` are some variants
+- `less /var/log/messages` - See system logs in formatted way
 
 ## References
 
@@ -305,6 +338,199 @@ Recommended groups & packages to install
 ```bash
 dnf group install -y base development rpm-development-tools
 dnf install -y vim net-tools screen netcat rsync wget curl -y
+```
+
+Yum
+
+```bash
+# Search for what httpd is depending on
+yum deplist httpd
+
+# Figure what package contains the command pstree
+yum whatprovides */pstree
+
+# Know what package comes with its own .service definition files
+yum whatprovides */*.service
+
+# Keep yum clean and tidy
+yum clean packages
+yum clean metadata
+yum clean dbcache
+yum clean all
+yum makecache
+yum update
+
+###############################
+
+# To use priorities with yum
+yum install yum-plugin-priorities
+
+# Check yum priorities if enabled or not
+vi /etc/yum/pluginconf.d/priorities.conf
+
+# Add priority=1, priority=2 ...etc to this
+# config after repository you like
+# No need to plugins for Centos 8 as this is built-in
+vi /etc/yum.repos.d/CentOS-Base.repo
+
+###############################
+
+# Install repos and enable PowerTools as EPEL
+# repo maybe depending on it
+# https://fedoraproject.org/wiki/EPEL
+dnf config-manager --set-enabled PowerTools
+yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+###############################
+
+# Make your repo
+
+# First run apache http server
+yum install httpd -y; systemctl enable httpd; systemctrl start httpd
+
+# Add apache web server to accessible list
+firewall-cmd --permanent --add-service http
+firewall-cmd --reload
+firewall-cmd --list-services
+
+# Download everything iso then install createrepo package
+yum install creterepo
+
+# Create directory for packages
+mkdir -p /var/www/html/reposiory/centos/7.3
+
+# Get the packages
+mkdir /mnt/cdrom
+mount -t iso9660 -o loop whatever-everything-centos-dvd.iso /mnt/cdrom
+cp -r /mnt/cdrom/Packages/* /var/www/html/reposiory/centos/7.3
+
+# Update the packages
+vi ~/update-whatever-name-here.sh
+
+# add the following to the sh created script
+rsync -avz rsync://mirror.aaaaaaaa/centos/7/os/x86_64/Packages /var/www/html/repository/centos/7.3/
+restorecon -v -R /var/www/html
+
+# Make the file executable
+chmod +x ~/update-whatever-name-here.sh
+
+# Make script run daily as cron job
+vi /etc/cron.daily/update-whatever-name-here.sh
+
+# add the following to the sh to run at 2:30 AM
+30 2 * * * /root/update-whatever-name-here.sh
+
+# Finally run the script
+~/update-whatever-name-here.sh
+
+# Create the repo
+createrepo --database /var/www/html/repository/centos/7.3
+
+# On other machine to access this reposiroy
+vi /etc/yum.repos.d/whatevernameofrepo.repo
+
+# Add the following with changing the appropiate
+[whatevernameofrepo]
+name=my CentOS 7.3 mirror
+baseurl=http://master/repository/centos/7.3
+gpgcheck=1
+gpgkey=https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
+
+# Test the repository
+yum repolist | grep whatevernameofrepo
+yum --disablerepo="*" --enablerepo="whatevernameofrepo" list available
+###############################
+```
+
+RPM package installation
+
+```bash
+
+# Install using rpm package management
+rpm -Uvh pv-1.4.6.rpm
+
+# query rpm database of all installed package
+rpm qa| grep 'pv-'
+
+# show all files in software package
+rpm -qlp pv-1.4.6.rpm
+
+# General info
+rpm -qip pv-1.4.6.rpm
+
+# Documentation files
+rpm -qdp pv-1.4.6.rpm
+
+# Remove package using its name only
+rpm -e pv
+
+# Yum could be used to install rpm and
+# it will resolve any dependency needed
+yum install pv-1.4.6.rpm
+```
+
+Install on new system
+
+```bash
+dnf config-manager --set-enabled PowerTools
+dnf group install xfce-desktop development
+systemctl set-default graphical.target
+systemctl isolate graphical.target
+dnf install open-vm-tools open-vm-tools-desktop xorg-x11-drv-vmware
+dnf install epel-release
+
+# Add remi repository
+cd /tmp
+curl -O https://rpms.remirepo.net/enterprise/remi-release-8.rpm
+rpm -Uvh remi-release-8.rpm
+
+# Set priority for base repo to 1 (add priority=1 under base repo)
+vi /etc/yum.repos.d/CentOS-Base.repo
+
+# Set enabled to 1 and add priority=10 (lower than main repository)
+vi /etc/yum.repos.d/remi.repo
+
+# Same for epel repo
+vi /etc/yum.repos.d/epel.repo
+```
+
+General Tips
+
+```bash
+# last argument passed to latest command
+!$
+
+# Service management tool that uses SystemD to manage services
+# Used with
+# `status servicename` for info
+# `start|stop servicename` for start/stop
+# `enable|disable servicename` for enabling/disabling
+# boot the service with the system
+# `restart servicename` for restarting the service  
+# `reload servicename` same as restarting but without interruption
+# and not all services support this option
+systemctl
+
+# Services are saved in unit files.
+# This command lists all services
+systemctl list-unit-files
+systemctl -t service -a --state running
+
+# Evaluates to `ls -l /dev/pts/1` because `$()` evaluates
+# what's in it first then the result combined to the outer command
+ls -l $(tty)
+
+# Cron job details and location to start with
+cat /etc/crontab
+man 5 crontab
+crontab -l
+ls -laht /etc/cron.*
+
+# rsync for backup/copy tool
+rsync -avzh --progress  --delete /tmp/source /tmp/target
+
+# diff to compare folders
+diff -r /tmp/source /tmp/target
 ```
 
 #### Static IP address for network adapter
