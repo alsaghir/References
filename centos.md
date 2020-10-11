@@ -62,6 +62,20 @@ On VM use local virtual host (private) & another adapter with NAT to access the 
 
 ### Disks
 
+> Unix systems have a single directory tree. All accessible storage must have an associated location in this single directory tree. This is unlike Windows where (in the most common syntax for file paths) there is one directory tree per storage component (drive).
+>
+> Mounting is the act of associating a storage device to a particular location in the directory tree. For example, when the system boots, a particular storage device (commonly called the root partition) is associated with the root of the directory tree, i.e., that storage device is mounted on `/` (the root directory).
+>
+> Let's say you now want to access files on a CD-ROM. You must mount the CD-ROM on a location in the directory tree (this may be done automatically when you insert the CD). Let's say the CD-ROM device is `/dev/cdrom` and the chosen mount point is `/media/cdrom`. The corresponding command is
+>
+> ```bash
+> mount /dev/cdrom /media/cdrom
+> ```
+>
+> After that command is run, a file whose location on the CD-ROM is `/dir/file` is now accessible on your system as `/media/cdrom/dir/file`. When you've finished using the CD, you run the command `umount /dev/cdrom` or `umount /media/cdrom` (both will work; typical desktop environments will do this when you click on the “eject” or ”safely remove” button).
+>
+> Mounting applies to anything that is made accessible as files, not just actual storage devices. For example, all Linux systems have a special filesystem mounted under `/proc`. That filesystem (called `proc`) does not have underlying storage: the files in it give information about running processes and various other system information; the information is provided directly by the kernel from its in-memory data structures.
+
 - `lsblk` - List block devices which are in this case are disks & partitions. Disks are in `/dev/` path
 - `fdisk -l` - List disks
 - `dd` - For disk image manipulation. `dd if=/dev/sr0 of=netinstall.iso` will create `netinstall.iso` of mounted device `/dev/sr0`.
@@ -176,7 +190,7 @@ sudo chmod 600 .ssh/authorized_keys
 - States are `Enforcing`, `Permissive` and `Disabled`. First state only enforces SELinux polices. Second only logs policy exceptions to `/var/log/audit/audit_log`. Third makes SELinux doesn't participate in system security.
 - For first two states, policies are `Strict` and `targeted`.
 - `Strict` - All activity is subject to SELinux restrictions. In `Targeted` policy, policy only enforced on specific processes (e.g. `httpd`, `named`, `ntpd`, `snmpd`...etc.)
-- `sestatus` - will show info about SELinux. `ls -Z` will show info about files. 
+- `sestatus` - will show info about SELinux. `ls -Z` will show info about files.
 - `unconfined_u:object_r:user_home_t:s0` - Maps to `unconfined_u` which is the user context (`unconfined` means out of the scope of SELinux protection when using targeted policy). `object_r` the role context. `user_home_t` type context (`user_home_t` for files and folders in home of user). `s0` is MLS or multi-level security context.
 - TE or Type Enforcement is the most common method used to determine the result of security policy. Role-Based Access Control (RBAC) & Multi-Level Security (MLS) are not used in targeted mode.
 - `ps axZ` - Processes have a context which could be displayed using `ps axZ`
@@ -271,7 +285,7 @@ sudo chmod 600 .ssh/authorized_keys
 
 ### Tricks with ordered steps
 
-Customize boot loader
+#### Customize boot loader
 
 ```bash
 
@@ -295,7 +309,7 @@ grub2-mkconfig -o /boot/grub2/grub.cfg
 grub2-mkconfig -o /boot/efi/EFI/centos/grub.cfg
 ```
 
-Rescue mode
+#### Rescue mode
 
 ```bash
 # In rescue mode, you may chroot into
@@ -333,14 +347,14 @@ grub2-install /dev/sda
 yum reinstall grub2-efi shim -y
 ```
 
-Recommended groups & packages to install
+#### Recommended groups & packages to install
 
 ```bash
 dnf group install -y base development rpm-development-tools
 dnf install -y vim net-tools screen netcat rsync wget curl -y
 ```
 
-Yum
+#### Yum
 
 ```bash
 # Search for what httpd is depending on
@@ -442,7 +456,7 @@ yum --disablerepo="*" --enablerepo="whatevernameofrepo" list available
 ###############################
 ```
 
-RPM package installation
+#### RPM package installation
 
 ```bash
 
@@ -469,7 +483,7 @@ rpm -e pv
 yum install pv-1.4.6.rpm
 ```
 
-Install on new system
+#### Install on new system
 
 ```bash
 dnf config-manager --set-enabled PowerTools
@@ -494,7 +508,7 @@ vi /etc/yum.repos.d/remi.repo
 vi /etc/yum.repos.d/epel.repo
 ```
 
-General Tips
+#### General Tips
 
 ```bash
 # last argument passed to latest command
@@ -531,6 +545,56 @@ rsync -avzh --progress  --delete /tmp/source /tmp/target
 
 # diff to compare folders
 diff -r /tmp/source /tmp/target
+```
+
+#### Install Oracle Database
+
+```bash
+# as root
+
+# Do some pre-configuration
+# http://yum.oracle.com/repo/OracleLinux/OL8/baseos/latest/x86_64/index.html
+# https://docs.oracle.com/en/database/oracle/oracle-database/19/ladbi/running-rpm-packages-to-install-oracle-database.html#GUID-BB7C11E3-D385-4A2F-9EAF-75F4F0AACF02
+dnf -y install https://yum.oracle.com/repo/OracleLinux/OL8/baseos/latest/x86_64/getPackage/oracle-database-preinstall-19c-1.0-1.el8.x86_64.rpm
+
+# Install RPM downloaded Oracle Database Binary
+# https://www.oracle.com/database/technologies/oracle-database-software-downloads.html
+dnf -y install oracle-database-ee-19c-1.0-1.x86_64.rpm
+
+# Optional, configure sample database
+/etc/init.d/oracledb_ORCLCDB-19c configure
+
+# Set oracle user password
+passwd oracle
+
+# Add to the end some variables
+# https://docs.oracle.com/en/database/oracle/oracle-database/19/ladbi/using-sql-plus-to-unlock-accounts-and-reset-passwords.html#GUID-1147D2B9-8FFC-4F91-A774-E97066B4E9C5
+vi ~/.bash_profile
+umask 022
+export ORACLE_SID=ORCLCDB
+export ORACLE_BASE=/opt/oracle/oradata
+export ORACLE_HOME=/opt/oracle/product/19c/dbhome_1
+export PATH=$PATH:$ORACLE_HOME/bin
+
+# Reload
+source ~/.bash_profile
+
+# Reset password of sys user
+sqlplus / as sysdba
+
+CONNECT SYS as SYSDBA;
+
+# Set sys password to connect using netowrk if wanted
+alter user sys identified by YOUR_NEW_PASS;
+exit;
+
+# Add port to firewall. First git active zone to put the port into it
+# https://www.aclnz.com/interests/blogs/solved-how-to-add-port-1521-in-firewall
+firewall-cmd --get-active-zones
+
+# Add the port to public zone from previous command
+firewall-cmd --zone=public --add-port=1521/tcp --permanent
+firewall-cmd --reload
 ```
 
 #### Static IP address for network adapter
