@@ -567,6 +567,7 @@ dnf -y install oracle-database-ee-19c-1.0-1.x86_64.rpm
 # Set oracle user password
 passwd oracle
 
+# As oracle user
 # Add to the end some variables
 # https://docs.oracle.com/en/database/oracle/oracle-database/19/ladbi/using-sql-plus-to-unlock-accounts-and-reset-passwords.html#GUID-1147D2B9-8FFC-4F91-A774-E97066B4E9C5
 vi ~/.bash_profile
@@ -588,6 +589,7 @@ CONNECT SYS as SYSDBA;
 alter user sys identified by YOUR_NEW_PASS;
 exit;
 
+# As root
 # Add port to firewall. First git active zone to put the port into it
 # https://www.aclnz.com/interests/blogs/solved-how-to-add-port-1521-in-firewall
 firewall-cmd --get-active-zones
