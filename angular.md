@@ -84,5 +84,7 @@ in `angular.json` add the following
 
 ## Common packages
 
-`npm install --save bootstrap`
-`ng add @angular/material`
+`ng add @angular/material`  
+`npm install @ngx-translate/core --save`
+`npm i -s @angular/flex-layout @angular/cdk`
+`npm install ngx-cookie-service --save`

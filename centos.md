@@ -347,12 +347,6 @@ grub2-install /dev/sda
 yum reinstall grub2-efi shim -y
 ```
 
-#### Recommended groups & packages to install
-
-```bash
-dnf group install -y base development rpm-development-tools
-dnf install -y vim net-tools screen netcat rsync wget curl -y
-```
 
 #### Yum
 
@@ -492,6 +486,17 @@ systemctl set-default graphical.target
 systemctl isolate graphical.target
 dnf install open-vm-tools open-vm-tools-desktop xorg-x11-drv-vmware
 dnf install epel-release
+dnf group install -y base development rpm-development-tools
+dnf install -y vim net-tools screen netcat rsync wget curl -y
+
+# Enable network interfaces on startup.
+# Replace ens34
+nmcli conn show
+grep ONBOOT /etc/sysconfig/network-scripts/ifcfg-ens34
+nmcli conn up enps33
+nmcli conn show
+grep ONBOOT /etc/sysconfig/network-scripts/ifcfg-ens34
+sudo sed -i s/ONBOOT=no/ONBOOT=yes/ /etc/sysconfig/network-scripts/ifcfg-ens34
 
 # Add remi repository
 cd /tmp
@@ -597,6 +602,35 @@ firewall-cmd --get-active-zones
 # Add the port to public zone from previous command
 firewall-cmd --zone=public --add-port=1521/tcp --permanent
 firewall-cmd --reload
+
+# Add the following line to $ORACLE_HOME/network/admin/listener.ora
+USE_SID_AS_SERVICE_LISTENER=on
+```
+
+```SQL
+-- When connecting using sys as sysdba
+-- by default you're accessing CDB (Container DB)
+-- To convert the session to PDB (Pluggable DB)
+-- Using sql plus connection using sys as sysdba
+alter session set container = ORCLPDB1;
+
+-- Know what is the PDB database available
+SELECT name, open_mode FROM v$pdbs;
+
+-- Open access to plugable database
+ALTER PLUGGABLE DATABASE ALL OPEN
+
+-- To make it happen on staratup create a trigger
+CREATE OR REPLACE TRIGGER open_pdbs
+  AFTER STARTUP ON DATABASE
+BEGIN
+   EXECUTE IMMEDIATE 'ALTER PLUGGABLE DATABASE ALL OPEN';
+END open_pdbs;
+/
+
+-- Fix listener if not listenning on proper hostname
+alter system set local_listener = '(ADDRESS=(PROTOCOL=TCP)(HOST=0.0.0.0)(PORT=1521))' scope = both;  
+alter system register;  
 ```
 
 #### Static IP address for network adapter
