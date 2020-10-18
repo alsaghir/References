@@ -280,6 +280,8 @@ sudo chmod 600 .ssh/authorized_keys
 ## References
 
 <https://www.server-world.info/en/note?os=CentOS_8&p=initial_conf&f=9>
+<https://pkgs.org/search/?q=java-11>
+<https://www.linode.com/docs/tools-reference/>
 
 ## Tips & Guides
 
@@ -550,6 +552,34 @@ rsync -avzh --progress  --delete /tmp/source /tmp/target
 
 # diff to compare folders
 diff -r /tmp/source /tmp/target
+
+# Find package
+yum search mbstring
+yum list *mbstring*
+
+# Export environment variables
+# For user do the same but in vi ~/.bash_profile
+# System wide
+echo export JAVA_HOME="put path to java home here">/etc/profile.d/javaenv.sh
+chmod 0755 /etc/profile.d/javaenv.sh
+```
+
+#### Kafka Installation
+
+```bash
+su - root
+dnf install java-11-openjdk-devel -y
+cd /tmp
+wget https://downloads.lightbend.com/scala/2.13.3/scala-2.13.3.rpm
+dnf intall -y scala-2.13.3.rpm
+scala -version
+cd /opt
+wget https://downloads.apache.org/kafka/2.6.0/kafka_2.13-2.6.0.tgz
+tar -xvzf kafka_2.13-2.6.0.tgz
+ln -s /opt/kafka_2.13-2.6.0 /opt/kafka
+useradd kafka
+passwd kafka
+chown -R kafka:kafka /opt/kafka*
 ```
 
 #### Install Oracle Database

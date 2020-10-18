@@ -1,4 +1,4 @@
-# Agnular-CLI
+# Angular-CLI
 
 ## Update global angular
 
@@ -82,9 +82,17 @@ in `angular.json` add the following
 }
 ```
 
-## Common packages
+## Common packages & Edits
 
 `ng add @angular/material`  
-`npm install @ngx-translate/core --save`
-`npm i -s @angular/flex-layout @angular/cdk`
-`npm install ngx-cookie-service --save`
+`npm i @angular/flex-layout`
+
+In `angular.json` add the following in `compilerOptions` overriding what exists already
+
+```json
+"baseUrl": "./src"
+```
+
+You may add offline material icons
+
+`https://google.github.io/material-design-icons/`
