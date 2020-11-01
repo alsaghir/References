@@ -36,7 +36,7 @@ in `angular.json` add the following
             }
 ```
 
-***WARNING*** replace <project_name> with your project name
+**_WARNING_** replace <project_name> with your project name
 
 - projects >> <project_name> >> architect >> serve >> configurations
 
@@ -73,19 +73,85 @@ in `angular.json` add the following
 
 ```json
 {
-    // Import json file
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
+  // Import json file
+  "resolveJsonModule": true,
+  "esModuleInterop": true,
 
-    // For CommonJS libraries
-    "allowSyntheticDefaultImports": true
+  // For CommonJS libraries
+  "allowSyntheticDefaultImports": true
 }
 ```
 
 ## Common packages & Edits
 
-`ng add @angular/material`  
-`npm i @angular/flex-layout`
+`npm install @nebular/theme @angular/cdk @angular/animations eva-icons @nebular/eva-icons`
+`ng add @angular/localize`
+`npm i @nebular/auth`
+`npm i @nebular/security`
+
+modifications to add in `angular.json`
+
+```json
+{
+  "projects": {
+    "go-ms-ui": {
+      "architect": {
+        "build": {
+          "options": {
+            "styles": ["src/app/@theme/styles.scss"],
+            "scripts": [],
+            "allowedCommonJsDependencies": ["node-forge"],
+            "i18nMissingTranslation": "error"
+          },
+          "configurations": {
+            "ar-EG": {
+              "localize": ["ar-EG"]
+            }
+          }
+        },
+        "serve": {
+          "configurations": {
+            "ar-EG": {
+              "browserTarget": "go-ms-ui:build:ar-EG"
+            }
+          }
+        },
+        "test": {
+          "styles": ["src/app/@theme/styles.scss"]
+        }
+      },
+      "i18n": {
+        "sourceLocale": "en-US",
+        "locales": {
+          "ar-EG": "src/locale/messages.ar-EG.xlf"
+        }
+      }
+    }
+  }
+}
+```
+
+modifications to add in `tsconfig.json`
+
+```json
+{
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "@env": ["environments/environment"],
+      "@common/*": ["app/@common/*"],
+      "@core/*": ["app/@core/*"],
+      "@miscellaneous/*": ["app/@miscellaneous/*"],
+      "@pages/*": ["app/@pages/*"],
+      "@shared/*": ["app/@shared/*"],
+      "@theme/*": ["app/@theme/*"]
+    }
+  },
+  "resolveJsonModule": true,
+  "esModuleInterop": true,
+  "allowSyntheticDefaultImports": true
+}
+```
 
 In `angular.json` add the following in `compilerOptions` overriding what exists already
 

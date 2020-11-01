@@ -39,7 +39,7 @@
 `buffer.memory` - high-throughput producers, tune buffer sizes
 `batch.size` - high-throughput producers, tune buffer sizes
 
-## Kafka Architectureee difenetion
+## Kafka Architecture definitions
 
 **Message**: A record or unit of data within Kafka. Each message has a key and a value, and optionally headers.
 
@@ -100,7 +100,7 @@ For `consumer` you can add
 `bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --list`
 `bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group test --describe`
 
-- Get information from zookeepr about active broker ids or about broker by its id
+- Get information from zookeeper about active broker ids or about broker by its id
 
 `bin/zookeeper-shell.sh localhost:2181 ls /brokers/ids` - List Ids
 `bin/zookeeper-shell.sh localhost:2181 get /brokers/ids/0` - Get info by id

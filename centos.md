@@ -199,7 +199,7 @@ sudo chmod 600 .ssh/authorized_keys
 - `setsebool` - Set the value of Boolean
 - Troubleshooting using `setenforce 0` then `aureport --avc` to change to permissive mode then view the AVC events in the audit log.
 
-### FireWall
+### Firewall
 
 - `sudo filewall-cmd` With `--get-zones` or `--get-active-zones` or `--zone=public --list-all` to list zones or active zones or all services in specified zones
 - `sudo firewall-cmd --reload` - To reload rules and take effect of new rules
@@ -563,6 +563,8 @@ yum list *mbstring*
 echo export JAVA_HOME="put path to java home here">/etc/profile.d/javaenv.sh
 chmod 0755 /etc/profile.d/javaenv.sh
 ```
+
+- If an app requires a prefix to itself OR it's a binary package, go for `/opt` (which is pretty much the Solaris way). If it needs compiling from source `/usr/local` is how I go. [Ref](https://superuser.com/questions/122420/usr-local-or-opt).
 
 #### Kafka Installation
 

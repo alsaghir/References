@@ -381,7 +381,9 @@ After Rebasing
 
 `git rebase --abort` - do not do rebase at all
 
-`git pull --rebase` - doing pull but rebase your current commits on current local branch to start off the comming commits from remote branch. No merge commit will be done. Good to use on local non-important commits and branch that is not shared remotly yet.
+`git pull --rebase` - doing pull but rebase your current commits on current local branch to start off the coming commits from remote branch. No merge commit will be done. Good to use on local non-important commits and branch that is not shared remotely yet.
+
+The Golden Rule of Rebasing is that before you run `git rebase`, always ask yourself, "Is anyone else looking at this branch ?" If the answer is yes, take your hands off the keyboard and start thinking about a non-destructive way to make your changes (e.g., the git revert command). Otherwise, you’re safe to re-write history as much as you like.
 
 ---
 
@@ -535,12 +537,12 @@ pressing enter.
   - `xclip -sel clip < ~/.ssh/id_rsa.pub` - GNU/Linux (requires the xclip package)
   - `type %userprofile%\.ssh\id_rsa.pub | clip` - Windows Command Line
   - `cat ~/.ssh/id_rsa.pub | clip` - Git Bash on Windows / Windows PowerShell
-- Add the key to your profile settings in gitub or gitlab
-- [`git remote set-url origin git@gitlab.com:username/repository.git`](#change-remote-url) - Change your remote URL to the ssh one.
+- Add the key to your profile settings in Gitub or Github
+- [`git remote set-url origin git@gitlab.com:username/repository.git`](#change-remote-url) - Change your remote URL to the SSH one.
 - Optional:
-  - Make sure ssh agent is running - `eval $(ssh-agent -s)`
-  - Add current keys to ssh agent - `ssh-add ~/.ssh/id_rsa`
-  - For hosting git on local server, refer to the following urls
+  - Make sure SSH agent is running - `eval $(ssh-agent -s)`
+  - Add current keys to SSH agent - `ssh-add ~/.ssh/id_rsa`
+  - For hosting git on local server, refer to the following URLs
     - <https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols>
     - <https://stackoverflow.com/a/11008133>
     - <https://stackoverflow.com/q/10888300>
