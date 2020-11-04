@@ -636,6 +636,11 @@ firewall-cmd --zone=public --add-port=1521/tcp --permanent
 firewall-cmd --reload
 
 # Add the following line to $ORACLE_HOME/network/admin/listener.ora
+# Although this is not recommended and you should
+# correct the connect string to use services instead of SIDs
+# jdbc:oracle:thin:@[HOST][:PORT]:SID
+# jdbc:oracle:thin:@[HOST][:PORT]/SERVICE
+
 USE_SID_AS_SERVICE_LISTENER=on
 ```
 
@@ -664,6 +669,34 @@ END open_pdbs;
 alter system set local_listener = '(ADDRESS=(PROTOCOL=TCP)(HOST=0.0.0.0)(PORT=1521))' scope = both;  
 alter system register;  
 ```
+
+Useful info
+
+```sql
+-- Display available services from the database
+SELECT name, pdb
+FROM   v$services
+ORDER BY name;
+
+-- Display current container
+SHOW CON_NAME;
+SHOW CON_ID;
+SELECT SYS_CONTEXT('USERENV', 'CON_NAME')
+FROM   dual;
+SELECT SYS_CONTEXT('USERENV', 'CON_ID')
+FROM   dual;
+
+-- Switching Between Containers
+ALTER SESSION SET CONTAINER=pdb1;
+ALTER SESSION SET CONTAINER=cdb$root;
+```
+
+```bash
+# Display the available services
+lsnrctl service
+```
+
+TNS alias entry in the `$ORACLE_HOME/network/admin/tnsnames.ora`
 
 #### Static IP address for network adapter
 
