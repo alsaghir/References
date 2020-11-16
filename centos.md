@@ -349,7 +349,6 @@ grub2-install /dev/sda
 yum reinstall grub2-efi shim -y
 ```
 
-
 #### Yum
 
 ```bash
@@ -689,6 +688,18 @@ FROM   dual;
 -- Switching Between Containers
 ALTER SESSION SET CONTAINER=pdb1;
 ALTER SESSION SET CONTAINER=cdb$root;
+
+-- Sometimes, the database will not be mounted correctly, so we need to mount it manually. For that, shut it down and start it up then mount.
+conn sys/sys as sysdba
+shutdown abort;
+startup;
+
+-- Another Option to re-mount
+sqlplus / as sysdba;
+shutdown immediate;
+startup nomount;
+alter database mount;
+alter database open;
 ```
 
 ```bash

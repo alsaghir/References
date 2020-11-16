@@ -1,4 +1,4 @@
-# Derbt database info
+# Derby database info
 
 ## Start derby engine using the following command
 
@@ -29,6 +29,12 @@
 #### To exit IJ
 
 `exit;`
+
+## Tips
+
+- Using connection pool, treat connections as a scarce resource with limited number available and expensive to create new one. So hold the data you want and release the connection to the pool then do you business logic.
+- Keep connections as long as you need them.
+- Re-use same connection is preferred.
 
 ## Reference
 
