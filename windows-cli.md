@@ -2,12 +2,12 @@
 
 ## Set system environment variable
 
-`setx JAVA_HOME "D:\Programs\zulu11.37.17-ca-jdk11.0.6-win_x64" /M` Sets `JAVA_HOME` environment variable globally and permenentaly  
+`setx JAVA_HOME "D:\Programs\zulu11.37.17-ca-jdk11.0.6-win_x64" /M` Sets `JAVA_HOME` environment variable globally and permanently  
 `setx JAVA_HOME "D:\Programs\zulu8.44.0.11-ca-jdk8.0.242-win_x64" /M` overrides the previous one
 
 ---
 
-## Delete folder quicly
+## Delete folder quickly
 
 `DEL /F/Q/S *.* > NUL`
 
