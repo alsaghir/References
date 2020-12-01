@@ -51,7 +51,6 @@ SELECT * FROM STUDENTS WHERE LAST_NAME = 'Harris' AND STATE = 'CO'
 - Good formula for index selectivity is `Index Selectivity = Number of unique values / Total number of rows`. Closest to 1 (higher) is better.
 - Another way to look at it is `Expected rows per index key = Total number of rows in table / Number of unique values` which in this case makes lower numbers are better selectivity.
 - Favor frequency of use over selectivity.
-- 
 
 ### SQL Developer
 

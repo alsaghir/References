@@ -700,11 +700,19 @@ shutdown immediate;
 startup nomount;
 alter database mount;
 alter database open;
+alter system set local_listener = '(ADDRESS=(PROTOCOL=TCP)(HOST=0.0.0.0)(PORT=1521))' scope = both;  
+alter system register;
 ```
+
+Then
 
 ```bash
 # Display the available services
 lsnrctl service
+
+# Start / Stop the listener
+lsnrctl stop
+lsnrctl start
 ```
 
 TNS alias entry in the `$ORACLE_HOME/network/admin/tnsnames.ora`
