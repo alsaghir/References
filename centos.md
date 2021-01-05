@@ -21,6 +21,7 @@ On VM use local virtual host (private) & another adapter with NAT to access the 
 ### Packages
 
 - `yum update -y` - update installed packages. **IMPORTANT**
+- `dnf install -y vim net-tools tmux rsync wget curl`
 - `yum install -y redhat-lsb-core net-tools epel-release kernel-headers kernel-devel`
 - `yum groupinstall -y "Development Tools"` or `dnf group install gnome-desktop` - Group of packages installation by name (must be exact and case sensitive within double quotation marks) or by id
 - `systemctl set-default graphical.target` - After installing desktop, use this to make it default UI for the system
@@ -59,6 +60,7 @@ On VM use local virtual host (private) & another adapter with NAT to access the 
 - `lsmod` & `modinfo sr_mod` - List kernel modules and shows info about specific kernel module by specifying its name
 - `modprobe -r -v sr_mod` - Removes kernel module named `sr_mod`. `modprobe blutooth` will enable the kernel module in the system. Parament effect needs script in `/etc/sysconfig/modules` to be added to effect the system on reboot for enabling modules. For preventing disabled modules from coming back, editing `/etc/default/grub` to add `rdblacklist=sr_mod` to the key `GRUB_CMDLINE_LINUX` is required then run `grub2-mkconfig -o /boot/grub2/grub.cfg/` and finally `echo "blacklist sr_mod" >> /etc/modprobe.d/blacklist.conf`
 - `ls /lib/modules/$(uname -r)/kernel` - List of modules kernel on the system
+- `reboot` - Reboots the system
 
 ### Disks
 
@@ -143,7 +145,7 @@ losetup -d /dev/loop0
 ### SU
 
 - `su` - Creates new bash as root at same directory and some settings still sees me as original user. Verify with `echo $USER`
-- `su -l` - Completely new environment with root access
+- `su -l` - Completely new environment with root access. [See this answer](https://unix.stackexchange.com/a/384704)
 - `cat /etc/sudoers` - To see users/groups
 - `sudo visudo` - Edit to add users or groups. User like `tux ALL=(root) ALL` will add user `tux` from any host connecting as `root` o run all commands.
 - `vi /etc/ssh/sshd_config` - Edit to uncomment & modify option to `PermitRootLogin no` then `systemctl restart sshd`
