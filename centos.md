@@ -4,6 +4,13 @@
 
 On VM use local virtual host (private) & another adapter with NAT to access the internet. Enable both network cards/adapters on installation wizard.
 
+- Edit `hosts` to apply host names mapping to IPs
+- Assign static IP addresses
+- Give a proper hostname
+- Make network interfaces start on startup
+- Generate SSH key pair to SSH without password
+- 
+
 ### Adapter connection
 
 `ip address show` or `ip a s` - will show connections with its assigned IP addresses and configs  
@@ -392,6 +399,11 @@ vi /etc/yum.repos.d/CentOS-Base.repo
 dnf config-manager --set-enabled PowerTools
 yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 
+# Add remi repository using another approach as example
+cd /tmp
+curl -O https://rpms.remirepo.net/enterprise/remi-release-8.rpm
+rpm -Uvh remi-release-8.rpm
+
 ###############################
 
 # Make your repo
@@ -490,7 +502,7 @@ systemctl isolate graphical.target
 dnf install open-vm-tools open-vm-tools-desktop xorg-x11-drv-vmware
 dnf install epel-release
 dnf group install -y base development rpm-development-tools
-dnf install -y vim net-tools screen netcat rsync wget curl -y
+dnf install -y vim iproute2 tmux netcat rsync wget curl redhat-lsb-core kernel-headers kernel-devel
 
 # Enable network interfaces on startup.
 # Replace ens34
