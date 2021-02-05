@@ -4,12 +4,206 @@
 
 On VM use local virtual host (private) & another adapter with NAT to access the internet. Enable both network cards/adapters on installation wizard.
 
-- Edit `hosts` to apply host names mapping to IPs
+- Edit `/etc/hosts` to apply host names mapping to IPs
+
+    ```hosts
+    172.32.0.90 master.localhost
+    172.32.0.90 master
+    172.32.0.1 repos.localhost
+    172.32.0.1 repos
+    ```
+
 - Assign static IP addresses
-- Give a proper hostname
+
+  ```bash
+  # Show network adapters
+  ip address show
+
+  # Calculate network addresses
+  ipcalc -b -m -n 10.0.2.15/24
+
+  # Find out the gateway
+  route
+
+  # Edit the config for specific adapter (ens33 as example here)
+  vi /etc/sysconfig/network-scripts/ifcfg-ens33
+  ```
+
+  Set the following keys to following values then save and close the file
+
+    ```properties
+    # No DHCP
+    BOOTPROTO=none
+    IPADDR=192.168.101.100
+    NETMASK=255.255.255.0
+    BROADCAST=10.0.2.255
+    NETWORK=10.0.2.0
+    GATEWAY=10.0.2.0
+
+    # For terminal access to be same as static hostname
+    DHCP_HOSTNAME=master.localhost
+
+    # Disables network manager taking control
+    # on boot for configuration files related to this adapter
+    NM_CONTROLLED="no"
+    PEERDNS="no"
+    PEERROUTES="no"
+    ```
+  
+  Finally
+
+  ```bash
+  # Restart the network daemon
+  systemctl restart network
+  ```
+- Give a proper hostname using `hostnamectl set-hostname repos.localhost`
 - Make network interfaces start on startup
-- Generate SSH key pair to SSH without password
-- 
+
+  ```bash
+  # Replace ens34
+  nmcli conn show
+  grep ONBOOT /etc/sysconfig/network-scripts/ifcfg-ens34
+  nmcli conn up enps33
+  nmcli conn show
+  grep ONBOOT /etc/sysconfig/network-scripts/ifcfg-ens34
+  sudo sed -i s/ONBOOT=no/ONBOOT=yes/ /etc/sysconfig/network-scripts/ifcfg-ens34
+  ```
+
+- Generate SSH key pair to SSH without password and copy master public IP to other servers using `ssh_copy_id`
+
+- Install packages \ Enable network interfaces \ Install & enable repositories
+  
+  ```bash
+  sudo dnf group install -y kde-desktop-environment
+  sudo systemctl enable sddm
+  sudo systemctl set-default graphical.target
+  sudo systemctl isolate graphical.target
+  sudo dnf install open-vm-tools open-vm-tools-desktop xorg-x11-drv-vmwar
+
+  # Enable network interfaces on startup.
+  # Replace ens34
+  nmcli conn show
+  grep ONBOOT /etc/sysconfig/network-scripts/ifcfg-ens34
+  nmcli conn up enps33
+  nmcli conn show
+  grep ONBOOT /etc/sysconfig/network-scripts/ifcfg-ens34
+  sudo sed -i s/ONBOOT=no/ONBOOT=yes/ /etc/sysconfig/network-scripts/ifcfg-ens34
+
+  # Add remi repository
+  cd /tmp
+  curl -O https://rpms.remirepo.net/enterprise/remi-release-8.rpm
+  rpm -Uvh remi-release-8.rpm
+
+  # Set priority for base repo to 1 (add priority=1 under base repo)
+  vi /etc/yum.repos.d/CentOS-Base.repo
+
+  # Set enabled to 1 and add priority=10 (lower than main repository)
+  vi /etc/yum.repos.d/remi.repo
+
+  # Same for epel repo
+  vi /etc/yum.repos.d/epel.repo
+  ```
+
+- Install a local repository
+
+  <https://www.server-world.info/en/note?os=CentOS_8&p=localrepo>
+
+  ```bash
+  sudo dnf -y install httpd
+
+  # Configuration
+  sudo vi /etc/httpd/conf/httpd.conf
+
+  # START
+  # line 89: change to admin's email address
+  ServerAdmin root@srv.world
+  # line 98: change to your server's name
+  ServerName www.srv.world:80
+  # line 147: change (remove [Indexes])
+  Options FollowSymLinks
+  # line 154: change
+  AllowOverride All
+  # line 167: add file name that it can access only with directory's name
+  DirectoryIndex index.html index.php index.cgi
+  # add follows to the end
+  # server's response header
+  ServerTokens Prod
+  # END
+
+  # Enable http service in firewall
+  sudo firewall-cmd --add-service=http --permanent
+  sudo firewall-cmd --reload
+
+  # Make folder for repos
+  sudo mkdir -p /var/www/repos/centos/8/x86_64/os
+  sudo chmod -R 755 /var/www/repos
+
+  # Insert full dvd to get the packages before syncing
+  # List devices to figure what is media file on the system in /dev
+  sudo lsblk -fp
+  sudo fdisk -l
+
+  # Assuming it's /dev/sr0 then verify
+  sudo blkid /dev/sr0
+
+  # copy repo folder to repo local path
+  sudo cp -r BaseOS /var/www/html/repos/centos/8-stream/x86_64/os/baseos
+  sudo cp -r AppStream /var/www/html/repos/centos/8-stream/x86_64/os/appstream
+
+  # Sync the baseos &  repo and verify all done correctly
+  # To figure the correct path you might do this quickly first
+  sudo reposync -p /var/www/html/repos/centos/8-stream/x86_64/os/ --repo=baseos --download-metadata
+
+  sudo reposync -p /var/www/html/repos/centos/8-stream/x86_64/os/ --repo=appstream --download-metadata
+  
+  # Add copy task to daily jobs
+  sudo vi /etc/cron.daily/update-repo
+
+  # START
+  #!/bin/bash
+
+  VER='8'
+  ARCH='x86_64'
+  REPOS=(BaseOS AppStream extras)
+
+  for REPO in ${REPOS[@]}
+  do
+      reposync -p /var/www/repos/centos/${VER}/${ARCH}/os/ --repo=${REPO} --download-metadata --newest-only
+  done
+  # END
+
+  sudo chmod 755 /etc/cron.daily/update-repo
+
+  # Configure Apache httpd to provide repository for other Client Hosts
+  sudo vi /etc/httpd/conf.d/repos.conf
+  
+  # START
+  Alias /repos /var/www/repos
+  <directory /var/www/repos>
+      Options +Indexes
+      Require all granted
+  </directory>
+  # END
+
+  sudo systemctl restart httpd
+
+  # On Client Hosts, Change settings of DNF/Yum to refer to Local DNF/Yum Mirror Host.
+  sudo vi /etc/yum.repos.d/CentOS-Base.repo
+
+  # START
+  # change to local mirror server
+  [BaseOS]
+  name=CentOS-$releasever - Base
+  #mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=BaseOS&infra=$infra
+  #baseurl=http://mirror.centos.org/$contentdir/$releasever/BaseOS/$basearch/os/
+  baseurl=http://dlp.srv.world/repos/centos/$releasever/$basearch/os/BaseOS/
+  gpgcheck=1
+  enabled=1
+  gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+  # END
+  ```
+
+## Explanations
 
 ### Adapter connection
 
@@ -158,6 +352,7 @@ losetup -d /dev/loop0
 - `vi /etc/ssh/sshd_config` - Edit to uncomment & modify option to `PermitRootLogin no` then `systemctl restart sshd`
 - `ssh-keygen -t ed25519 -C "<comment>"` or `$ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"` - Generates new SSH key with type specified using `-t` option.
 - In `~` you can make new `.ssh` folder and inside it add config file `vi config` to create server alias like that
+- Use `sudo` instead of `su` to avoid anyone knowing the root password. [Check this answer.](https://unix.stackexchange.com/a/35344)
 
 ```bash
 Host server1
@@ -197,16 +392,25 @@ sudo chmod 600 .ssh/authorized_keys
 
 - More control over processes
 - States are `Enforcing`, `Permissive` and `Disabled`. First state only enforces SELinux polices. Second only logs policy exceptions to `/var/log/audit/audit_log`. Third makes SELinux doesn't participate in system security.
+- In logs `avc: denied {open}` shows the effect, `tcontext` shows the target context type and `scontext` shows the source context type.
 - For first two states, policies are `Strict` and `targeted`.
 - `Strict` - All activity is subject to SELinux restrictions. In `Targeted` policy, policy only enforced on specific processes (e.g. `httpd`, `named`, `ntpd`, `snmpd`...etc.)
 - `sestatus` - will show info about SELinux. `ls -Z` will show info about files.
 - `unconfined_u:object_r:user_home_t:s0` - Maps to `unconfined_u` which is the user context (`unconfined` means out of the scope of SELinux protection when using targeted policy). `object_r` the role context. `user_home_t` type context (`user_home_t` for files and folders in home of user). `s0` is MLS or multi-level security context.
 - TE or Type Enforcement is the most common method used to determine the result of security policy. Role-Based Access Control (RBAC) & Multi-Level Security (MLS) are not used in targeted mode.
-- `ps axZ` - Processes have a context which could be displayed using `ps axZ`
+- `ps axZ` - Processes have a context which could be displayed using `ps axZ`.
 - `setenforce` and `setenforce 1` - to list and switch mode between `enforcing`, `permissive` and `disabled`. However, this is for current session only. Edit `/etc/sysconfig/selinux` to effect permanently.
 - `chcon` - Changes context of files. E.g. `sudo chcon -R -t user_home_t foldername` makes `foldername` can't be used by http service as it belongs to home folder according to its context type. `-R` means recursively.
-- `setsebool` - Set the value of Boolean
-- Troubleshooting using `setenforce 0` then `aureport --avc` to change to permissive mode then view the AVC events in the audit log.
+- `setsebool` - Set the value of Boolean while `getsebool -a` lists all Boolean values.
+- Use `setsebool -P http_can_connect_ftp 1` for example to paremnentaly allow http to connect to ftp.
+- Troubleshooting using `setenforce 0` then `aureport --avc` to change to permissive mode then view the AVC events in the audit log. Also `ausearch -m avc` used to show logs and for recent messages the command `ausearch -m avc -ts recent` would be suitable.
+- Change context label to apply to new directory for example using `semanage` tool which available by installing `policycoreutils-python` package. e.g. using `semanage fcontext -a -t http_sys_content_t "/web/*.*"` will apply fixing context on files in `/web/` directory. `fecontext` means fix context, `-a` means for all, `-t` means type, `http_sys_content_t` is the wanted type context and finally the path `/web/*.*`. This will allow as example apache web server to use `/web` like it would use `/var/www/html`. Another approach is `semanage fcontext -a -e /var/www/html /web` which gets context from `/var/www/html` applied to `/web`. `restorecon -vR /web` must be run to apply the changes done so far.
+- `restorecon -vR /web` for applying changes done on any directory. Here `/web` is the example. `v` for verbose and `R` for fixing/resetting stuff.
+- `semanage port -a -t http_port_t -p tcp 82` will add port `82` to the type `http_port_t`. Use `-d` instead of `-a` for deleting the port instead of adding it.
+- `semanage port -a -l | grep -w http_port_t` will list type `http_port_t` ports allowed.
+- `semodule -l | grep permissive` - list permissive domains. `seinfo --permissive` could be used as another option which is available in package `setools-console`.
+- `semanage permissive -a httpd_t` - makes domain in permissive mode. use `-d` to inverse this action.
+- `semanage fcontext -l`  to list all labels. `semanage boolean -l` to list Booleans.
 
 ### Firewall
 
@@ -492,42 +696,6 @@ rpm -e pv
 yum install pv-1.4.6.rpm
 ```
 
-#### Install on new system
-
-```bash
-dnf config-manager --set-enabled PowerTools
-dnf group install xfce-desktop development
-systemctl set-default graphical.target
-systemctl isolate graphical.target
-dnf install open-vm-tools open-vm-tools-desktop xorg-x11-drv-vmware
-dnf install epel-release
-dnf group install -y base development rpm-development-tools
-dnf install -y vim iproute2 tmux netcat rsync wget curl redhat-lsb-core kernel-headers kernel-devel
-
-# Enable network interfaces on startup.
-# Replace ens34
-nmcli conn show
-grep ONBOOT /etc/sysconfig/network-scripts/ifcfg-ens34
-nmcli conn up enps33
-nmcli conn show
-grep ONBOOT /etc/sysconfig/network-scripts/ifcfg-ens34
-sudo sed -i s/ONBOOT=no/ONBOOT=yes/ /etc/sysconfig/network-scripts/ifcfg-ens34
-
-# Add remi repository
-cd /tmp
-curl -O https://rpms.remirepo.net/enterprise/remi-release-8.rpm
-rpm -Uvh remi-release-8.rpm
-
-# Set priority for base repo to 1 (add priority=1 under base repo)
-vi /etc/yum.repos.d/CentOS-Base.repo
-
-# Set enabled to 1 and add priority=10 (lower than main repository)
-vi /etc/yum.repos.d/remi.repo
-
-# Same for epel repo
-vi /etc/yum.repos.d/epel.repo
-```
-
 #### General Tips
 
 ```bash
@@ -761,6 +929,7 @@ vi /etc/sysconfig/network-scripts/ifcfg-ens33
   BROADCAST=10.0.2.255
   NETWORK=10.0.2.0
   GATEWAY=10.0.2.0
+  DHCP_HOSTNAME=master.localhost
   ```
 
   ```bash
