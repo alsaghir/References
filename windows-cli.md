@@ -36,3 +36,14 @@ Set-PSReadlineKeyHandler -Key Tab -Function Complete
 D:
 cd D:\Programs
 ```
+## CMD Run on Startup
+
+```powershell
+# https://stackoverflow.com/questions/17404165/how-to-run-a-command-on-command-prompt-startup-in-windows/17405182
+reg add "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_EXPAND_SZ /d "%"USERPROFILE"%\init.cmd" /f
+
+# Then create a file init.cmd in your profile folder and add whatever in it
+
+# To remove these changes, delete the registry key:
+reg delete "HKCU\Software\Microsoft\Command Processor" /v AutoRun
+```
