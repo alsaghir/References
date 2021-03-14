@@ -45,7 +45,7 @@ On VM use local virtual host (private) & another adapter with NAT to access the 
 
     # Disables network manager taking control
     # on boot for configuration files related to this adapter
-    NM_CONTROLLED="no"
+    # NM_CONTROLLED="no" - causes issue on Centos-8
     PEERDNS="no"
     PEERROUTES="no"
     ```
@@ -918,8 +918,8 @@ vi /etc/sysconfig/network-scripts/ifcfg-ens33
 - Set the following keys to following values then save and close the file
 - No DHCP `BOOTPROTO=none`
 - Disables network manager taking control on boot for configuration files related to this adapter
-  `NM_CONTROLLED="no"`
-  `PEERDNS="no"`
+  `NM_CONTROLLED="no"` - causes issue on Centos-8 so do not use  
+  `PEERDNS="no"`  
   `PEERROUTES="no"`
 - Add network details
 
