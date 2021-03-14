@@ -40,6 +40,9 @@ On VM use local virtual host (private) & another adapter with NAT to access the 
     NETWORK=10.0.2.0
     GATEWAY=10.0.2.0
 
+    # Not default interface for routing
+    DEFROUTE=no
+
     # For terminal access to be same as static hostname
     DHCP_HOSTNAME=master.localhost
 
@@ -917,6 +920,7 @@ vi /etc/sysconfig/network-scripts/ifcfg-ens33
 
 - Set the following keys to following values then save and close the file
 - No DHCP `BOOTPROTO=none`
+- Not default interface for routing `DEFROUTE=no`
 - Disables network manager taking control on boot for configuration files related to this adapter
   `NM_CONTROLLED="no"` - causes issue on Centos-8 so do not use  
   `PEERDNS="no"`  
