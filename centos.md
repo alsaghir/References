@@ -77,6 +77,7 @@ On VM use local virtual host (private) & another adapter with NAT to access the 
 - Install packages \ Enable network interfaces \ Install & enable repositories
   
   ```bash
+  sudo dnf install bash-completion
   sudo dnf group install -y kde-desktop-environment
   sudo systemctl enable sddm
   sudo systemctl set-default graphical.target
