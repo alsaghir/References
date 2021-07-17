@@ -11,9 +11,11 @@ _If you are the publisher and think this repository should not be public, just w
 	- [2. Use BUILDERS when faced with many constructor parameters](#2-use-builders-when-faced-with-many-constructor-parameters)
 	- [3. Enforce the singleton property with a private constructor or an enum type](#3-enforce-the-singleton-property-with-a-private-constructor-or-an-enum-type)
 	- [4. Enforce noninstantiability with a private constructor](#4-enforce-noninstantiability-with-a-private-constructor)
-	- [5. Avoid creating objects](#5-avoid-creating-objects)
-	- [6. Eliminate obsolete object references](#6-eliminate-obsolete-object-references)
-	- [7. Avoid finalizers](#7-avoid-finalizers)
+	- [5. Prefer dependency injection to hard-wiring resources](#6-prefer-dependency-injection-to-hard-wiring-resources)
+	- [6. Avoid creating objects](#6-avoid-creating-objects)\
+	- [7. Eliminate obsolete object references](#7-eliminate-obsolete-object-references)
+	- [8. Avoid finalizers](#8-avoid-finalizers)
+	- [9. Prefer try-with-resources to try-finally](#9-Prefer-try-with-resources-to-try-finally)
 - [3. METHODS COMMON TO ALL OBJECTS](#3-methods-common-to-all-objects)
 	- [8. Obey the general contract when overriding *equals*](#8-obey-the-general-contract-when-overriding-equals)
 	- [9. Always override _hashCode_ when you override *equals*](#9-always-override-hashcode-when-you-override-equals)
@@ -113,10 +115,9 @@ _If you are the publisher and think this repository should not be public, just w
 * They are not readily distinguishable from other static methods (Some common names (each with a different pourpose) are: valueOf, of, getInstance, newInstance, getType and newType)
 
 ```java
-
-	public static Boolean valueOf(boolean b){
-		return b ? Boolean.TRUE :  Boolean.FALSE;
-	}
+public static Boolean valueOf(boolean b){
+	return b ? Boolean.TRUE :  Boolean.FALSE;
+}
 ```
 
 ## 2. Use BUILDERS when faced with many constructor parameters
@@ -125,71 +126,68 @@ Is a good choice when designing classes whose constructors or static factories w
 Builder pattern simulates named optional parameters as in ADA and Python.
 
 ```java
+public class NutritionFacts {
+	private final int servingSize;
+	private final int servings;
+	private final int calories;
+	private final int fat;
+	private final int sodium;
+	private final int carbohydrate;
 
-	public class NutritionFacts {
-		private final int servingSize;
+	public static class Builder {
+		//Required parameters
+		private final int servingSize:
 		private final int servings;
-		private final int calories;
-		private final int fat;
-		private final int sodium;
-		private final int carbohydrate;
 
-		public static class Builder {
-			//Required parameters
-			private final int servingSize:
-			private final int servings;
+		//Optional parameters - initialized to default values
+		private int calories		= 0;
+		private int fat 			= 0;
+		private int carbohydrate 	= 0;
+		private int sodium 			= 0;
 
-			//Optional parameters - initialized to default values
-			private int calories		= 0;
-			private int fat 			= 0;
-			private int carbohydrate 	= 0;
-			private int sodium 			= 0;
-
-			public Builder (int servingSize, int servings) {
-				this.servingSize = servingSize;
-				this.servings = servings;
-			}
-
-			public Builder calories (int val) {
-				calories = val;
-				return this;				
-			}
-
-			public Builder fat (int val) {
-				fat = val;
-				return this;				
-			}
-
-			public Builder carbohydrate (int val) {
-				carbohydrate = val;
-				return this;				
-			}
-
-			public Builder sodium (int val) {
-				sodium = val;
-				return this;				
-			}
-
-			public NutritionFacts build(){
-				return new NutritionFacts(this);
-			}
+		public Builder (int servingSize, int servings) {
+			this.servingSize = servingSize;
+			this.servings = servings;
 		}
 
-		private NutritionFacts(Builder builder){
-			servingSize		= builder.servingSize;
-			servings 		= builder.servings;
-			calories		= builder.calories;
-			fat 			= builder.fat;
-			sodium 			= builder.sodium;
-			carbohydrate		= builder.carbohydrate;
+		public Builder calories (int val) {
+			calories = val;
+			return this;				
+		}
+
+		public Builder fat (int val) {
+			fat = val;
+			return this;				
+		}
+
+		public Builder carbohydrate (int val) {
+			carbohydrate = val;
+			return this;				
+		}
+
+		public Builder sodium (int val) {
+			sodium = val;
+			return this;				
+		}
+
+		public NutritionFacts build(){
+			return new NutritionFacts(this);
 		}
 	}
+
+	private NutritionFacts(Builder builder){
+		servingSize		= builder.servingSize;
+		servings 		= builder.servings;
+		calories		= builder.calories;
+		fat 			= builder.fat;
+		sodium 			= builder.sodium;
+		carbohydrate		= builder.carbohydrate;
+	}
+}
 ```
 **_Calling the builder_**
 ```java
-
-	NutritionFacts cocaCola = new NutritionFacts.Builder(240,8).calories(100).sodium(35).carbohydrate(27).build();
-
+NutritionFacts cocaCola = new NutritionFacts.Builder(240,8).calories(100).sodium(35).carbohydrate(27).build();
 ```
 
 ## 3. Enforce the singleton property with a private constructor or an enum type
@@ -198,13 +196,12 @@ There are different ways to create singletons:
 **_Public final field_**
 
 ```java
-
-	public class Elvis{
-		public static final Elvis INSTANCE = new Elvis();
-		private Elvis(){...}
-		...
-		public void singASong(){...}
-	}
+public class Elvis{
+	public static final Elvis INSTANCE = new Elvis();
+	private Elvis(){...}
+	//...
+	public void singASong(){...}
+}
 ```
 
 One problem is that a privileged client can invoke  the private constructor reflectively. Against this attack the constructor needs to be  modified to send  an exception if it is asked to create a second instance.
@@ -212,13 +209,12 @@ One problem is that a privileged client can invoke  the private constructor refl
 **_Singleton with static factory_**
 
 ```java
-
-	public class Elvis{
-		private static final Elvis INSTANCE = new Elvis();
-		private Elvis(){...}
-		public static Elvis getInstance(){ return INSTANCE; }
-		...
-		public void singASong(){...}
+public class Elvis{
+	private static final Elvis INSTANCE = new Elvis();
+	private Elvis(){...}
+	public static Elvis getInstance(){ return INSTANCE; }
+	//...
+	public void singASong(){...}
 	}
 ```
 
@@ -229,22 +225,20 @@ In this approach it can be change to a non singleton class without changing the 
 It is needed a _readResolve_ method and declare all the fields _transient_ in addition to the _implements Serializable_ to maintain the singleton guarantee.
 
 ```java
-
-	private Object readResolve(){
-		//Return the one true Elvis and let the garbage collector take care of the Elvis impersonator
-		return INSTANCE;
-	}
+private Object readResolve(){
+	//Return the one true Elvis and let the garbage collector take care of the Elvis impersonator
+	return INSTANCE;
+}
 ```
 
 **_Enum Singleton, the preferred approach (JAVA 1.5)_**
 
 ```java
-
-	public enum Elvis(){
-		INSTANCE;
-		...
-		public void singASong(){...}
-	}
+public enum Elvis(){
+	INSTANCE;
+	//...
+	public void singASong(){...}
+}
 ```
 
 Equivalent to the public field, more concise, provides serialization machinery for free, and guarantee against multiple instantiation, even for reflection attacks and sophisticated serialization. _It is the best way to implement a singleton_.
@@ -261,18 +255,60 @@ Used for example to:
 **_Include a private constructor_**
 
 ```java
-
-	public class UtilityClass{
-		// Suppress default constructor for noninstantiability
-		// (Add comment to clarify why the constructor is expressly provided)
-		private UtilityClass(){
-			throw new AssertionError();
-		}
-		...
+public class UtilityClass{
+	// Suppress default constructor for noninstantiability
+	// (Add comment to clarify why the constructor is expressly provided)
+	private UtilityClass(){
+		throw new AssertionError();
 	}
+	///...
+}
 ```
 
-## 5. Avoid creating objects
+## 5. Prefer dependency injection to hard-wiring resources
+
+```java
+// Inappropriate use of static utility - inflexible & untestable!
+public class SpellChecker {
+    private static final Lexicon dictionary = ...;
+
+    private SpellChecker() {} // Noninstantiable
+
+    public static boolean isValid(String word) { ... }
+    public static List<String> suggestions(String typo) { ... }
+}
+
+// Inappropriate use of singleton - inflexible & untestable!
+public class SpellChecker {
+    private final Lexicon dictionary = ...;
+
+    private SpellChecker(...) {}
+    public static INSTANCE = new SpellChecker(...);
+
+    public boolean isValid(String word) { ... }
+    public List<String> suggestions(String typo) { ... }
+}
+```
+
+Static utility classes and singletons are inappropriate for classes whose behavior is parameterized by an underlying resource.
+
+Passing the resource into the constructor when creating a new instance is one form of dependency injection.
+
+```java
+// Dependency injection provides flexibility and testability
+public class SpellChecker {
+    private final Lexicon dictionary;
+
+    public SpellChecker(Lexicon dictionary) {
+        this.dictionary = Objects.requireNonNull(dictionary);
+    }
+
+    public boolean isValid(String word) { ... }
+    public List<String> suggestions(String typo) { ... }
+}
+```
+
+## 6. Avoid creating objects
 
 **REUSE IMMUTABLE OBJECTS**
 
@@ -303,20 +339,22 @@ This one uses a single String instance rather than creating a new one.
 **_Don't do this_**
 
 ```java
-
-	public class Person {
-	private final Date birthDate;
-	...
-		public boolean isBabyBoomer(){
-			// Unnecessary allocation of expensive object.
-			Calendar gmtCal= Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-			gmtCal.set(1946,Calendar.JANUARY,1,0,0,0);
-			Date boomStart = gmtCal.getTime();
-			gmtCal.set(1965,Calendar.JANUARY,1,0,0,0);
-			Date boomEnd = gmtCal.getTime();
-			return birthDate.compareTo(boomStart) >= 0 &&birthDate.compareTo(boomEnd)<0;
-		}
+public class Person {
+private final Date birthDate;
+//...
+	public boolean isBabyBoomer(){
+		// Unnecessary allocation of expensive object.
+		Calendar gmtCal = 
+			Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		gmtCal.set(1946,Calendar.JANUARY,1,0,0,0);
+		Date boomStart = gmtCal.getTime();
+		gmtCal.set(1965,Calendar.JANUARY,1,0,0,0);
+		Date boomEnd = gmtCal.getTime();
+		return 
+		birthDate.compareTo(boomStart) >= 0 
+		&& birthDate.compareTo(boomEnd)<0;
 	}
+}
 ```
 
 isBabyBoomer creates a new Calendar,TimeZone and two Date instances each time is invoked.
@@ -363,7 +401,7 @@ isBabyBoomer creates a new Calendar,TimeZone and two Date instances each time is
 
 Unless objects in the pool are extremely heavyweight, like a database connections.
 
-## 6. Eliminate obsolete object references
+## 7. Eliminate obsolete object references
 **_Can you spot the memory leak?_**
 
 ```java
@@ -445,6 +483,8 @@ There is a severe performance penalty for using finalizers.
 
 Provide an _explicit termination method_ like the _close_ on  _InputStream_, _OutputStream_, _java.sql.Connection_...
 
+Simply, have your class implement **AutoCloseable**.
+
 Explicit termination methods are typically used in combination with the _try-finally_ construct to ensure termination.
 ```java
 
@@ -464,7 +504,73 @@ Explicit termination methods are typically used in combination with the _try-fin
 
 In this cases always remember to invoke super.finalize.
 
+Another reason to avoid finalizers. Throwing an exception from a constructor should be sufficient to prevent an object from coming into existence; in the presence of finalizers, it is not.
+
+## 9. Prefer try-with-resources to try-finally
+
+```java
+// try-finally - No longer the best way to close resources!
+static String firstLineOfFile(String path) throws IOException {
+    BufferedReader br = new BufferedReader(new FileReader(path));
+    try {
+        return br.readLine();
+    } finally {
+        br.close();
+    }
+}
+
+// try-finally is ugly when used with more than one resource!
+static void copy(String src, String dst) throws IOException {
+    InputStream in = new FileInputStream(src);
+    try {
+        OutputStream out = new FileOutputStream(dst);
+        try {
+            byte[] buf = new byte[BUFFER_SIZE];
+            int n;
+            while ((n = in.read(buf)) >= 0)
+                out.write(buf, 0, n);
+        } finally {
+            out.close();
+        }
+    } finally {
+        in.close();
+    }
+}
+
+// try-with-resources - the the best way to close resources!
+static String firstLineOfFile(String path) throws IOException {
+    try (BufferedReader br = new BufferedReader(
+           new FileReader(path))) {
+       return br.readLine();
+    }
+}
+
+// try-with-resources on multiple resources - short and sweet
+static void copy(String src, String dst) throws IOException {
+    try (InputStream   in = new FileInputStream(src);
+         OutputStream out = new FileOutputStream(dst)) {
+        byte[] buf = new byte[BUFFER_SIZE];
+        int n;
+        while ((n = in.read(buf)) >= 0)
+            out.write(buf, 0, n);
+    }
+}
+
+// try-with-resources with a catch clause
+static String firstLineOfFile(String path, String defaultVal) {
+    try (BufferedReader br = new BufferedReader(
+           new FileReader(path))) {
+        return br.readLine();
+    } catch (IOException e) {
+        return defaultVal;
+    }
+}
+```
+
 # 3. METHODS COMMON TO ALL OBJECTS
+
+ALTHOUGH Object is a concrete class, it is designed primarily for extension. All of its nonfinal methods (equals, hashCode, toString, clone, and finalize) have explicit general contracts because they are designed to be overridden. It is the responsibility of any class overriding these methods to obey their general contracts; failure to do so will prevent other classes that depend on the contracts (such as HashMap and HashSet) from functioning properly in conjunction with the class.
+
 ## 8. Obey the general contract when overriding *equals*
 
 **_Don't override if:_**
