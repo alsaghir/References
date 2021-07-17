@@ -47,3 +47,18 @@ reg add "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_EXPAND_SZ 
 # To remove these changes, delete the registry key:
 reg delete "HKCU\Software\Microsoft\Command Processor" /v AutoRun
 ```
+
+Example of `init.cmd`
+
+```cmd
+@echo off
+
+:: Command aliases
+DOSKEY alias=code %USERPROFILE%\Dropbox\alias.cmd
+DOSKEY msys=D:\Apps\msys64\msys2_shell.cmd -defterm -here -no-start -msys2
+
+:: Env variables
+SET PATH=%JAVA_HOME%\bin;%MAVEN_HOME%\bin;%PATH%
+
+@echo on
+```

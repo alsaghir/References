@@ -261,7 +261,8 @@ On VM use local virtual host (private) & another adapter with NAT to access the 
 - `set -o` - List shell options. `set -o noclobber` will set `noclobber` on. Use `set +o noclobber` to set it off.
 - `ifdown ens33` & `ifup ens33` - Brings the network adapter `ens33` down and up.
 - `localectl` - Tool related to anything for locale and language handling.
-- `systemctl status chronyd` - `chronyd` is related to time handling. Also `timedatectl`
+- `systemctl status chronyd` - `chronyd` is related to time handling. Also `timedatectl`.
+- `systemctl is-active nginx` - checks `nginx` service if active or not. Also there is `systemctl status nginx`.
 - `lsmod` & `modinfo sr_mod` - List kernel modules and shows info about specific kernel module by specifying its name
 - `modprobe -r -v sr_mod` - Removes kernel module named `sr_mod`. `modprobe blutooth` will enable the kernel module in the system. Parament effect needs script in `/etc/sysconfig/modules` to be added to effect the system on reboot for enabling modules. For preventing disabled modules from coming back, editing `/etc/default/grub` to add `rdblacklist=sr_mod` to the key `GRUB_CMDLINE_LINUX` is required then run `grub2-mkconfig -o /boot/grub2/grub.cfg/` and finally `echo "blacklist sr_mod" >> /etc/modprobe.d/blacklist.conf`
 - `ls /lib/modules/$(uname -r)/kernel` - List of modules kernel on the system
@@ -971,3 +972,46 @@ vi /etc/sysconfig/network-scripts/ifcfg-ens33
   - `5555-6666` is the UUID from previous step
   - `ks.cfg` file name on USB drive
 - Press `Enter` and finally reboot the machine and verify using login then `hostnamectl` to see the hostname
+
+#### nginx
+
+https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-open-source/#prebuilt_redhat
+
+https://docs.nginx.com/nginx/admin-guide/basic-functionality/managing-configuration-files/
+
+```bash
+# Check status
+systemctl is-active nginx
+systemctl status nginx
+
+# Start/Stop
+systemctl start nginx
+systemctl stop nginx
+
+# Reload (for config as nginx loads config in-memory on startup)
+systemctl reload nginx
+
+# Test config without touching the service
+nginx -t
+
+# Entire config in one place
+nginx -t
+
+# Monitor processes
+ps aux | grep nginx
+ps axZ | grep nginx
+ps ax | grep nginx
+```
+
+Files/Folders for interest
+
+- /etc/nginx/nginx.conf
+- /var/log/nginx/
+- /usr/share/nginx/html
+
+### Commands
+
+```bash
+# List mount points
+df -hT
+```
