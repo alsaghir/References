@@ -7,8 +7,8 @@ _If you are the publisher and think this repository should not be public, just w
 # 1. TABLE OF CONTENTS
 - [1. TABLE OF CONTENTS](#1-table-of-contents)
 - [2. CREATING AND DESTROYING OBJECTS](#2-creating-and-destroying-objects)
-	- [1. Use STATIC FACTORY METHODS instead of constructors parameters](#1-use-static-factory-methods-instead-of-constructors-parameters)
-	- [2. Use BUILDERS when faced with many constructors](#2-use-builders-when-faced-with-many-constructors)
+	- [1. Use STATIC FACTORY METHODS instead of constructors](#1-use-static-factory-methods-instead-of-constructors)
+	- [2. Use BUILDERS when faced with many constructor parameters](#2-use-builders-when-faced-with-many-constructor-parameters)
 	- [3. Enforce the singleton property with a private constructor or an enum type](#3-enforce-the-singleton-property-with-a-private-constructor-or-an-enum-type)
 	- [4. Enforce noninstantiability with a private constructor](#4-enforce-noninstantiability-with-a-private-constructor)
 	- [5. Avoid creating objects](#5-avoid-creating-objects)
