@@ -2,6 +2,10 @@ _This is my summary of the Effective Java 3rd Edition by Joshua Bloch. I use it 
 
 _If you are the publisher and think this repository should not be public, just write me an email at hugomatilla [at] gmail [dot] com and I will make it private._
 
+_If you are the publisher and think this repository should not be public, just write me an email at hugomatilla [at] gmail [dot] com and I will make it private._
+
+_If you are the publisher and think this repository should not be public, just write me an email at hugomatilla [at] gmail [dot] com and I will make it private._
+
 **Contributions:** Issues, comments and pull requests are super welcome :smiley:
 
 # 1. TABLE OF CONTENTS
