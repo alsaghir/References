@@ -11,7 +11,7 @@ Or navigate to `\\wsl$\Ubuntu\home`
 
 ## WSL config
 
-- Create a `%UserProfile%\.wslconfig` file in Windows and use it to limit memory assigned to WSL2 VM. [Github](https://github.com/microsoft/WSL/issues/4166#issuecomment-526725261) & [Doc](https://docs.microsoft.com/en-us/windows/wsl/release-notes#build-18945).
+- Create  a  `%UserProfile%\.wslconfig` file in Windows and use it to limit memory assigned to WSL2 VM. [Github](https://github.com/microsoft/WSL/issues/4166#issuecomment-526725261) & [Doc](https://docs.microsoft.com/en-us/windows/wsl/release-notes#build-18945).
 
 - Reference - https://docs.microsoft.com/en-us/windows/wsl/wsl-config#configure-global-options-with-wslconfig
 
