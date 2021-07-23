@@ -2,10 +2,6 @@ _This is my summary of the Effective Java 3rd Edition by Joshua Bloch. I use it 
 
 _If you are the publisher and think this repository should not be public, just write me an email at hugomatilla [at] gmail [dot] com and I will make it private._
 
-_If you are the publisher and think this repository should not be public, just write me an email at hugomatilla [at] gmail [dot] com and I will make it private._
-
-_If you are the publisher and think this repository should not be public, just write me an email at hugomatilla [at] gmail [dot] com and I will make it private._
-
 **Contributions:** Issues, comments and pull requests are super welcome :smiley:
 
 # 1. TABLE OF CONTENTS
@@ -575,7 +571,7 @@ static String firstLineOfFile(String path, String defaultVal) {
 
 ALTHOUGH Object is a concrete class, it is designed primarily for extension. All of its nonfinal methods (equals, hashCode, toString, clone, and finalize) have explicit general contracts because they are designed to be overridden. It is the responsibility of any class overriding these methods to obey their general contracts; failure to do so will prevent other classes that depend on the contracts (such as HashMap and HashSet) from functioning properly in conjunction with the class.
 
-## 8. Obey the general contract when overriding *equals*
+## 10. Obey the general contract when overriding *equals*
 
 **_Don't override if:_**
 
