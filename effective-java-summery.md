@@ -12,16 +12,16 @@ _If you are the publisher and think this repository should not be public, just o
 	- [3. Enforce the singleton property with a private constructor or an enum type](#3-enforce-the-singleton-property-with-a-private-constructor-or-an-enum-type)
 	- [4. Enforce noninstantiability with a private constructor](#4-enforce-noninstantiability-with-a-private-constructor)
 	- [5. Prefer dependency injection to hard-wiring resources](#6-prefer-dependency-injection-to-hard-wiring-resources)
-	- [6. Avoid creating objects](#6-avoid-creating-objects)\
+	- [6. Avoid creating objects](#6-avoid-creating-objects)
 	- [7. Eliminate obsolete object references](#7-eliminate-obsolete-object-references)
 	- [8. Avoid finalizers](#8-avoid-finalizers)
 	- [9. Prefer try-with-resources to try-finally](#9-Prefer-try-with-resources-to-try-finally)
 - [3. METHODS COMMON TO ALL OBJECTS](#3-methods-common-to-all-objects)
-	- [8. Obey the general contract when overriding *equals*](#8-obey-the-general-contract-when-overriding-equals)
-	- [9. Always override _hashCode_ when you override *equals*](#9-always-override-hashcode-when-you-override-equals)
-	- [10. Always override _toString_](#10-always-override-tostring)
-	- [11. Override _clone_ judiciously](#11-override-clone-judiciously)
-	- [12. Consider implementing _Comparable_](#12-consider-implementing-comparable)
+	- [10. Obey the general contract when overriding *equals*](#10-obey-the-general-contract-when-overriding-equals)
+	- [11. Always override _hashCode_ when you override *equals*](#11-always-override-hashcode-when-you-override-equals)
+	- [12. Always override _toString_](#12-always-override-tostring)
+	- [13. Override _clone_ judiciously](#13-override-clone-judiciously)
+	- [14. Consider implementing _Comparable_](#14-consider-implementing-comparable)
 - [4. CLASSES AND INTERFACES](#4-classes-and-interfaces)
 	- [13. Minimize the accessibility of classes and members](#13-minimize-the-accesibility-of-classes-and-members)
 	- [14. In public classes, use accessor methods, not public fields](#14-in-public-classes-use-accessor-methods-not-public-fields)
@@ -569,7 +569,7 @@ static String firstLineOfFile(String path, String defaultVal) {
 
 # 3. METHODS COMMON TO ALL OBJECTS
 
-ALTHOUGH Object is a concrete class, it is designed primarily for extension. All of its nonfinal methods (equals, hashCode, toString, clone, and finalize) have explicit general contracts because they are designed to be overridden. It is the responsibility of any class overriding these methods to obey their general contracts; failure to do so will prevent other classes that depend on the contracts (such as HashMap and HashSet) from functioning properly in conjunction with the class.
+ALTHOUGH Object is a concrete class, it is designed primarily for extension. All of its non-final methods (equals, hashCode, toString, clone, and finalize) have explicit general contracts because they are designed to be overridden. It is the responsibility of any class overriding these methods to obey their general contracts; failure to do so will prevent other classes that depend on the contracts (such as HashMap and HashSet) from functioning properly in conjunction with the class.
 
 ## 10. Obey the general contract when overriding *equals*
 
@@ -625,7 +625,7 @@ A class has a notion of _logical equality_ that differs from mere object identit
 * Don't substitute another type for _Object_ in the _equals_ declaration
 
 
-## 9. Always override _hashCode_ when you override *equals*
+## 11. Always override _hashCode_ when you override *equals*
 
 **_Contract of hashCode_**
 
@@ -637,22 +637,61 @@ The second condition is the one that is more often violated.
 
 **_The Recipe_**
 
-1. Store constant value i.e. 17 in an integer called _result_.
-2. For each field _f_ used in _equals_ do:
-  * Compute _c_
-    *	boolean: _(f ? 1 : 0)_
-    *	byte, char, short or int: _(int) f_
-    *	long: _(int) (f ^ (.f >>> 32))_
-    *	float: _Float.floatToIntBits(f)_
-    *	double: _Double.doubleToLongBits(f)_ and compute as a long
-    *	object reference: if _equals_ of the reference use recutsivity, use recursivity for the _hashCode_
-    *	array: each element as a separate field.
-  * Combine: _result = 31 * result + c_
-3. Return _result_
+1. Declare an int variable named result, and initialize it to the hash code c for the first significant field in your object, as computed in step `2.1`.
+2. For every remaining significant field `f` in your object, do the following:
+	1. Compute an int hash code c for the field:
+  		- If the field is of a primitive type, compute `Type.hashCode(f)`, where Type is the boxed primitive class corresponding to f’s type.
+		- If the field is an object reference and this class’s equals method compares the field by recursively invoking equals, recursively invoke hashCode on the field. If a more complex comparison is required, compute a “canonical representation” for this field and invoke hashCode on the canonical representation. If the value of the field is null, use `0` (or some other constant, but `0` is traditional).
+		- If the field is an array, treat it as if each significant element were a separate field. That is, compute a hash code for each significant element by applying these rules recursively, and combine the values per step `2.2`. If the array has no significant elements, use a constant, preferably not `0`. If all elements are significant, use `Arrays.hashCode`.
+	2. Combine the hash code c computed in step 2.a into result as follows:
+	
+		`result = 31 * result + c;`
+	3. Return _result_
 4. Ask yourself if equal instances have equal hash codes.
 
-```java
+Newest way
 
+```java
+public final class PhoneNumber {
+    private final short areaCode, prefix, lineNum;
+
+    public PhoneNumber(int areaCode, int prefix, int lineNum) {
+        this.areaCode = rangeCheck(areaCode,  999, "area code");
+        this.prefix   = rangeCheck(prefix,    999, "prefix");
+        this.lineNum  = rangeCheck(lineNum,  9999, "line num");
+    }
+
+    private static short rangeCheck(int val, int max, String arg) {
+        if (val < 0 || val > max)
+           throw new IllegalArgumentException(arg + ": " + val);
+        return (short) val;
+    }
+
+    @Override public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof PhoneNumber))
+            return false;
+        PhoneNumber pn = (PhoneNumber)o;
+        return pn.lineNum == lineNum && pn.prefix == prefix
+                && pn.areaCode == areaCode;
+    }
+	// Typical hashCode method
+	@Override public int hashCode() {
+	    int result = Short.hashCode(areaCode);
+	    result = 31 * result + Short.hashCode(prefix);
+	    result = 31 * result + Short.hashCode(lineNum);
+	    return result;
+	}
+    ... // Remainder omitted
+}
+
+
+```
+
+Older way
+
+```java
 	private volatile int hashCode; // Item 71 (Lazily initialized, cached hashCode)
 
 	@Override public int hashCode(){
@@ -667,73 +706,45 @@ The second condition is the one that is more often violated.
 		return result;
 	}
 ```
-## 10. Always override _toString_
+## 12. Always override _toString_
 
 Providing a good _toString_ implementation makes your class much more pleasant to read.
 
 When practical, the _toString_ method return all of the  interesting information contained in the object.
 
-It is possible to specify the format of return value in the documentation.
+It is possible to specify the format of return value in the documentation. Whether or not you decide to specify the format, you should clearly document your intentions.
 
 Always provide programmatic access to all of the information contained in the value returned by _toString_ so the users of the object don't need to parse the output of the _toString_
 
-## 11. Override _clone_ judiciously
-Cloneable interface does not contain methods
-If a class implements Cloneable, Object's clone method returns a field-by-field copy of the object.
-Otherwise it throws CloneNotSupportedException.
+## 13. Override _clone_ judiciously
 
-If you override the clone method in a nonfinal class, you should return an object obtained by invoking _super.clone_.
-A class that implements _Cloneable_ is expected to provide a properly functioning public _clone_ method.
+The `Cloneable` interface does not contain methods. If a class implements `Cloneable`, Object's clone method returns a field-by-field copy of the object. Otherwise it throws CloneNotSupportedException.
 
-Simple clone method if object does **not** contain fields that refer to mutable objects.
+Though the specification doesn’t say it, in practice, a class implementing `Cloneable` is expected to provide a properly functioning public clone method.
+
+Immutable classes should never provide a clone method because it would merely encourage wasteful copying.
 
 ```java
-
 	@Override public PhoneNumber clone() {
-		try {
-			//PhoneNumber.clone must cast the result of super.clone() before returning it.
-			return (PhoneNumber) super.clone();
-		} catch(CloneNotSupportedException e) {
-			throw new AssertionError(); // Can't happen
-		}
-	}
+    try {
+        return (PhoneNumber) super.clone();
+    } catch (CloneNotSupportedException e) {
+        throw new AssertionError();  // Can't happen
+    }
+}
 ```
 
-If object **contains** fields that refer to mutable objects, we need another solution. Mutable fields will point to same objects in memory and the original and the cloned method will share these objects.
+The call to super.clone is contained in a try-catch block. This is because Object declares its clone method to throw `CloneNotSupportedException`, which is a `checked exception`. Because PhoneNumber implements Cloneable, we know the call to super.clone will succeed. The need for this boilerplate indicates that `CloneNotSupportedException` should have been unchecked.
 
-_clone_ is another constructor and therefore it must ensure not harming the original object and establishing invariants.  
-Calling _clone_ recursively in the mutable objects is the easiest way.
+So, Public clone methods should omit the throws clause.
 
-```java
+The clone method functions as a constructor; you must ensure that it does no harm to the original object and that it properly establishes invariants on the clone.
 
-	@Override public Stack clone() {
-		try {
-			Stack result = (Stack) super.clone();
-			// From Java 1.5, don't need casting when cloning arrays
-			result.elements = elements.clone();
-			return result;
-		} catch (CloneNotSupportedException e) {
-			throw new AssertionError();
-		}
-	}
-```
+The Cloneable architecture is incompatible with normal use of final fields referring to mutable objects. It may be necessary to remove final modifiers from some fields.
 
-Mutable objects and finals: The _clone_ architecture is incompatible with normal use of final fields referring to mutable objects.
-More complex objects would need specific approaches where recursively calling _clone_ won't work.
+A _clone_ method should not invoke any non-final methods on the clone under construction.
 
-A _clone_ method should not invoke any nonfinal methods on the clone under construction ([Item 17](#17-design-and-document-for-inheritance-or-else-prohibit-it)).
-
-Object's _clone_ method is declared to throw _CloneNotSupportedException_, but overriding clone methods can omit this declaration.  
-Public _clone_ methods should omit it. ([Item 59](#59-avoid-unnecessary-use-of-checked-exceptions)).  
-If a class overrides clone, the overriding method should mimic the behavior of _Object.clone_:
-
-* it should be declared protected,
-* it should be declared to throw CloneNotSupportedException,
-* it should not implement Cloneable.
-
-Subclasses are free to implement Cloneable or not, just as if they extended Object directly
-
-_clone_ method must be properly synchronized just like any other method ([Item 66](#66-synchronize-access-to-shared-mutable-data)).
+_clone_ method must be properly synchronized just like any other method.
 
 Summary: classes that implement Cloneable should create a method that:
 
@@ -742,18 +753,16 @@ Summary: classes that implement Cloneable should create a method that:
 * call _super.clone_
 * fix fields that need to be fixed
 
-Better provide an alternative of object copying, or don't provide it at all.
+Better provide an alternative of object copying, or don't provide it at all. A better approach to object copying is to provide a copy constructor or copy factory. A copy constructor is simply a constructor that takes a single argument whose type is the class containing the constructor
 
 **Copy Constructor**
 ```java
-
-	public Yum(Yum yum);
+public Yum(Yum yum);
 ```
 
 **Copy Factory**
 ```java
-
-	public static Yum newInstance(Yum yum);
+public static Yum newInstance(Yum yum);
 ```
 These alternatives:
 
@@ -765,25 +774,23 @@ These alternatives:
 
 Furthermore they can use its Interface-based copy constructors and factories, _conversion constructors_ and _conversion factories_ and allow clients to choose the implementation type `public HashSet(Set set) -> TreeSet;`
 
-## 12. Consider implementing _Comparable_
+## 14. Consider implementing _Comparable_
+
 _Comparable_ is an interface. It is not declared in _Object_
 
 Sorting an array of objects that implement _Comparable_ is as simple as `Arrays.sort(a);`
 
 The class will interoperate with many generic algorithms and collection implementations that depend on this interface. You gain lot of power with small effort.
 
-Follow this provisions (Reflexive, Transitive, Symmetric):
+Follow this provisions (Reflexive, Transitive, Symmetric) similar to implementing `equals`:
 
 1.	`if a > b then b < a`  `if a == b then b == a`  `if a < b then b > a`
 2.	`if a > b and b > c then a > c`
 3.	`if a ==  b and b == c then a == c`
 4.	Strong suggestion: `a.equals(b) == a.compareTo(b)`
+5. `x.compareTo(y)` must throw an exception if and only if `y.compareTo(x)` throws an exception
 
-For integral primitives use `<` and `>`operators.
-
-For floating-point fields use _Float.compare_ or _Double.compare_
-
-For arrays start with the most significant field and work your way down.
+Use wrapper classes static method `compare` like `Float.compare` or `Double.compare`
 
 # 4. CLASSES AND INTERFACES
 ## 13. Minimize the accesibility of classes and members

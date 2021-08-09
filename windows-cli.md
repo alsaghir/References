@@ -6,7 +6,6 @@
 `setx JAVA_HOME "D:\Programs\zulu8.44.0.11-ca-jdk8.0.242-win_x64" /M` overrides the previous one
 
 ---
-
 ## Delete folder quickly
 
 `DEL /F/Q/S *.* > NUL`
@@ -23,6 +22,7 @@
 `/S` Run the operation on all folders of the selected path.  
 `foldername` The absolute path or relative folder name, e.g. o:/backup/test1 or test1
 
+---
 ## PowerShell
 
 In `CMDer` for example use the following
@@ -36,6 +36,8 @@ Set-PSReadlineKeyHandler -Key Tab -Function Complete
 D:
 cd D:\Programs
 ```
+
+---
 ## CMD Run on Startup
 
 ```powershell
