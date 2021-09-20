@@ -86,6 +86,7 @@ Start kafka zookeeper and broker each with specified config file
 - Start console producer and consumer
 
 `bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test`
+
 `bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test`
 
 For `consumer` you can add

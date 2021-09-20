@@ -219,6 +219,12 @@ Remove untracked directories (e.g., new or automatically generated directories)
 
 `git clean -fd`
 
+Best clean approach to do this in sequence
+
+`git clean -xdfn` - Show what would happen
+
+`git clean -xdf` - Do it !
+
 Show details of specific commit
 
 `git show 1389856a7793eacbe`  
