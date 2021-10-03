@@ -588,3 +588,35 @@ start_period: 1m #version 3.4 minimum
 
 - Use `registry` image to make local registry like docker-hub and use volume with it mapping to `/var/lib/registry` to save images in it. Use tag `<IP>:<PORT>/<NAME>` for the image to push it directly to the docker local registry.
 - Use `USER` stanza in your Dockerfile. If group and user not created by your programming language platform image then create one and use it. Container will run using root by default !
+
+--- 
+
+# Kubernetes
+
+## Components
+
+- API Server
+- ETCD - Key-Value store
+- Kubelet - Agent that runs on each node in the cluster
+- Container runtime - Like docker, rkt or cri-o
+- Conteroller - the brain
+- Schedular
+
+## Master vs Worker Nodes
+
+Master has `kube-apiserver` while worker node has kubelet interacting with each other. ETCD stores values on the master. The master has also the controller and schedular. The worker node got the container runtime installed on it.
+
+## Kubectl
+
+### Commands
+
+```bash
+# Deploy apps on the cluster
+kubectl run hello
+
+# Show info about the cluster
+kubectl cluster-info
+
+# List nodes part of the cluster
+kubectl get nodes
+```
