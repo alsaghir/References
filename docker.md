@@ -608,15 +608,177 @@ Master has `kube-apiserver` while worker node has kubelet interacting with each 
 
 ## Kubectl
 
-### Commands
+### Info
+
+- Pod usually is wrapping a container. However, sometimes helper container for an application is required and can be also part of the same pod to be in the same state and life-cycle as the main container. Both containers in that case can communicate via referring to `localhost`. Storage, fate, network & namespace.
+- K8s uses YAML to manage its resources like PODs, Replicas, Deployments, Services ...etc.
+- YAML always container 4 top level fields
+  - apiVersion
+    - POD - v1
+    - Service - v1
+    - ReplicaSet - apps/v1
+    - Deployment - apps/v1
+  - kind - Pod, ReplicaSet, Deployment or Service
+  - metadata - Some other properties like name, labels..etc.
+  - spec - Different for each resource type. In Pod type, this section will has container data.
+- Bash auto completion - [Documentation](https://kubernetes.io/docs/tasks/tools/included/optional-kubectl-configs-bash-linux/).
+- Different between `apply`, `create`, `patch` & `replace` - [Documentation](https://kubernetes.io/docs/concepts/overview/working-with-objects/object-management/).
+- Services are responsible of communication between resources. For example `NodePort` service for external access to a resource. Others lik `ClusterIP` & `LoadBalancer` More at [Documentation](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types).
+- Service is created among all nodes.
+
+### Scripts
+
+#### Commands
 
 ```bash
 # Deploy apps on the cluster
 kubectl run hello
 
-# Show info about the cluster
-kubectl cluster-info
+# Make a pod automatically and start container
+# in it. Image name is references
+# to be pulled from docker hub
+kubectl run nginx --image nginx
 
-# List nodes part of the cluster
+# Info commands
+kubectl cluster-info
 kubectl get nodes
+kubectl get pods
+kubectl get pods -o wide
+kubectl describe pod nginx
+kubectl get replicasets.apps
+kubectl describe replicaset myapp-rs
+kubectl get deployments
+kubectl get services
+kubectl get all
+kubectl rollout status deployment/myapp-deployment
+kubectl rollout history deployment/myapp-deployment
+
+# Create a  or any resource from yml file
+kubectl create -f pod-definition.yml
+kubectl apply -f pod-definition.yml
+
+# Add the command as history recorded when creating a resource
+kubectl create -f pod-definition.yml --record
+
+# Replace a resource by file name
+kubectl replace -f replicaset-def.yml
+
+# Change replica set scale number without changing the configuration file
+kubectl scale --replicas=6 -f replicaset-def.yml
+kubectl scale --replicas=6 replicaset myapp-rs
+
+# Don't create actual POD and output config
+# as yaml
+kubectl run nginx --image=nginx --dry-run=client -o yaml
+
+# Edit POD/ReplicaSet config
+kubectl edit pod nginx
+kubectl edit replicaset myapp-rs
+
+# Revert to previous deployment
+kubectl rollout undo deployment/myapp-deployment
+
+# Generate service configuration
+# of type NodePort
+kubectl expose deployment webapp-deployment --name=webapp-service --target-port=8080 --type=NodePort --port=8080 --dry-run=client -o yaml
+```
+
+#### YML
+
+Creating a POD
+
+```yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  containers:
+    - name: nginx-container
+    image:nginx
+
+```
+
+- Creating a replica-set. POD config now under `template` key. Also the metadata could be put under `template` section. Selector is mandatory and it allows replication take into its count other resources based on label filtration.
+- Deployment has same exact file structure with replacement of `kind` value to be `Deployment` instead of `ReplicaSet`.
+
+```yml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-rs
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  replicas: 5
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        app: myapp
+        type: front-end # Must match X
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx
+  selector:
+    matchLabels:
+      type: front-end # Must match X
+```
+
+Service to forward node port to a pod port
+
+```yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+spec:
+  type: NodePort
+  ports:
+   - targetPort: 80
+     port: 80
+     nodePort: 3008
+  selector: # links the service to the pod labeled with these values
+    app: myapp
+    type: front-end
+```
+
+Service to of type `ClusterIP` which enables access to it by creating virtual IP address on the cluster level to communicate through it (or by service name).
+
+```yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+spec:
+  type: ClusterIP
+  ports:
+   - targetPort: 80
+     port: 80
+  selector: # links the service to the pod labeled with these values
+    app: myapp
+    type: back-end
+```
+
+Service to of type `LoadBalancer` is similar to `NodePort` as it provides single access IP/URL and a node port for users/external access. Perfect use-case for it is front-end multiple nodes.
+
+```yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+spec:
+  type: LoadBalancer
+  ports:
+   - targetPort: 80
+     port: 80
+     nodePort: 3008
+  selector: # links the service to the pod labeled with these values
+    app: myapp
+    type: front-end
 ```
