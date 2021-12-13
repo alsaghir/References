@@ -23,10 +23,10 @@ _If you are the publisher and think this repository should not be public, just o
 	- [13. Override _clone_ judiciously](#13-override-clone-judiciously)
 	- [14. Consider implementing _Comparable_](#14-consider-implementing-comparable)
 - [4. CLASSES AND INTERFACES](#4-classes-and-interfaces)
-	- [13. Minimize the accessibility of classes and members](#13-minimize-the-accesibility-of-classes-and-members)
-	- [14. In public classes, use accessor methods, not public fields](#14-in-public-classes-use-accessor-methods-not-public-fields)
-	- [15. Minimize Mutability](#15-minimize-mutability)
-	- [16. Favor composition over inheritance](#16-favor-composition-over-inheritance)
+	- [15. Minimize the accessibility of classes and members](#15-minimize-the-accesibility-of-classes-and-members)
+	- [16. In public classes, use accessor methods, not public fields](#16-in-public-classes-use-accessor-methods-not-public-fields)
+	- [17. Minimize Mutability](#17-minimize-mutability)
+	- [18. Favor composition over inheritance](#18-favor-composition-over-inheritance)
 	- [17. Design and document for inheritance or else prohibit it.](#17-design-and-document-for-inheritance-or-else-prohibit-it)
 	- [18. Prefer interfaces to abstract classes](#18-prefer-interfaces-to-abstract-classes)
 	- [19. Use interfaces only to define types](#19-use-interfaces-only-to-define-types)
@@ -97,8 +97,7 @@ _If you are the publisher and think this repository should not be public, just o
 	- [77. For instance control, prefer _enum_ types to _readResolve_](#77-for-instance-control-prefer-enum-types-to-readresolve)
 	- [78. Consider serialization proxies instead of serialized instances](#78-consider-serialization-proxies-instead-of-serialized-instances)
 
-
-
+---
 
 # 2. CREATING AND DESTROYING OBJECTS
 ## 1. Use STATIC FACTORY METHODS instead of constructors
@@ -189,7 +188,7 @@ public class NutritionFacts {
 ```java
 NutritionFacts cocaCola = new NutritionFacts.Builder(240,8).calories(100).sodium(35).carbohydrate(27).build();
 ```
-
+---
 ## 3. Enforce the singleton property with a private constructor or an enum type
 There are different ways to create singletons:
 
@@ -243,6 +242,8 @@ public enum Elvis(){
 
 Equivalent to the public field, more concise, provides serialization machinery for free, and guarantee against multiple instantiation, even for reflection attacks and sophisticated serialization. _It is the best way to implement a singleton_.
 
+---
+
 ## 4. Enforce noninstantiability with a private constructor
 For classes that group static methods and static fields.  
 
@@ -264,6 +265,8 @@ public class UtilityClass{
 	///...
 }
 ```
+
+---
 
 ## 5. Prefer dependency injection to hard-wiring resources
 
@@ -307,6 +310,8 @@ public class SpellChecker {
     public List<String> suggestions(String typo) { ... }
 }
 ```
+
+---
 
 ## 6. Avoid creating objects
 
@@ -401,7 +406,10 @@ isBabyBoomer creates a new Calendar,TimeZone and two Date instances each time is
 
 Unless objects in the pool are extremely heavyweight, like a database connections.
 
+---
+
 ## 7. Eliminate obsolete object references
+
 **_Can you spot the memory leak?_**
 
 ```java
@@ -466,7 +474,10 @@ To solve it store only _weak references_ to them, for example storing them as ke
 
 __Use a Heap Profiler from time to time to find unseen memory leaks__
 
-## 7. Avoid finalizers
+---
+
+## 8. Avoid finalizers
+
 Finalizers are unpredictable, often dangerous and generally.
 
 **_Never do anything time-critical in a finalizer._**
@@ -505,6 +516,8 @@ Explicit termination methods are typically used in combination with the _try-fin
 In this cases always remember to invoke super.finalize.
 
 Another reason to avoid finalizers. Throwing an exception from a constructor should be sufficient to prevent an object from coming into existence; in the presence of finalizers, it is not.
+
+---
 
 ## 9. Prefer try-with-resources to try-finally
 
@@ -567,9 +580,13 @@ static String firstLineOfFile(String path, String defaultVal) {
 }
 ```
 
+---
+
 # 3. METHODS COMMON TO ALL OBJECTS
 
 ALTHOUGH Object is a concrete class, it is designed primarily for extension. All of its non-final methods (equals, hashCode, toString, clone, and finalize) have explicit general contracts because they are designed to be overridden. It is the responsibility of any class overriding these methods to obey their general contracts; failure to do so will prevent other classes that depend on the contracts (such as HashMap and HashSet) from functioning properly in conjunction with the class.
+
+---
 
 ## 10. Obey the general contract when overriding *equals*
 
@@ -624,6 +641,7 @@ A class has a notion of _logical equality_ that differs from mere object identit
 * Don't try to be too clever (simplicity is your friend)
 * Don't substitute another type for _Object_ in the _equals_ declaration
 
+---
 
 ## 11. Always override _hashCode_ when you override *equals*
 
@@ -706,6 +724,9 @@ Older way
 		return result;
 	}
 ```
+
+---
+
 ## 12. Always override _toString_
 
 Providing a good _toString_ implementation makes your class much more pleasant to read.
@@ -715,6 +736,8 @@ When practical, the _toString_ method return all of the  interesting information
 It is possible to specify the format of return value in the documentation. Whether or not you decide to specify the format, you should clearly document your intentions.
 
 Always provide programmatic access to all of the information contained in the value returned by _toString_ so the users of the object don't need to parse the output of the _toString_
+
+---
 
 ## 13. Override _clone_ judiciously
 
@@ -774,6 +797,8 @@ These alternatives:
 
 Furthermore they can use its Interface-based copy constructors and factories, _conversion constructors_ and _conversion factories_ and allow clients to choose the implementation type `public HashSet(Set set) -> TreeSet;`
 
+---
+
 ## 14. Consider implementing _Comparable_
 
 _Comparable_ is an interface. It is not declared in _Object_
@@ -792,8 +817,11 @@ Follow this provisions (Reflexive, Transitive, Symmetric) similar to implementin
 
 Use wrapper classes static method `compare` like `Float.compare` or `Double.compare`
 
+---
+
 # 4. CLASSES AND INTERFACES
-## 13. Minimize the accesibility of classes and members
+
+## 15. Minimize the accesibility of classes and members
 
 __Encapsulation__:
 
@@ -808,11 +836,11 @@ __Encapsulation__:
 
 __Make each class or member as inaccesible as possible__
 
-If a package-private top level class is used  by only one class make it a  private nested class of the class that uses it. ([Item 22](#22-favor-static-member-classes-over-nonstatic))
+If a package-private top level class is used  by only one class make it a  private nested class of the class that uses it.
 
 It is acceptable to make a private member of a public class package-private in order to test it.
 
-__Instance fields should never be public__ ([Item 14](#14-in-public-classes-use-accessor-methods-not-public-fields)) Class will not be thread-safe.
+__Instance fields should never be public__ Class will not be thread-safe.
 
 Static fields can be public if contain primitive values or references to immutable objects. A final field containing a reference to a mutable object has all the disadvantages of a non final field.
 
@@ -842,7 +870,9 @@ Or:
 	}
 ```
 
-## 14. In public classes, use accessor methods, not public fields
+---
+
+## 16. In public classes, use accessor methods, not public fields
 
 Degenerate classes should not be public
 
@@ -854,7 +884,7 @@ Degenerate classes should not be public
 	}
 ```
 
-* They don't benefit from _encapsulation_ ([Item 13](#13-minimize-the-accesibility-of-classes-and-members))
+* They don't benefit from _encapsulation_
 
 * Can't change representation without changing the API.
 
@@ -889,9 +919,10 @@ If a class is **package-private or is a private nested class**, its **ok to expo
 
 In **public classes** it is a questionable option to **expose immutable fields**.
 
+---
 
+## 17. Minimize Mutability
 
-## 15. Minimize Mutability
 All the information of the instance is provided when it is created.
 They are easier to design, implement and use. And they are less prone to errors and more secure
 
@@ -900,6 +931,10 @@ They are easier to design, implement and use. And they are less prone to errors 
 * Make all fields final
 * Make all fields private
 * Ensure exclusive access to any mutable component
+* Classes should be immutable unless there’s a very good reason to make them mutable
+* If a class cannot be made immutable, limit its mutability as much as possible
+* Declare every field private final unless there’s a good reason to do otherwise.
+* Constructors should create fully initialized objects with all of their invariants established
 
 ```java
 
@@ -989,7 +1024,10 @@ Make every field final unless there is a good reason not to do it.
 
 Some of the rules can be relaxed to improve performance (caching, lazy initialization...).
 
-## 16. Favor composition over inheritance
+---
+
+## 18. Favor composition over inheritance
+
 Inheritance in this case is when a class extends another (_implementation inheritance_) Not interface inheritance.
 
 **Inheritance violates encapsulation**
@@ -1013,7 +1051,8 @@ Each instance method in the new class (_forwarding class_)invokes the correspond
 	// Wrapper class - uses composition in place of inheritance
 	public class InstrumentedSet<E> extends ForwardingSet<E> {
 		private int addCount = 0;
-		//It extends a class(inheritance),but it is a forwarding class that is actually a compositon of the Set
+		//It extends a class(inheritance)
+		// but it is a forwarding class that is actually a compositon of the Set
 		(specifically a forwarding class), not the Set itself.
 		public InstrumentedSet (Set<E> s){
 			super(s)

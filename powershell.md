@@ -3,6 +3,7 @@
 ## References
 
 - https://docs.microsoft.com/en-us/powershell/?view=powershell-7.1
+- https://www.improvescripting.com/easy-steps-for-writing-powershell-functions/
 
 ---
 ## Profile on startup
@@ -10,10 +11,37 @@
 - [Reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-7.1)
 - Path is `$Home\Documents\PowerShell\Profile.ps1`
 
-### Git
+### Recommended Startup Script
 
 - [Reference](https://github.com/dahlbyk/posh-git)
 - Add `Import-Module posh-git` to startup profile. Any maybe `$GitPromptSettings.EnableFileStatus = $false` for performance.
+
+```powershell
+# Git
+Import-Module posh-git
+$GitPromptSettings.EnableFileStatus = $false
+
+# Autocomplete
+# Shows navigable menu of all options when hitting Tab
+Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+# Autocompletion for arrow keys
+Set-PSReadlineKeyHandler -Key UpArrow -Function HistorySearchBackward
+Set-PSReadlineKeyHandler -Key DownArrow -Function HistorySearchForward
+
+# https://github.com/microsoft/winget-cli/blob/master/doc/Completion.md
+# https://techcommunity.microsoft.com/t5/itops-talk-blog/autocomplete-in-powershell/ba-p/2604524
+Register-ArgumentCompleter -Native -CommandName winget -ScriptBlock {
+    param($wordToComplete, $commandAst, $cursorPosition)
+        [Console]::InputEncoding = [Console]::OutputEncoding = $OutputEncoding = [System.Text.Utf8Encoding]::new()
+        $Local:word = $wordToComplete.Replace('"', '""')
+        $Local:ast = $commandAst.ToString().Replace('"', '""')
+        winget complete --word="$Local:word" --commandline "$Local:ast" --position $cursorPosition | ForEach-Object {
+            [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
+        }
+}
+
+
+```
 
 ```powershell
 PowerShellGet\Install-Module posh-git -Scope CurrentUser -Force
@@ -185,7 +213,12 @@ Set-Location
 Get-Content
 ConvertTo-Json
 ConvertFrom-Json
+Out-File
 
 # Creating new object
 New-Object System.Collections.ArrayList
+
+# Search history using string pattern
+Get-Content (Get-PSReadLineOption).HistorySavePath | Select-String -Pattern "mvn"
 ```
+

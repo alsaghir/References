@@ -393,7 +393,7 @@ The Golden Rule of Rebasing is that before you run `git rebase`, always ask your
 
 ---
 
-### Remote Repositories
+## Remote Repositories
 
 - Remote repository is centralized repository (by convention) for sharing different changes that are going on
 - Remote repository is a simply git repository with HEAD pointer, commits & branches
