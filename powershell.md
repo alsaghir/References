@@ -43,6 +43,8 @@ Register-ArgumentCompleter -Native -CommandName winget -ScriptBlock {
 
 ```
 
+Install git
+
 ```powershell
 PowerShellGet\Install-Module posh-git -Scope CurrentUser -Force
 ```
