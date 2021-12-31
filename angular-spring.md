@@ -151,5 +151,5 @@ $overridesDark | Out-File -FilePath '.\src\styles\themes\dark\_overrides.scss'
 # Spring
 
 ```powershell
-# To be added
+# To be added later
 ```
