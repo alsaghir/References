@@ -34,6 +34,20 @@ docker-compose --version
 # https://docs.docker.com/compose/completion/
 sudo dnf install bash-completion
 sudo curl -L https://raw.githubusercontent.com/docker/compose/1.28.5/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
+
+# For Remote Access From Windows Host to Linux Guest (insecure)
+# Edit the following file to add the param -H like
+# [Service]
+# ExecStart=
+# ExecStart=/usr/bin/dockerd -H fd:// -H tcp://127.0.0.1:2375
+# 0.0.0.0:2375 would enable binding on all interfaces
+sudo vi /etc/systemd/system/multi-user.target.wants/docker.service
+sudo systemctl daemon-reload
+sudo systemctl restart docker.service
+
+# On host (windows) set the following env variable and start using docker cli
+$ENV:DOCKER_HOST="tcp://192.168.88.2:2375"
+#$ENV:DOCKER_HOST="ssh://zxc@192.168.88.2"
 ```
 
 ### Rules
