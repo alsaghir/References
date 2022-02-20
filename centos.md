@@ -207,6 +207,23 @@ On VM use local virtual host (private) & another adapter with NAT to access the 
   # END
   ```
 
+```bash
+# Create user with sudo privileges named zxc
+adduser zxc
+passwd zxc
+usermod -aG wheel zxc
+
+# Generate public and private keys
+ssh-keygen -o -a 100 -t ed25519 -f ~/.ssh/id_ed25519 -C "john@example.com"
+mv ~/.ssh/id_ed25519.pub ~/.ssh/authorized_keys
+
+# Remove any previous keys known to server host on the client (Windows)
+ssh-keygen -R 192.168.88.2
+
+# Copy private key from the server to the client (Windows)
+scp zxc@192.168.88.2:/home/zxc/.ssh/id_ed25519 /C:/Users/phi/.ssh
+```
+
 ## Explanations
 
 ### Adapter connection
