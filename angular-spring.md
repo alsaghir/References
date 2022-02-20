@@ -17,11 +17,13 @@ yarn global bin
 ng config -g cli.packageManager yarn
 
 # Create new project
-ng new $projectName
+New-Item -Type Directory $projectName
 cd $projectName
+ng new $projectName --directory=. --packageManager=yarn
 
 # Add yarn to be used by angular locally
 ng config cli.packageManager yarn
+npm install yarn
 
 yarn add bootstrap
 
@@ -32,7 +34,7 @@ $json | ConvertTo-Json -depth 100 | Out-File -FilePath '.\tsconfig.json'
 
 # move to styles folder
 New-Item -Type Directory .\src\styles
-Move-Item -Path .\src\styles.scss -Destination .\src\styles\styles.scss
+Move-Item -Path .\src\styles.scss -Destination .\src\styles\styles-light.scss
 New-Item -Type File .\src\styles\styles-dark.scss
 
 # Configure angular.json
@@ -43,8 +45,9 @@ $json.projects.$projectName.architect.build.options.scripts = @('./node_modules/
 $stylesJson = @"
 [
   {
-    "input": "src/styles/styles.scss",
-    "bundleName": "app"
+    "input": "src/styles/styles-light.scss",
+    "bundleName": "light",
+    "inject": false
   },
   {
    "input": "src/styles/styles-dark.scss",
@@ -59,8 +62,33 @@ $json | ConvertTo-Json -depth 100 | Out-File -FilePath '.\angular.json'
 
 # Create initial bootstrap style config
 New-Item -Type Directory .\src\styles\vendor
+New-Item -Type Directory .\src\styles\vendor-extensions
 New-Item -Type File .\src\styles\vendor\_bootstrap-functions.scss
 New-Item -Type File .\src\styles\vendor\_bootstrap.scss
+New-Item -Type File .\src\styles\vendor-extensions\_bootstrap.scss
+
+$bootstrapCustomization = @'
+$utilities: () !default;
+
+$utilities: map-merge(
+    $utilities,
+    (
+      "overflow-x": (
+        property: overflow-x,
+        values: auto,
+      ),
+      "overflow-y": (
+        property: overflow-y,
+        values: hidden,
+      ),
+      "max-viewport-height": (
+        property: max-height,
+        class: max-vh,
+        values: (100: 100vh)
+      )
+    )
+);
+'@
 
 $boostrapFunctions = @"
 /* Take a look to the following for better idea
@@ -104,14 +132,16 @@ https://getbootstrap.com/docs/5.1/customize/sass/
 
 $bootstrapVendor | Out-File -FilePath '.\src\styles\vendor\_bootstrap.scss'
 $boostrapFunctions | Out-File -FilePath '.\src\styles\vendor\_bootstrap-functions.scss'
+$bootstrapCustomization | Out-File -FilePath '.\src\styles\vendor-extensions\_bootstrap-utilities.scss'
 New-Item -Type Directory .\src\styles\themes
 New-Item -Type File .\src\styles\themes\dark.scss
+New-Item -Type File .\src\styles\themes\light.scss
 New-Item -Type Directory .\src\styles\themes\dark
-New-Item -Type File .\src\styles\themes\dark\_custom.scss
+New-Item -Type Directory .\src\styles\themes\light
+New-Item -Type File .\src\styles\themes\dark\_base.scss
+New-Item -Type File .\src\styles\themes\light\_base.scss
 New-Item -Type File .\src\styles\themes\dark\_overrides.scss
-New-Item -Type File '.\src\styles\themes\default.scss'
-"@import '~bootstrap/scss/bootstrap';" | Out-File -FilePath '.\src\styles\themes\default.scss'
-"@charset ""UTF-8"";`n `n@import 'themes/default';" | Out-File -FilePath '.\src\styles\styles.scss'
+New-Item -Type File .\src\styles\themes\light\_overrides.scss
 
 "@charset ""UTF-8"";`n `n@import 'themes/dark';" | Out-File -FilePath '.\src\styles\styles-dark.scss'
 $darkTheme = @"
@@ -121,7 +151,7 @@ $darkTheme = @"
 
 @import '../vendor/bootstrap';
 
-@import './dark/custom';
+@import './dark/base';
 "@
 $customDark = @'
 $web-font-path: "https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" !default;
@@ -132,9 +162,38 @@ $web-font-path: "https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&di
 $overridesDark = @'
 // Get overrides from Bootswatch for example
 '@
+
+"@charset ""UTF-8"";`n `n@import 'themes/light';" | Out-File -FilePath '.\src\styles\styles-light.scss'
+$lightTheme = @"
+@import '../vendor/bootstrap-functions';
+
+@import './light/overrides';
+
+@import '../vendor/bootstrap';
+
+@import './light/base';
+"@
+$customLight = ''
+$overridesLight = @'
+// Get overrides from Bootswatch for example
+'@
+
 $darkTheme | Out-File -FilePath '.\src\styles\themes\dark.scss'
-$customDark | Out-File -FilePath '.\src\styles\themes\dark\_custom.scss'
+$lightTheme | Out-File -FilePath '.\src\styles\themes\light.scss'
+$customDark | Out-File -FilePath '.\src\styles\themes\dark\_base.scss'
+$customLight | Out-File -FilePath '.\src\styles\themes\light\_base.scss'
 $overridesDark | Out-File -FilePath '.\src\styles\themes\dark\_overrides.scss'
+$overridesLight | Out-File -FilePath '.\src\styles\themes\light\_overrides.scss'
+
+New-Item -Type Directory .\src\app\layout
+New-Item -Type Directory .\src\app\module
+New-Item -Type Directory .\src\app\shared
+New-Item -Type Directory .\src\app\shared\component
+New-Item -Type Directory .\src\app\core
+New-Item -Type Directory .\src\app\core\util
+New-Item -Type Directory .\src\app\common
+
+
 ```
 
 ## tsconfig.json
