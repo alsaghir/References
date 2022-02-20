@@ -1014,6 +1014,14 @@ __How to deny subclassing in immutable objects__
 
 This technique allows flexibility of multiple implementations, it's possible to tune  the performance and permit to create more factories with names that clarify its function.
 
+__Performance problem__
+
+The performance problem is magnified if you perform a multistep operation that generates a new object at every step, eventually discarding all objects except the final result. There are two approaches to coping with this problem:
+
+- The first is to guess which multistep operations will be commonly required and to provide them as primitives. If a multistep operation is provided as a primitive, the immutable class does not have to create a separate object at each step. Internally, the immutable class can be arbitrarily clever. For example, BigInteger has a package-private mutable “companion class” that it uses to speed up multistep operations such as modular exponentiation. It is much harder to use the mutable companion class than to use BigInteger, for all of the reasons outlined earlier. Luckily, you don’t have to use it: the implementors of BigInteger did the hard work for you. The package-private mutable companion class approach works fine if you can accurately predict which complex operations clients will want to perform on your immutable class.
+
+- The second if the first did not work, is to provide a public mutable companion class. The main example of this approach in the Java platform libraries is the String class, whose mutable companion is StringBuilder (and its obsolete predecessor, StringBuffer).
+
 __Summary__
 
 Classes should be immutable unless there are good reasons to make them mutable.
