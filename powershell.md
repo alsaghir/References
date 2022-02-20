@@ -222,5 +222,10 @@ New-Object System.Collections.ArrayList
 
 # Search history using string pattern
 Get-Content (Get-PSReadLineOption).HistorySavePath | Select-String -Pattern "mvn"
+Get-Content (Get-PSReadLineOption).HistorySavePath | Select-String -Pattern "mvn" | Select-Object -Unique
+Get-Content (Get-PSReadLineOption).HistorySavePath | Select-String -Pattern "mvn" | sort | Get-Unique
+
+# Customize history saving
+
 ```
 
