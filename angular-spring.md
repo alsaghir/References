@@ -26,6 +26,7 @@ ng config cli.packageManager yarn
 npm install yarn
 
 yarn add bootstrap
+yarn add bootstrap-icons
 
 # Make ./src is the base file path
 $json = Get-Content '.\tsconfig.json' | Out-String | ConvertFrom-Json -Depth 100
@@ -140,17 +141,15 @@ New-Item -Type Directory .\src\styles\themes\dark
 New-Item -Type Directory .\src\styles\themes\light
 New-Item -Type File .\src\styles\themes\dark\_base.scss
 New-Item -Type File .\src\styles\themes\light\_base.scss
-New-Item -Type File .\src\styles\themes\dark\_overrides.scss
-New-Item -Type File .\src\styles\themes\light\_overrides.scss
+New-Item -Type File .\src\styles\themes\dark\bootstrap_var_overrides.scss
+New-Item -Type File .\src\styles\themes\light\bootstrap_var_overrides.scss
 
 "@charset ""UTF-8"";`n `n@import 'themes/dark';" | Out-File -FilePath '.\src\styles\styles-dark.scss'
 $darkTheme = @"
 @import '../vendor/bootstrap-functions';
-
-@import './dark/overrides';
-
+@import './dark/bootstrap_var_overrides';
 @import '../vendor/bootstrap';
-
+@import '../vendor/bootstrap-icons';
 @import './dark/base';
 "@
 $customDark = @'
@@ -166,11 +165,9 @@ $overridesDark = @'
 "@charset ""UTF-8"";`n `n@import 'themes/light';" | Out-File -FilePath '.\src\styles\styles-light.scss'
 $lightTheme = @"
 @import '../vendor/bootstrap-functions';
-
-@import './light/overrides';
-
+@import './light/bootstrap_var_overrides';
 @import '../vendor/bootstrap';
-
+@import '../vendor/bootstrap-icons';
 @import './light/base';
 "@
 $customLight = ''
