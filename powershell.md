@@ -225,7 +225,31 @@ Get-Content (Get-PSReadLineOption).HistorySavePath | Select-String -Pattern "mvn
 Get-Content (Get-PSReadLineOption).HistorySavePath | Select-String -Pattern "mvn" | Select-Object -Unique
 Get-Content (Get-PSReadLineOption).HistorySavePath | Select-String -Pattern "mvn" | sort | Get-Unique
 
-# Customize history saving
+# https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables
+#
+# Set Environment Variable
+$env:Path                             # shows the actual content
+$env:Path = 'C:\foo;' + $env:Path     # attach to the beginning
+$env:Path += ';C:\foo'                # attach to the end
+$env:Path = "C:\MyPath;$env:Path"
 
+# Modify a system environment variable
+[Environment]::SetEnvironmentVariable
+     ("Path", $env:Path, [System.EnvironmentVariableTarget]::Machine)
+
+# Modify a user environment variable
+[Environment]::SetEnvironmentVariable
+     ("INCLUDE", $env:INCLUDE, [System.EnvironmentVariableTarget]::User)
+
+# Add to the system environment variable
+
+[Environment]::SetEnvironmentVariable(
+    "Path",
+    [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine) + ";C:\bin",
+    [EnvironmentVariableTarget]::Machine)
+
+# String based solution is also possible if you don't want to write types
+
+[Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\bin", "Machine")
 ```
 
