@@ -72,7 +72,7 @@ flutter pub upgrade
 flutter pub outdated
 ```
 
-## Flutter Common Classes
+## Flutter Common Classes & functions
 
 - [Material Library](https://api.flutter.dev/flutter/material/material-library.html)
 - [MaterialApp](https://api.flutter.dev/flutter/material/MaterialApp-class.html)
@@ -81,10 +81,12 @@ flutter pub outdated
 - [Column](https://api.flutter.dev/flutter/widgets/Column-class.html) & [Row](https://api.flutter.dev/flutter/widgets/Row-class.html)
 - [Expanded](https://api.flutter.dev/flutter/widgets/Expanded-class.html)
 - [Container](https://api.flutter.dev/flutter/widgets/Container-class.html)
-- []()
-- []()
-- []()
+- [compute()](https://api.flutter.dev/flutter/foundation/compute-constant.html) to run in a background [isolate](https://api.flutter.dev/flutter/dart-isolate/Isolate-class.html)
 
+## Rule of thumb
+
+- `build` should be used only for layout. While `initState` is usually used for variable initialization
+- 
 
 ## Dart
 
@@ -101,4 +103,36 @@ dart run
 dart pub outdated
 ```
 
+## Android & IOS
+
+### Permissions
+
+For location permissions as example
+
+in `ios/Runner/Info.plist`
+
+```xml
+<!-- for iOS 11 + -->
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>Reason why app needs location</string>
+  <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+  <string>Reason why app needs location</string>
+
+  <!-- additionally for iOS 9/10, if you need always permission -->
+  <key>NSLocationAlwaysUsageDescription</key>
+  <string>Reason why app needs location</string>
+```
+
+in `android/app/src/main/AndroidManifest.xml`
+
+```xml
+<!-- for iOS 11 + -->
+  <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+  <!-- or -->
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+</manifest>
+```
+
 [cmd-tools]: https://developer.android.com/studio#cmdline-tools
+
