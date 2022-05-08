@@ -452,6 +452,7 @@ The Golden Rule of Rebasing is that before you run `git rebase`, always ask your
 - [`git branch another_branch_name origin/another_branch_name`](#create-branch) - Create branch starting point from the same as the remote branch or simply similar local branch to remote one. It will track the remote one automatically. The remote branch could be created previously locally then pushed or created using the website manually.
 - [`git checkout -b another_branch_name origin/another_branch_name`](#checkout-new-branch) - Create new branch and check it out or check out `another_branch_name` as new branch
 - [`git push origin :branch_name`](#remove-remote-branch) or `git push origin --delete branch_name` - Remove the remote branch
+- `git branch -d branch_name` - Remove local
 
 ##### Notes of good practices about fetching
 

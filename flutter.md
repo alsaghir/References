@@ -86,7 +86,6 @@ flutter pub outdated
 ## Rule of thumb
 
 - `build` should be used only for layout. While `initState` is usually used for variable initialization
-- 
 
 ## Dart
 

@@ -110,6 +110,20 @@ EC2 sizing & configuration options
 - Firewall rules: **security group**
 - Bootstrap script (configure at first launch): EC2 User Data (run by root user)
 
+Example of bootstrap script
+
+```bash
+#!/bin/bash
+# Use this for your user data (script from top to bottom)
+yum update -y
+yum install -y httpd
+curl -s "https://get.sdkman.io" | bash
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+sdk i java 17.0.3.6.1-amzn
+sdk i maven
+printf 'export JAVA_HOME=$(which javac)' >> ~/.bashrc
+```
+
 ### Security Groups
 
 - Security Groups are the fundamental of network security in AWS
