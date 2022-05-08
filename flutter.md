@@ -102,6 +102,24 @@ dart run
 dart pub outdated
 ```
 
+### Asynchronous programming: futures, async, await
+
+- Synchronous operation: A synchronous operation blocks other operations from executing until it completes.
+- Synchronous function: A synchronous function only performs synchronous operations.
+- Asynchronous operation: Once initiated, an asynchronous operation allows other operations to execute before it completes.
+- Asynchronous function: An asynchronous function performs at least one asynchronous operation and can also perform synchronous operations.
+- Return type should be `Future<void>` or `Future<T>`
+
+#### async and await
+- To define an async function, add async before the function body
+- The await keyword works only in async functions.
+- You can use the await keyword to wait for a future to complete
+
+  ```Dart
+  print(await createOrderMessage());
+  ```
+- The `await` keyword only works within an `async` function.
+
 ## Android & IOS
 
 ### Permissions
