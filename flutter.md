@@ -130,21 +130,21 @@ in `ios/Runner/Info.plist`
 
 ```xml
 <!-- for iOS 11 + -->
-  <key>NSLocationWhenInUseUsageDescription</key>
-  <string>Reason why app needs location</string>
-  <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-  <string>Reason why app needs location</string>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Reason why app needs location</string>
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>Reason why app needs location</string>
 
-  <!-- additionally for iOS 9/10, if you need always permission -->
-  <key>NSLocationAlwaysUsageDescription</key>
-  <string>Reason why app needs location</string>
+<!-- additionally for iOS 9/10, if you need always permission -->
+<key>NSLocationAlwaysUsageDescription</key>
+<string>Reason why app needs location</string>
 ```
 
 in `android/app/src/main/AndroidManifest.xml`
 
 ```xml
 <!-- for iOS 11 + -->
-  <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
   <!-- or -->
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
