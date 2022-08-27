@@ -282,7 +282,7 @@ Drivers types of containers networks
 - Bind mounts is simply sharing or mounting a host directory or file into a container.
 - Volume need manual deletion. No auto-cleaning could be done by docker.
 - Using `-v` with `docker container run` allows configuration of volume for the container about to be up. 
-    - `-v /var/lib/mysql` creating unnamed volume mounting to specified path on container. Also used to mark the path `/var/lib/mysql` as 'do not  touch' folder and do not map it to anything.
+    - `-v /var/lib/mysql` creating unnamed volume mounting to specified path on container. Also used to mark the path `/var/lib/mysql` as 'do not touch' folder and do not map it to anything.
     - `-v my-sqldb:/var/lib/mysql` creates named volume.
     - `-v /Users/bret/stuff:/path/container` create a bind mount volume.
     - `--mount type=bind,source=/whatever,target=/whatever` New syntax instead of using `-v`.
@@ -624,6 +624,7 @@ Master has `kube-apiserver` while worker node has kubelet interacting with each 
 
 ### Info
 
+- K8s expects all images to already be built
 - Pod usually is wrapping a container. However, sometimes helper container for an application is required and can be also part of the same pod to be in the same state and life-cycle as the main container. Both containers in that case can communicate via referring to `localhost`. Storage, fate, network & namespace.
 - K8s uses YAML to manage its resources like PODs, Replicas, Deployments, Services ...etc.
 - YAML always container 4 top level fields
@@ -639,6 +640,7 @@ Master has `kube-apiserver` while worker node has kubelet interacting with each 
 - Different between `apply`, `create`, `patch` & `replace` - [Documentation](https://kubernetes.io/docs/concepts/overview/working-with-objects/object-management/).
 - Services are responsible of communication between resources. For example `NodePort` service for external access to a resource. Others lik `ClusterIP` & `LoadBalancer` More at [Documentation](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types).
 - Service is created among all nodes.
+- Multiple config files to create objects instead of single file like docker-compose
 
 ### Scripts
 
@@ -663,9 +665,18 @@ kubectl get replicasets.apps
 kubectl describe replicaset myapp-rs
 kubectl get deployments
 kubectl get services
+# Storage
+kubectl get pv
+# Claims
+kubectl get pvC
 kubectl get all
 kubectl rollout status deployment/myapp-deployment
 kubectl rollout history deployment/myapp-deployment
+kubectl explain deploy.spec --recursive > deployment_spec.txt
+
+# Options of creating volumes for kubernetes
+kubectl get storageclass
+kubectl describe storageclass
 
 # Create a  or any resource from yml file
 kubectl create -f pod-definition.yml
@@ -695,6 +706,14 @@ kubectl rollout undo deployment/myapp-deployment
 # Generate service configuration
 # of type NodePort
 kubectl expose deployment webapp-deployment --name=webapp-service --target-port=8080 --type=NodePort --port=8080 --dry-run=client -o yaml
+
+# to force deployment to use new version of pushed image
+# kubectl set image <object_type>/<object_name> <container_name>=<new image to use>
+kubectl set image deployment/whatever_deployment whatever_container=image_name:tag
+
+# Create a secret
+kubectl create secret generic <secret_name> --from-literal <key_name>=whatever_password
+kubectl create secret generic ssh-key-secret --from-file=ssh-privatekey=/path/to/.ssh/id_rsa --from-file=ssh-publickey=/path/to/.ssh/id_rsa.pub
 ```
 
 #### YML
@@ -739,6 +758,8 @@ spec:
       containers:
         - name: nginx-container
           image: nginx
+          ports:
+            - containerPort: 3000 # port that inside the container is running and should be exposed
   selector:
     matchLabels:
       type: front-end # Must match X
@@ -752,11 +773,11 @@ kind: Service
 metadata:
   name: myapp-service
 spec:
-  type: NodePort
+  type: NodePort # NodePort exposes the port to outside world
   ports:
-   - targetPort: 80
-     port: 80
-     nodePort: 3008
+   - targetPort: 80 # port inside the container usually defined in other config at containers section
+     port: 80 # exposed port to the inside/internal world for other containers to access
+     nodePort: 3008 # exposed port to the outside world
   selector: # links the service to the pod labeled with these values
     app: myapp
     type: front-end
@@ -795,4 +816,67 @@ spec:
   selector: # links the service to the pod labeled with these values
     app: myapp
     type: front-end
+```
+
+PVC (Persistent Volume Claim) for data persistence. k8s will try to get the resource requested attached to the POD from statically provisioned persistent volume or dynamically provisioned persistent volume 
+
+```yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector:
+    component: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: myapp-persistent-volume-claim # Identifier to be used in Deployment configurations
+spec:
+  accessMode:
+    - ReadWriteOnce # One node can read/write from/to this pvc. Other values are ReadOnlyMany & ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: postgres
+  template:
+    metadata:
+      labels:
+        component: postgres
+    spec:
+      volumes: # configured above
+        - name: postgres-storage
+          persistentVolumeClaim: 
+            claimName: database-persistent-volume-claim # claimName must be identical to name defined above
+      containers:
+        - name: postgres
+          image: postgres
+          ports:
+            - containerPort: 5432
+          volumeMounts: # Access the volume defined above and map it to the container. Name must be identical
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data # inside the container
+              subPath: postgres # this folder will be in inside the PVC containing the data instead of direct saving
+          env: # Environment variables
+            - name: PGDATABASE
+              value: postgres
+            - name: PGPASSWORD
+              valueFrom: # Linking the value to a created secret
+                secretKeyRef:
+                  name: pgpassword # name of the secret
+                  key: PGPASSWORD  # the secret key
 ```
