@@ -3,6 +3,7 @@
 ## References
 
 - Installation : <https://docs.docker.com/engine/install/centos/#install-using-the-repository>
+- [Best practices & Developing with Docker](https://docs.docker.com/develop/develop-images/multistage-build/#stop-at-a-specific-build-stage)
 
 ### Installation on CentOS
 
@@ -191,6 +192,13 @@ docker volume ls
 
 # Remove unused volumes
 docker volume prune
+
+# Delete cached images in the node
+docker system prune -a
+
+# To print command of docker container running
+# https://github.com/lavie/runlike/
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock:ro assaflavie/runlike <YOUR-CONTAINER>
 ```
 
 #### Docker container run options
@@ -288,6 +296,16 @@ Drivers types of containers networks
     - `--mount type=bind,source=/whatever,target=/whatever` New syntax instead of using `-v`.
 - Bind mounting only works with `docker container run`. It's not possible in Dockerfile. But possible in docker compose.
 - Using `docker volume create whatever` creates a named volume before running the container. It's pretty rare to need to do this step at all.
+- Bind mounts are old and limited but it links local directory to container path on `docker container run` & `docker-compose` levels. Volumes are more powerful and useful for persisting data and backing them up with less limitations.
+
+#### References
+
+- [Locating data volumes](https://stackoverflow.com/questions/43181654/locating-data-volumes-in-docker-desktop-windows)
+- [Volumes in Compose](https://docs.docker.com/compose/compose-file/#volumes)
+- [Volumes Reference](https://docs.docker.com/engine/reference/builder/#volume)
+- [Backup/Restore data from/to volumes](https://docs.docker.com/storage/volumes/#backup-restore-or-migrate-data-volumes)
+- [Bind mounts](https://docs.docker.com/storage/bind-mounts/) & [Using them with Compose](https://docs.docker.com/storage/bind-mounts/#use-a-bind-mount-with-compose)
+
 
 ### Docker Compose
 
@@ -625,6 +643,8 @@ Master has `kube-apiserver` while worker node has kubelet interacting with each 
 ### Info
 
 - K8s expects all images to already be built
+- One config file per object we want to create
+- Network to be setup manually
 - Pod usually is wrapping a container. However, sometimes helper container for an application is required and can be also part of the same pod to be in the same state and life-cycle as the main container. Both containers in that case can communicate via referring to `localhost`. Storage, fate, network & namespace.
 - K8s uses YAML to manage its resources like PODs, Replicas, Deployments, Services ...etc.
 - YAML always container 4 top level fields

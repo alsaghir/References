@@ -23,6 +23,7 @@
 - [Widget catalog](https://docs.flutter.dev/development/ui/widgets)
 - [Flutter Layout Cheat Sheet](https://medium.com/flutter-community/flutter-layout-cheat-sheet-5363348d037e)
 - [Navigation Cookbook](https://docs.flutter.dev/cookbook/navigation) & [Navigator](https://api.flutter.dev/flutter/widgets/Navigator-class.html) & [ModalRoute.of()](https://docs.flutter.dev/cookbook/navigation/navigate-with-arguments#2-create-a-widget-that-extracts-the-arguments)
+- [Widget catalog](https://docs.flutter.dev/development/ui/widgets)
 
 ## After download Flutter & Android SDK
 
@@ -46,8 +47,6 @@ flutter doctor -v
 
 # Some additional commands
 .\cmdline-tools\latest\bin\sdkmanager.bat --list | Select-String -Pattern "system-images;android-30"
-
-
 ```
 
 - Change gradle version for Android in `gradle-wrapper.properties` and add the following line in `gradle.properties`
@@ -56,9 +55,14 @@ flutter doctor -v
 org.gradle.jvmargs=-Xmx1536M --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED
 ```
 
+- For Intellij. Set android sdk path, flutter sdk and install flutter plugin.
+
 ## Flutter Commands
 
 ```powershell
+# Init
+flutter create my_app
+
 # Dev run
 flutter devices
 flutter run -d chrome
@@ -133,12 +137,18 @@ flutter pub outdated
 ## Rule of thumb
 
 - `build` should be used only for layout. While `initState` is usually used for variable initialization
-- Use `Flexible` or `Expanded` to tell `Row` [how much space expected to be taken](https://stackoverflow.com/a/45990477/7054574).
+- Wrap widgets like `TextField` into `Flexible` or `Expanded` to tell `Row` [how much space expected to be taken](https://stackoverflow.com/a/45990477/7054574).
 - Beware to [box constraints](https://docs.flutter.dev/development/ui/layout/box-constraints#flex)
-
-### Notes
-
+- Generate icons from [appicon](https://appicon.co/) and add it to Android path `android/app/src/main/res` and iOS path `ios/Runner/Assets.xcassets/AppIcon.appiconset`
 - Stateful widgets lifecycle controlled by `initState`, `build` and `deactivate` methods
+- `MaterialApp` > `Scaffold` > `SafeArea`
+- Use `Container` for everything like every child in a `Column`
+- Use `SizedBox` to space between elements with `Divider` child if needed
+- Use `Card` and `ListTile` instead of `Container` if possible with parent `Padding` widget.
+- Use `Flexible` or `Expanded` as direct child of `Row` to tell `Row` [how much space expected to be taken](https://stackoverflow.com/a/45990477/7054574). `Expanded` will fill as big as possible in vertical/horizontal directions (column/row) and use its `flex` property to determine its percentage sizing relative to other children
+- For using theme [data define a them](https://docs.flutter.dev/cookbook/design/themes#extending-the-parent-theme) or use the default provided one then [use the theme](https://docs.flutter.dev/cookbook/design/themes#using-a-theme) to get its data like `Theme.of(context).colorScheme.secondary`
+- Use [ListView](https://api.flutter.dev/flutter/widgets/ListView-class.html) for scrollable list of widgets arranged linearly. Mostly the first row/column in the scaffold. A ListView is basically a `CustomScrollView` with a single SliverList in its `CustomScrollView.slivers` property. An optimization to the combination of `SingleChildScrollView` & `Column` which is another option if you have full column to render at once instead of rendering them dynamically. For dynamic rendering use `Listview.builder()` for optimization.
+- Avoid [using `cast` specially for json decoding](https://dart.dev/guides/language/effective-dart/usage#dont-use-cast-when-a-nearby-operation-will-do).
 
 ## Dart
 
