@@ -23,6 +23,15 @@
 
 Region Table: https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services
 
+1 Region = N Availability zones
+1 Availability Zone = M Data centers
+
+### Select region based on
+- Compliance
+- Latency
+- Pricing
+- Service availability
+
 ---
 
 ## IAM
@@ -52,12 +61,17 @@ Region Table: https://aws.amazon.com/about-aws/global-infrastructure/regional-pr
 
 ### IAM Policies Structure
 
+- Managed policy is a standalone policy that is created and administered by AWS
+- Inline policy is a policy that's embedded in an IAM identity (a user, group, or role). You can create a policy and embed it in an identity, either when you create the identity or later.
+
+
 Consists of
 - Version: policy language version, always include `2012-10-17`
 - Id: an identifier for the policy (optional)
 - Statement: one or more individual statements (required)
 - Statements consists of
-  - Sid: an identifier for the statement (optional) • Effect: whether the statement allows or denies access
+  - Sid: an identifier for the statement (optional)
+  - Effect: whether the statement allows or denies access
 (Allow, Deny)
   - Principal: account/user/role to which this policy applied to
   - Action: list of actions this policy allows or denies
@@ -150,6 +164,7 @@ error or it’s not launched
 ### Notes
 
 - Connect using SSH with user `ec2-user`
+- [Elastic IP address](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html) is a public IPv4 address, which is reachable from the internet. If your instance does not have a public IPv4 address, you can associate an Elastic IP address with your instance to enable communication with the internet. It's designed for dynamic cloud computing
 
 ---
 
@@ -163,6 +178,61 @@ error or it’s not launched
  - Singe instance deployment : good for dev
  - LB + ASG (Load balancer + Auto Scaling Group) : good for production
  - ASG only : god for non-web apps in production like workers, messages consumers...etc.
+
+---
+
+ECS vs EKS
+
+- An EC2 instance with the ECS agent installed and configured is called a container instance. In Amazon EKS, it is called a worker node.
+- An ECS container is called a task. In Amazon EKS, it is called a pod.
+- While Amazon ECS runs on AWS native technology, Amazon EKS runs on top of Kubernetes.
+
+---
+
+## VPC
+
+- VPC is region specific across multiple availability zones
+- VPC = region + IP range
+- Subnet = VPC + AZ + IP range
+- Internet gateway (IGW) attached to a VPC
+- VGW  is a VPN access to the VPC
+- Route Tables control routing and has enabled local routes by default for each created VPC
+- Routing table record specify that when destination is X then route it to target Y.
+- To allow routing from internet to IGW add routing table with destination 0.0.0.0/0 and IGW name as destination
+- To apply routing table, associate it with wanted subnets
+- Network ACL is firewall at subnet level
+
+### Security groups vs NACL
+
+- Scope: EC2 Instance - Subnet
+- Stateful (one rule for in/out) - Stateless
+- Rules: allow only (all are denied by default) - allow/deny
+- Order: All rules applied - First rule matches from top to bottom applies
+- Defense order: SG is second layer of defense - NACL is the first layer of defense
+- EC2 can have many SGs - Subnet has only one NACL
+- SG allows CIDR (IP with mask), IP, SG as destination - NACL allows only CIDR as destination
+- Use public NAT gateway for private subnet to allow EC2 instances to access the internet but the internet cannot initiate a request to the instance
+
+---
+
+## Storage
+
+- EC2 instance store is temp while the instance is up and is directly attached.
+- EBS volumes are persistent because they are network attached drives.
+- Amazon Elastic File System (EFS) can be mounted onto multiple EC2 instances.
+
+### S3
+
+- There 6 tiers/classes for storage.
+- Transition actions could be define for automated transitions from one storage class to another.
+
+---
+
+## Notes
+
+- CloudFront used to cache static data in close of users and can get these data from S3.
+- Route53 is for domain name management.
+- Api Gateway as entry point and can delegate requests to Lambda or any backend.
 
 ---
 
