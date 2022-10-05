@@ -627,12 +627,25 @@ start_period: 1m #version 3.4 minimum
 
 ## Components
 
-- API Server
-- ETCD - Key-Value store
-- Kubelet - Agent that runs on each node in the cluster
-- Container runtime - Like docker, rkt or cri-o
-- Conteroller - the brain
-- Schedular
+- Control plane: Control plane nodes manage the worker nodes and the pods in the cluster. The control plane determines when tasks are scheduled and where they are routed to.
+  - Control plane nodes
+    - Controller manager: The controller manager runs background threads called controllers that detect and respond to cluster events.
+    - Cloud controller: The cloud controller is a specific controller that interacts with the underlying cloud provider.
+    - Scheduler: The scheduler selects nodes for newly created containers to run on.
+    - API server: The Kubernetes API server exposes the Kubernetes API and is the frontend for the Kubernetes control plane.  It handles all communication from the cluster to the control plane; none of the other control plane components are designed to expose remote services. The Kubernetes API server is designed to scale horizontally, deploying more instances as necessary. 
+  - etcd: This is the core persistence layer for Kubernetes. It is a highly available distributed key value store. This is where the critical cluster data and state are stored.
+
+- Data plane: Worker nodes host the pods that are the components of the application workload. In Kubernetes, the data plane is where the tasks are run. This is all done on your worker nodes.
+  - Worker nodes
+    - kube-proxy: This helps with networking. It maintains network rules on the host and performs any connection forwarding that may be necessary.
+    - Container runtime: Kubernetes supports several runtimes, with Docker being the most common (others like rkt or cri-o). 
+    - kubelet: This is the primary agent that runs on the worker nodes. Kubelet makes sure that the right containers are running in a pod and that they are healthy.
+    - Pods: A pod is a group of one or more containers. The containers in a pod are always colocated, scheduled together, and managed together; you cannot split containers in a pod across nodes. Applications in a pod can easily communicate with each other. Like individual application containers, pods are considered to be relatively ephemeral (rather than durable) entities. This means that pods can disappear if they become unhealthy, and new ones can take their place.
+
+- Control/data plane communicationL: Communication between the control plane and worker nodes is done through the API server to kubelet. 
+
+
+![K8S components](docker_assets/k8s_components.png "K8S components")
 
 ## Master vs Worker Nodes
 
