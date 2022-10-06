@@ -24,6 +24,16 @@ echo "setopt INC_APPEND_HISTORY_TIME" >> ~/.zshrc
 toolbox --version
 source ~/.zshrc
 toolbox install brazilcli
+toolbox install cr
+toolbox install brazil-octane
+
+# AWS Developer Account (ADA)
+toolbox install ada
+
+# Hub-Create for BuilderHub create usage
+toolbox registry add s3://buildertoolbox-registry-hub-create-us-west-2/tools.json
+toolbox install hub-create
+hub-create prepare -a AccountID
 
 sudo mkdir -p -m 755 /workplace/${USER}
 sudo chown -R ${USER}:amazon /workplace/${USER}
@@ -61,10 +71,16 @@ ssh-keygen -t RSA -b 2048
 # The Midway cookie and SSH certificate are valid for 20 hours since creation. You can check if your certificate is valid by running the following and looking at the Valid value.
 ssh-keygen -L -f ~/.ssh/id_rsa-cert.pub
 
+# To clone a package. 2 steps required
+# 1- Create a workspace. 2- Use a package
 
 # Create workspace
 brazil workspace create --root <WORKSPACE_NAME>
 brazil ws create -n <WORKSPACE_NAME>
 # Show info
 brazil workspace show
+# Use version set
+brazil ws use --versionSet BT101AsolymanV1/development
+# Use package
+brazil ws use --package BT101AsolymanV1
 ```
