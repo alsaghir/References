@@ -5,6 +5,27 @@
 - Installation : <https://docs.docker.com/engine/install/centos/#install-using-the-repository>
 - [Best practices & Developing with Docker](https://docs.docker.com/develop/develop-images/multistage-build/#stop-at-a-specific-build-stage)
 
+### Installation on Windows
+
+[Install in different directory](https://forums.docker.com/t/docker-installation-directory/32773/11)
+
+```powershell
+mklink /j "C:\ProgramData\Docker" "D:\Apps\docker\ProgramData\Docker"
+mklink /j "C:\ProgramData\DockerDesktop" "D:\Apps\docker\ProgramData\DockerDesktop"
+mklink /j "C:\Program Files\Docker" "D:\Apps\docker\Program Files\Docker"
+mklink /j "C:\Users\omega\AppData\Local\Docker" "D:\Apps\docker\Users\omega\AppData\Local\Docker"
+
+New-Item -ItemType Directory -Force -Path "D:\Apps\docker\ProgramData\Docker"
+New-Item -ItemType Directory -Force -Path "D:\Apps\docker\ProgramData\DockerDesktop"
+New-Item -ItemType Directory -Force -Path "D:\Apps\docker\Program Files\Docker"
+New-Item -ItemType Directory -Force -Path "D:\Apps\docker\Users\omega\AppData\Local\Docker"
+
+New-Item -ItemType Junction -Path "C:\ProgramData\Docker" -Target "D:\Apps\docker\ProgramData\Docker"
+New-Item -ItemType Junction -Path "C:\ProgramData\DockerDesktop" -Target "D:\Apps\docker\ProgramData\DockerDesktop"
+New-Item -ItemType Junction -Path "C:\Program Files\Docker" -Target "D:\Apps\docker\Program Files\Docker"
+New-Item -ItemType Junction -Path "C:\Users\omega\AppData\Local\Docker" -Target "D:\Apps\docker\Users\omega\AppData\Local\Docker"
+```
+
 ### Installation on CentOS
 
 ```bash
@@ -199,6 +220,9 @@ docker system prune -a
 # To print command of docker container running
 # https://github.com/lavie/runlike/
 docker run --rm -v /var/run/docker.sock:/var/run/docker.sock:ro assaflavie/runlike <YOUR-CONTAINER>
+
+# Kill the container, useful for kubernetes testing
+docker kill container_id
 ```
 
 #### Docker container run options
@@ -660,7 +684,7 @@ Master has `kube-apiserver` while worker node has kubelet interacting with each 
 - Network to be setup manually
 - Pod usually is wrapping a container. However, sometimes helper container for an application is required and can be also part of the same pod to be in the same state and life-cycle as the main container. Both containers in that case can communicate via referring to `localhost`. Storage, fate, network & namespace.
 - K8s uses YAML to manage its resources like PODs, Replicas, Deployments, Services ...etc.
-- YAML always container 4 top level fields
+- YAML always contains 4 top level fields
   - apiVersion
     - POD - v1
     - Service - v1
@@ -673,7 +697,12 @@ Master has `kube-apiserver` while worker node has kubelet interacting with each 
 - Different between `apply`, `create`, `patch` & `replace` - [Documentation](https://kubernetes.io/docs/concepts/overview/working-with-objects/object-management/).
 - Services are responsible of communication between resources. For example `NodePort` service for external access to a resource. Others lik `ClusterIP` & `LoadBalancer` More at [Documentation](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types).
 - Service is created among all nodes.
-- Multiple config files to create objects instead of single file like docker-compose
+- Multiple config files to create objects instead of single file like docker-compose.
+- Ports in services
+  - `nodePort`: The port on the node where external traffic will come in on
+  - `port`: The port of this service
+  - `targetPort` The target port on the pod(s) to forward traffic to
+- Traffic comes in on `nodePort`, forwards to port on the service which then routes to `targetPort` on the pod(s). `nodePort` is for external traffic. Other pods in the cluster that may need to access the service will just use port, not `nodePort` as it's internal only access to the service. If targetPort is not set, it will default to the same value as port.
 
 ### Scripts
 
@@ -688,6 +717,13 @@ kubectl run hello
 # to be pulled from docker hub
 kubectl run nginx --image nginx
 
+# For resources, objects and yaml data
+kubectl api-resources
+kubectl api-versions
+kubectl explain services --recursive
+kubectl explain services.spec
+kubectl explain services.spec.type
+
 # Info commands
 kubectl cluster-info
 kubectl get nodes
@@ -698,8 +734,19 @@ kubectl get replicasets.apps
 kubectl describe replicaset myapp-rs
 kubectl get deployments
 kubectl get services
+
+# Testing for client side only
+kubectl apply -f whatever.yaml --dry-run
+
+# Testing with server-side talking
+kubectl apply -f whatever.yaml --server-dry-run
+
+# Visual difference
+kubectl diff -f whatever.yaml
+
 # Storage
 kubectl get pv
+
 # Claims
 kubectl get pvC
 kubectl get all
@@ -811,7 +858,7 @@ spec:
    - targetPort: 80 # port inside the container usually defined in other config at containers section
      port: 80 # exposed port to the inside/internal world for other containers to access
      nodePort: 3008 # exposed port to the outside world
-  selector: # links the service to the pod labeled with these values
+  selector: # links the service to the pod/deployment labeled with these values
     app: myapp
     type: front-end
 ```
