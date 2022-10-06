@@ -675,9 +675,7 @@ start_period: 1m #version 3.4 minimum
 
 Master has `kube-apiserver` while worker node has kubelet interacting with each other. ETCD stores values on the master. The master has also the controller and schedular. The worker node got the container runtime installed on it.
 
-## Kubectl
-
-### Info
+## Info
 
 - K8s expects all images to already be built
 - One config file per object we want to create
@@ -704,9 +702,7 @@ Master has `kube-apiserver` while worker node has kubelet interacting with each 
   - `targetPort` The target port on the pod(s) to forward traffic to
 - Traffic comes in on `nodePort`, forwards to port on the service which then routes to `targetPort` on the pod(s). `nodePort` is for external traffic. Other pods in the cluster that may need to access the service will just use port, not `nodePort` as it's internal only access to the service. If targetPort is not set, it will default to the same value as port.
 
-### Scripts
-
-#### Commands
+## Commands
 
 ```bash
 # Deploy apps on the cluster
@@ -796,7 +792,7 @@ kubectl create secret generic <secret_name> --from-literal <key_name>=whatever_p
 kubectl create secret generic ssh-key-secret --from-file=ssh-privatekey=/path/to/.ssh/id_rsa --from-file=ssh-publickey=/path/to/.ssh/id_rsa.pub
 ```
 
-#### YML
+## YML
 
 Creating a POD
 
