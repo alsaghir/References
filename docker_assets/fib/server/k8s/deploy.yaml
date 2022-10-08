@@ -15,9 +15,9 @@ spec:
       containers:
         - name: server
           image: fib-server
-          imagePullPolicy: Never
+          imagePullPolicy: Never # To get image from local repo only 
           ports:
-            - containerPort: 8081
+            - containerPort: 8081 # Should be exposed from inside the pod
           env:
             - name: REDIS_HOST
               value: redis-cluster-ip-service

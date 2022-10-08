@@ -2,7 +2,6 @@
 FROM debian:latest AS build-env
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG FLUTTER_WEB_CANVASKIT_URL=/
 
 # For adding chrome repo
 RUN apt-get update -qq && apt-get install -qq -y --no-install-recommends \
@@ -67,10 +66,10 @@ COPY . .
 # RUN ls -la ./build/web
 # RUN ls -la /app
 # RUN ls -la /app/build/web/canvaskit
-ARG FLUTTER_WEB_CANVASKIT_URL=/app/build/web/canvaskit
+# ARG FLUTTER_WEB_CANVASKIT_URL=/app/build/web/canvaskit
 RUN flutter build web
-RUN flutter build web
-RUN pwd
+# RUN flutter build web
+# RUN pwd
 
 # Stage 2 - Create the run-time image
 FROM nginx:1.23.1-alpine

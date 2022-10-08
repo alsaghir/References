@@ -13,16 +13,16 @@ spec:
         component: postgres # This is the label for the container/pod
     spec:
       volumes:
-        - name: postgres-storage
-          persistentVolumeClaim:
-            claimName: database-persistent-volume-claim
+        - name: postgres-storage # Used for usage/mounting inside the container/POD
+          persistentVolumeClaim: # defined in postgres-pvc.yaml. This only to allocate that storage
+            claimName: database-persistent-volume-claim # Claim for all resources in that name
       containers:
         - name: postgres
           image: postgres
           ports:
             - containerPort: 5432
-          volumeMounts:
-            - name: postgres-storage
+          volumeMounts: # Use the storage inside the POD
+            - name: postgres-storage # Must match the name above
               mountPath: /var/lib/postgresql/data
           env:
             - name: POSTGRES_PASSWORD

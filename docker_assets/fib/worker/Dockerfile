@@ -1,3 +1,4 @@
+# Build stage
 FROM maven:3-eclipse-temurin-17-alpine as build
 
 WORKDIR /workspace/app
@@ -11,6 +12,8 @@ RUN mvn -B -o install && \
     mkdir -p target/extracted && \
     java -Djarmode=layertools -jar target/*.jar extract --destination target/extracted
 
+# Run stage using non-root user
+# https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#container-images.dockerfiles
 FROM eclipse-temurin:17-jdk-alpine
 ARG USERNAME=developer
 ARG GROUPNAME=developergroup

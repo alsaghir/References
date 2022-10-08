@@ -7,5 +7,5 @@ spec:
   selector:
     component: server
   ports:
-    - port: 5000
-      targetPort: 8081
+    - port: 5000 # route from this port to the targetPort
+      targetPort: 8081 # reroute to this port in the pod

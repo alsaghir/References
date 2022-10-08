@@ -746,6 +746,15 @@ kubectl get replicasets.apps
 kubectl describe replicaset myapp-rs
 kubectl get deployments
 kubectl get services
+# For volumes & Claims
+kubectl get storageclass
+kubectl describe storageclass
+kubectl get pv
+kubectl get pvC
+kubectl get all
+kubectl rollout status deployment/myapp-deployment
+kubectl rollout history deployment/myapp-deployment
+kubectl explain deploy.spec --recursive > deployment_spec.txt
 
 # Testing for client side only
 kubectl apply -f whatever.yaml --dry-run
@@ -755,19 +764,6 @@ kubectl apply -f whatever.yaml --server-dry-run
 
 # Visual difference
 kubectl diff -f whatever.yaml
-
-# Storage
-kubectl get pv
-# Claims
-kubectl get pvC
-kubectl get all
-kubectl rollout status deployment/myapp-deployment
-kubectl rollout history deployment/myapp-deployment
-kubectl explain deploy.spec --recursive > deployment_spec.txt
-
-# Options of creating volumes for kubernetes
-kubectl get storageclass
-kubectl describe storageclass
 
 # Create a  or any resource from yml file
 kubectl create -f pod-definition.yml
