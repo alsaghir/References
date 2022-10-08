@@ -2,8 +2,10 @@
 
 ## References
 
-- Installation : <https://docs.docker.com/engine/install/centos/#install-using-the-repository>
+- [Installation](https://docs.docker.com/engine/install/centos/#install-using-the-repository)
 - [Best practices & Developing with Docker](https://docs.docker.com/develop/develop-images/multistage-build/#stop-at-a-specific-build-stage)
+- [K8S networking](https://docs.docker.com/desktop/networking/)
+- [k8s reference](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/)
 
 ### Installation on Windows
 
@@ -701,6 +703,16 @@ Master has `kube-apiserver` while worker node has kubelet interacting with each 
   - `port`: The port of this service
   - `targetPort` The target port on the pod(s) to forward traffic to
 - Traffic comes in on `nodePort`, forwards to port on the service which then routes to `targetPort` on the pod(s). `nodePort` is for external traffic. Other pods in the cluster that may need to access the service will just use port, not `nodePort` as it's internal only access to the service. If targetPort is not set, it will default to the same value as port.
+- Imperatively done 
+  - Create secrets manually using imperative style (command)
+  - Delete resource (like deployment) using imperative style
+
+### PVC (PersistentVolumeClaim)
+
+- k8s volume is temp on pod level and is destroyed with pod destruction.
+- Persistent Volume is outside pod and stick around. Statically provisioned volumes created ahead of time and dynamically provisioned volumes created when requested on the fly.
+- Persistent Volume Claim is a request to these volumes.
+- [Access Modes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes) controls how volume is used.
 
 ## Commands
 
@@ -708,7 +720,7 @@ Master has `kube-apiserver` while worker node has kubelet interacting with each 
 # Deploy apps on the cluster
 kubectl run hello
 
-# Make a pod automatically and start container
+# Make a pod automatically and start containeVr
 # in it. Image name is references
 # to be pulled from docker hub
 kubectl run nginx --image nginx
@@ -717,8 +729,12 @@ kubectl run nginx --image nginx
 kubectl api-resources
 kubectl api-versions
 kubectl explain services --recursive
-kubectl explain services.spec
+kubectl explain services.spec -o yaml
 kubectl explain services.spec.type
+
+# https://kubernetes.github.io/ingress-nginx/troubleshooting/#debug-logging
+# Debug an ingress by adding --v=XX flag to "- args" to increase log level
+kubectl edit deployment -n <namespace-of-ingress-controller> ingress-nginx-controller
 
 # Info commands
 kubectl cluster-info
@@ -742,7 +758,6 @@ kubectl diff -f whatever.yaml
 
 # Storage
 kubectl get pv
-
 # Claims
 kubectl get pvC
 kubectl get all
@@ -783,13 +798,20 @@ kubectl rollout undo deployment/myapp-deployment
 # of type NodePort
 kubectl expose deployment webapp-deployment --name=webapp-service --target-port=8080 --type=NodePort --port=8080 --dry-run=client -o yaml
 
-# to force deployment to use new version of pushed image
+# to force deployment to use new version of pushed image without using
+# version of an image in the yaml config file
+# deployment_name, image_name & container_name are in the yaml of a deployment
+# The tag is specified when pushed/built the image using docker
 # kubectl set image <object_type>/<object_name> <container_name>=<new image to use>
 kubectl set image deployment/whatever_deployment whatever_container=image_name:tag
 
 # Create a secret
 kubectl create secret generic <secret_name> --from-literal <key_name>=whatever_password
 kubectl create secret generic ssh-key-secret --from-file=ssh-privatekey=/path/to/.ssh/id_rsa --from-file=ssh-publickey=/path/to/.ssh/id_rsa.pub
+
+# Delete an object in the cluster or all objects of specific type
+kubectl delete -f whatever.yaml
+kubectl delete --all deployments
 ```
 
 ## YML
@@ -922,14 +944,14 @@ spec:
 ---
 apiVersion: apps/v1
 kind: Deployment
-metadata:
+metadata: # Can have a label to label this deployment
   name: postgres-deployment
 spec:
   replicas: 1
-  selector:
+  selector: # What pods to select and manage by this deployment
     matchLabels:
       component: postgres
-  template:
+  template: # Created pods labels to be selected by services and deployments (look above in spec.selector)
     metadata:
       labels:
         component: postgres
@@ -956,3 +978,7 @@ spec:
                   name: pgpassword # name of the secret
                   key: PGPASSWORD  # the secret key
 ```
+
+# K8S Example
+
+- [fibonacci calculator](./docker_assets/fib/README.md)
