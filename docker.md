@@ -331,6 +331,7 @@ Drivers types of containers networks
 - [Volumes Reference](https://docs.docker.com/engine/reference/builder/#volume)
 - [Backup/Restore data from/to volumes](https://docs.docker.com/storage/volumes/#backup-restore-or-migrate-data-volumes)
 - [Bind mounts](https://docs.docker.com/storage/bind-mounts/) & [Using them with Compose](https://docs.docker.com/storage/bind-mounts/#use-a-bind-mount-with-compose)
+- [k8s services and how it load balances traffic to pods](https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies)
 
 
 ### Docker Compose
@@ -808,6 +809,14 @@ kubectl create secret generic ssh-key-secret --from-file=ssh-privatekey=/path/to
 # Delete an object in the cluster or all objects of specific type
 kubectl delete -f whatever.yaml
 kubectl delete --all deployments
+
+# Open a shell to a node
+# by adding a debugging/ephemeral container
+# to a running pod or node
+# first run "kubectl get nodes"
+kubectl debug node/node-worker -it --image=busybox
+kubectl debug -it ephemeral-demo-pod --image=busybox:1.28 --target=ephemeral-demo-pod
+kubectl debug -it pods/service-b-774d4f6cd4-bjf85 -image=ellerbrock/alpine-bash-curl-ssl -— curl 127.0.0.1:8080
 ```
 
 ## YML
