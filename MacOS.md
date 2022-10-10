@@ -14,6 +14,8 @@ kinit && mwinit
 brew install awscli
 brew install zsh-completions
 brew install git
+brew install syncthing
+sdk install java 17.0.4-amzn
 
 # Flush DNS
 sudo killall -HUP mDNSResponder;sudo killall mDNSResponderHelper;sudo dscacheutil -flushcache
@@ -24,7 +26,9 @@ brazil setup platform-support
 
 ## Tips
 
-- Screen shot = Shift + Command + 3
+- Full screenshot = Shift + Command + 3
+- Region screenshot = Shift + Command + 4
+- Minimize all windows by `Command + Option + H` then `Command + H`
 
 ### Terminate hanged SSH connection terminal
 

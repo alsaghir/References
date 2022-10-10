@@ -83,4 +83,12 @@ brazil workspace show
 brazil ws use --versionSet BT101AsolymanV1/development
 # Use package
 brazil ws use --package BT101AsolymanV1
+
+ # Adding package to version set is done through brazil merge. This could be done either by
+brazil ws merge
+# or after "https://build.amazon.com/merge" then update version set metadata in local environment
+brazil ws sync —md
+# Or do brazil use package to clone it and build it then it's seen by your workplace
+# and to build your package along with other packages in the workplace
+bbb
 ```
