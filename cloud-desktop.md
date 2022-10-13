@@ -71,6 +71,15 @@ ssh-keygen -t RSA -b 2048
 # The Midway cookie and SSH certificate are valid for 20 hours since creation. You can check if your certificate is valid by running the following and looking at the Valid value.
 ssh-keygen -L -f ~/.ssh/id_rsa-cert.pub
 
+# For code syncing
+# https://docs.syncthing.net/users/contrib.html#id1
+# Use screen to run in separated process
+curl -sS https://webinstall.dev/syncthing | bash
+syncthing --gui-address=asolyman.aka.corp.amazon.com:8384
+
+# Sync Version Set metadata
+brazil workspace sync --metadata
+
 # To clone a package. 2 steps required
 # 1- Create a workspace. 2- Use a package
 
@@ -91,4 +100,26 @@ brazil ws sync —md
 # Or do brazil use package to clone it and build it then it's seen by your workplace
 # and to build your package along with other packages in the workplace
 bbb
+
+# Sync code from Gitfarm with local, specially after merge
+brazil ws sync
+# or
+git pull
+```
+
+- Port forwarding could be done adding the following record to `~/.ssh/config`
+
+```sh
+cat ~/.ssh/config
+host devdsk
+  HostName <devdskHostname>
+  LocalForward 8385 127.0.0.1:8384
+```
+
+- Tips
+
+```sh
+# Compile and clean built artifacts
+brazil-build clean
+brazil ws clean
 ```
