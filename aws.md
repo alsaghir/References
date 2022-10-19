@@ -4,7 +4,11 @@
 
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 - [AWS Command Completion](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-completion.html#cli-command-completion-windows)
-- [EC2 Instance types](https://aws.amazon.com/ec2/instance-types/)
+- [EC2 Instance types](https://aws.amazon.com/ec2/instance-types)
+- [AWS Policy Generator](https://awspolicygen.s3.amazonaws.com/policygen.html)
+- [AWS Pricing Calculator](https://calculator.aws)
+- [IAM Policy Simulator](https://policysim.aws.amazon.com)
+- [EC2 Instance Metadata](http://169.254.169.254/latest/meta-data)
 
 ---
 
@@ -34,9 +38,14 @@ Region Table: https://aws.amazon.com/about-aws/global-infrastructure/regional-pr
 
 ---
 
-## IAM
+## Services
 
-### Users & Groups
+### IAM
+
+- You need access key id and secret access key to access the services via API or CLI. Best practice is to leverage IAM Role rather than IAM User and access keys.
+- ARN (Amazon Resource Name) format = arn:partition:service:region:account:resource
+
+#### Users & Groups
 
 - IAM = Identity and Access Management, **Global** service
 - **Root account** created by default, shouldn’t be used or shared
@@ -44,25 +53,35 @@ Region Table: https://aws.amazon.com/about-aws/global-infrastructure/regional-pr
 - **Groups** only contain users, not other groups
 - Users don’t have to belong to a group, and user can belong to multiple groups
 
-### Permissions
+#### Permissions
 
 - **Users or Groups** can be assigned JSON documents called policies
 - These policies define the **permissions** of the users
 - In AWS you apply the **least privilege principle**: don’t give more permissions than a user needs
 
-### IAM Roles for Services
+#### IAM Roles for Services
 
 - Some AWS service will need to perform actions on your behalf
-- To do so, we will assign permissions to AWS services with IAM Roles
+- To do so, we will assign permissions to AWS services with IAM Roles. Roles could be assumed by user, ec2 instances, apps...etc.
+- When a user assumes a role. temp security credentials are created dynamically and provided to the user.
+- Assuming Role is done by calling AWS Security Token Service (STS) AssumeRole APIs (AssumeRole, AssumeRoleWithWebIdentity and AssumeRoleWithSAML). API will return temp credentials used to sign requests to AWS service APIs.
 - Common roles:
   - EC2 Instance Roles
   - Lambda Function Roles
-  - Roles for CloudFormation 
+  - Roles for CloudFormation
 
-### IAM Policies Structure
+#### IAM Policies Structure
 
-- Managed policy is a standalone policy that is created and administered by AWS
+- Managed policy is a standalone policy that is created and administered by AWS. Polices created by the customer are also managed and has more control than ones created by AWS.
 - Inline policy is a policy that's embedded in an IAM identity (a user, group, or role). You can create a policy and embed it in an identity, either when you create the identity or later.
+
+- Multiple statements are combined with logical OR.
+- Multiple policies are combined with logical OR.
+
+- Identity-based policies and resource-based policies
+  - Identity-based policies are attached to an IAM user, group, or role. These policies let you specify what that identity can do (its permissions). For example, you can attach the policy to the IAM user named John, stating that he is allowed to perform the Amazon EC2 RunInstances action. The policy could further state that John is allowed to get items from an Amazon DynamoDB table named MyCompany. You can also allow John to manage his own IAM security credentials. Identity-based policies can be managed or inline.
+  - Resource-based policies are attached to a resource. For example, you can attach resource-based policies to Amazon S3 buckets, Amazon SQS queues, VPC endpoints, and AWS Key Management Service encryption keys. With resource-based policies, you can specify who has access to the resource and what actions they can perform on it. Resource-based policies are inline only, not managed.
+- Session policies – Pass advanced session policies when you use the AWS CLI or AWS API to assume a role or a federated user. Session policies limit the permissions that the role or user's identity-based policies grant to the session. Session policies limit permissions for a created session, but do not grant permissions.
 
 
 Consists of
@@ -71,8 +90,7 @@ Consists of
 - Statement: one or more individual statements (required)
 - Statements consists of
   - Sid: an identifier for the statement (optional)
-  - Effect: whether the statement allows or denies access
-(Allow, Deny)
+  - Effect: whether the statement allows or denies access (Allow, Deny)
   - Principal: account/user/role to which this policy applied to
   - Action: list of actions this policy allows or denies
   - Resource: list of resources to which the actions applied to
@@ -98,14 +116,25 @@ Consists of
 }
 ```
 
-### Notes
+#### Notes
 
 - Access to billing information is handled from root account > Account > IAM User and Role Access to Billing Information.
 - Create a cost budget to limit the payment for your account with threshold alert
+- For debugging
+  - Access advisor (user-level) shows the access by service to revise the user access. It's in the user summery as separate tab.
+  - Credentials Report (account-level) generates a report that lists all your account's users and the status of their various credentials. It can be downloaded from IAM service console management page on the lift side at (Credential report).
+  - Use [AWS Policy Generator](https://awspolicygen.s3.amazonaws.com/policygen.html) & [IAM Policy Simulator](https://policysim.aws.amazon.com)
+  - Use --dry-run with AWS CLI commands that supports it like `aws ec2 run-instances --dry-run --image-id ami-06340c8c12baa6a09 --instance-type t2.micro` and error message could be decoded using `aws stst decode-authorization-message --encoded-message xxxxxxxxx`.
+  - Use AWS IAM Access Analyzer which provides the following capabilities:
+    - IAM Access Analyzer helps identify resources in your organization and accounts that are shared with an external entity.
+    - IAM Access Analyzer validates IAM policies against policy grammar and best practices.
+    - IAM Access Analyzer generates IAM policies based on access activity in your AWS CloudTrail logs.
+- MFA with CLI could be done using `aws sts get-session-token --serial-number <mfa_device_arn> --token-code <code_from_token> --duration-seconds 3600`
+- STS service used to get temp credentials for cli/sdk usage.
 
 ---
 
-## EC2
+### EC2
 
 It mainly consists in the capability of:
 - Renting virtual machines (EC2)
@@ -138,7 +167,7 @@ sdk i maven
 printf 'export JAVA_HOME=$(which javac)' >> ~/.bashrc
 ```
 
-### Security Groups
+#### Security Groups
 
 - Security Groups are the fundamental of network security in AWS
 - They control how traffic is allowed into or out of our EC2 Instances.
@@ -161,14 +190,14 @@ error or it’s not launched
 - All inbound traffic is **blocked** by default
 - All outbound traffic is **authorized** by default
 
-### Notes
+#### Notes
 
 - Connect using SSH with user `ec2-user`
 - [Elastic IP address](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html) is a public IPv4 address, which is reachable from the internet. If your instance does not have a public IPv4 address, you can associate an Elastic IP address with your instance to enable communication with the internet. It's designed for dynamic cloud computing
 
 ---
 
-## Elastic Beanstalk
+### Elastic Beanstalk
 
 ### Overview
 
@@ -189,7 +218,7 @@ ECS vs EKS
 
 ---
 
-## VPC
+### VPC
 
 - VPC is region specific across multiple availability zones
 - VPC = region + IP range
@@ -202,7 +231,7 @@ ECS vs EKS
 - To apply routing table, associate it with wanted subnets
 - Network ACL is firewall at subnet level
 
-### Security groups vs NACL
+#### Security groups vs NACL
 
 - Scope: EC2 Instance - Subnet
 - Stateful (one rule for in/out) - Stateless
@@ -215,13 +244,13 @@ ECS vs EKS
 
 ---
 
-## Storage
+### Storage
 
 - EC2 instance store is temp while the instance is up and is directly attached.
 - EBS volumes are persistent because they are network attached drives.
 - Amazon Elastic File System (EFS) can be mounted onto multiple EC2 instances.
 
-### S3
+#### S3
 
 - There 6 tiers/classes for storage.
 - Transition actions could be define for automated transitions from one storage class to another.
@@ -233,6 +262,7 @@ ECS vs EKS
 - CloudFront used to cache static data in close of users and can get these data from S3.
 - Route53 is for domain name management.
 - Api Gateway as entry point and can delegate requests to Lambda or any backend.
+- STS service used to get temp credentials for cli/sdk usage.
 
 ---
 
