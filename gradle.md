@@ -12,6 +12,9 @@
 - [Plugins Portal](https://plugins.gradle.org/)
 - [Java Plugin](https://docs.gradle.org/current/userguide/java_plugin.html#java_plugin)
 - [Base Plugin](https://docs.gradle.org/current/userguide/base_plugin.html#header)
+- [Maven phases to Gradle tasks](https://docs.gradle.org/current/userguide/migrating_from_maven.html#migmvn:build_lifecycle)
+- [Task Configuration Avoidance](https://docs.gradle.org/current/userguide/task_configuration_avoidance.html#task_configuration_avoidance)
+- [Responding to the lifecycle in the build script](https://docs.gradle.org/current/userguide/build_lifecycle.html#build_lifecycle_events)
 
 ## Commands
 
@@ -28,6 +31,12 @@ gradle init --dsl kotlin
 
 ## Notes
 
+- Settings file executed during initialization phase. `settings.gradle.kts` file in the root project of the multi-project hierarchy.
+- Build phases: A Gradle build has three distinct phases.
+	- **Initialization**: Gradle supports single and multi-project builds. During the initialization phase, Gradle determines which projects are going to take part in the build, and creates a Project instance for each of these projects.
+	- **Configuration**: During this phase the project objects are configured. The build scripts of all projects which are part of the build are executed.
+	- **Execution**: Gradle determines the subset of the tasks, created and configured during the configuration phase, to be executed. The subset is determined by the task name arguments passed to the gradle command and the current directory. Gradle then executes each of the selected tasks.
+- Maven phases to Gradle tasks
 
 
 ## Examples
@@ -81,7 +90,77 @@ dependencies {
 tasks.named<Test>("test") {
 	useJUnitPlatform()
 }
+```
 
+```kotlin
+// Default tasks are executed if no other tasks are specified
+defaultTasks("clean", "run")
+
+// Using Kotlin delegated properties to register new tasks
+// Task named hello and referenced with hello variable
+val hello by tasks.registering {
+    doLast {
+        println("hello")
+    }
+}
+
+val copy by tasks.registering(Copy::class) {
+    from(file("srcDir"))
+    into(buildDir)
+}
+
+// Accessing task by name
+println(tasks.named("hello").get().name) // or just 'tasks.hello' if the task was added by a plugin
+println(hello.get().name) // or just 'tasks.hello' if the task was added by a plugin
+println(tasks.named<Copy>("copy").get().destinationDir)
+
+// Configuring task already exists by name
+tasks.named<Copy>("myCopy") {
+    from("resources")
+    into("target")
+    include("**/*.txt", "**/*.xml", "**/*.properties")
+}
+
+// Accessing tasks with type
+tasks.withType<Tar>().configureEach {
+    enabled = false
+}
+
+// new task by name that depends on other task by type
+tasks.register("test") {
+    dependsOn(tasks.withType<Copy>())
+}
+
+// Accessing tasks by path
+tasks.register("hello") // project-a/build.gradle.kts
+tasks.register("hello") // build.gradle.kts
+
+// Output of
+// gradle -q hello
+// :hello
+// :hello
+// :project-a:hello
+// :project-a:hello
+println(tasks.getByPath("hello").path)
+println(tasks.getByPath(":hello").path)
+println(tasks.getByPath("project-a:hello").path)
+println(tasks.getByPath(":project-a:hello").path)
+
+// Configure task using Kotlin delegated properties and a lambda
+// first reference existing task by type
+val myCopy by tasks.existing(Copy::class) {
+    from("resources")
+    into("target")
+}
+// configure the task by referenced variable
+myCopy {
+    include("**/*.txt", "**/*.xml", "**/*.properties")
+}
+
+// Configure task added by plugin
+tasks.test {
+	// whatever
+}
 ```
 
 ## Notes about domain Objects

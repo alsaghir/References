@@ -13,7 +13,7 @@
 
 ```powershell
 mklink /j "C:\ProgramData\Docker" "D:\Apps\docker\ProgramData\Docker"
-mklink /j "C:\ProgramData\DockerDesktop" "D:\Apps\docker\ProgramData\DockerDesktop"
+# mklink /j "C:\ProgramData\DockerDesktop" "D:\Apps\docker\ProgramData\DockerDesktop"
 mklink /j "C:\Program Files\Docker" "D:\Apps\docker\Program Files\Docker"
 mklink /j "C:\Users\omega\AppData\Local\Docker" "D:\Apps\docker\Users\omega\AppData\Local\Docker"
 
