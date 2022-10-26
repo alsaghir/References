@@ -22,6 +22,8 @@ sudo killall -HUP mDNSResponder;sudo killall mDNSResponderHelper;sudo dscacheuti
 
 # For each brazil workspace
 brazil setup platform-support
+
+brazil workspace use --platform AL2_x86_64
 ```
 
 ## Tips
