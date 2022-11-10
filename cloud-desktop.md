@@ -54,6 +54,9 @@ source ~/.zshrc
 # For each brazil workspace
 brazil setup platform-support
 
+# For Java usage
+brazil setup --java
+
 # Install NodeJS
 # https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-up-node-on-ec2-instance.html
 # https://github.com/nvm-sh/nvm#installing-and-updating
