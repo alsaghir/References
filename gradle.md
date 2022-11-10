@@ -15,6 +15,11 @@
 - [Maven phases to Gradle tasks](https://docs.gradle.org/current/userguide/migrating_from_maven.html#migmvn:build_lifecycle)
 - [Task Configuration Avoidance](https://docs.gradle.org/current/userguide/task_configuration_avoidance.html#task_configuration_avoidance)
 - [Responding to the lifecycle in the build script](https://docs.gradle.org/current/userguide/build_lifecycle.html#build_lifecycle_events)
+- [Configuring the Build Environment](https://docs.gradle.org/current/userguide/build_environment.html#sec:gradle_configuration_properties)
+- [Listing dependencies in a project](https://docs.gradle.org/current/userguide/dependency_management.html#sec:listing_dependencies)
+- [Spring boot Gradle plugin](https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/htmlsingle/)
+- [Init scripts](https://docs.gradle.org/current/userguide/init_scripts.html)
+- [Dependency configurations (implementation, runtimeOnly, testImplementation..etc)](https://docs.gradle.org/current/userguide/declaring_dependencies.html#sec:what-are-dependency-configurations)
 
 ## Commands
 
@@ -27,6 +32,18 @@ gradle tasks --all
 
 # initialize inside new project folder
 gradle init --dsl kotlin
+
+# List dependencies
+# https://docs.gradle.org/current/dsl/org.gradle.api.tasks.diagnostics.DependencyReportTask.html
+gradle dependencies
+gradle :app:dependencies
+gradle dependencies --configuration runtime
+
+# implemented in DependencyInsightReportTask
+# It allows to limit a dependencies tree only to selected dependency (also transitive).
+# https://docs.gradle.org/current/dsl/org.gradle.api.tasks.diagnostics.DependencyInsightReportTask.html
+gradle :app:dependencyInsight --configuration testRuntimeClassPath --dependency spring-core
+gradle :app:dependencyInsight --configuration testRuntimeClassPath --dependency org.slf4j:slf4j-simple:1.7.7 
 ```
 
 ## Notes
@@ -160,6 +177,13 @@ myCopy {
 // Configure task added by plugin
 tasks.test {
 	// whatever
+}
+
+// Register new task called allDeps for all projects
+// Running gradle allDeps with execute 'dependencies' task
+// which is coming from 'DependencyReportTask' on all projects
+allprojects {
+    val allDeps by tasks.registering(DependencyReportTask::class) {}
 }
 ```
 

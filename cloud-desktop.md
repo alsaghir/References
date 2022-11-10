@@ -44,8 +44,8 @@ toolbox install cr
 curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-sdk install java 17.0.4-amzn
-sdk default java 17.0.4-amzn
+sdk install java 17.0.5-amzn
+sdk default java 17.0.5-amzn
 
 echo 'export JAVA_HOME=~/.sdkman/candidates/java/current' >> ~/.zshrc
 echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.zshrc

@@ -265,5 +265,11 @@ $env:Path = "C:\MyPath;$env:Path"
 # String based solution is also possible if you don't want to write types
 
 [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\bin", "Machine")
+
+# Syncthing docker command
+docker run -d --name=syncthing-windows --network=cnetwork -p 8385:8384 -p 22001:22000/tcp -p 22001:22000/udp -p 21028:21027/udp -v //d/Apps/syncthing_data:/var/syncthing --hostname=syncthing-windows syncthing/syncthing:latest
+
+# IP of wsl instance
+wsl -d "Ubuntu" hostname -I
 ```
 
