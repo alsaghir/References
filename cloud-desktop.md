@@ -39,8 +39,6 @@ sudo mkdir -p -m 755 /workplace/${USER}
 sudo chown -R ${USER}:amazon /workplace/${USER}
 ln -s /workplace/${USER} ~/workplace
 
-toolbox install cr
-
 curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 
@@ -50,6 +48,15 @@ sdk default java 17.0.5-amzn
 echo 'export JAVA_HOME=~/.sdkman/candidates/java/current' >> ~/.zshrc
 echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.zshrc
 source ~/.zshrc
+
+# mcurl is a CURL wrapper that allows you to call Midway enabled websites.
+mkdir -p ~/bin
+curl https://s3.amazonaws.com/com.amazon.aws.midway.software/linux/mcurl.sh \
+  -o ~/bin/mcurl && chmod +x ~/bin/mcurl
+
+# After new cloud desktop with same alias, clear all keys
+# related to that alias
+ssh-keygen -R asolyman.aka.corp.amazon.com
 
 # For each brazil workspace
 brazil setup platform-support
