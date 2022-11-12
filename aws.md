@@ -9,6 +9,7 @@
 - [AWS Pricing Calculator](https://calculator.aws)
 - [IAM Policy Simulator](https://policysim.aws.amazon.com)
 - [EC2 Instance Metadata](http://169.254.169.254/latest/meta-data)
+- [Providing access to an IAM user in another AWS account that you own](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_common-scenarios_aws-accounts.html)
 
 ---
 
@@ -50,17 +51,17 @@ Region Table: https://aws.amazon.com/about-aws/global-infrastructure/regional-pr
 
 The following policy types, listed in order from most frequently used to less frequently used, are available for use in AWS.
 
-- Identity-based policies – Attach managed and inline policies to IAM identities (users, groups to which users belong, or roles). Identity-based policies grant permissions to an identity.
+- <u>**Identity-based**</u> policies – Attach managed and inline policies to IAM identities (users, groups to which users belong, or roles). Identity-based policies grant permissions to an identity.
 
-- Resource-based policies – Attach inline policies to resources. The most common examples of resource-based policies are Amazon S3 bucket policies and IAM role trust policies. Resource-based policies grant permissions to the principal that is specified in the policy. Principals can be in the same account as the resource or in other accounts.
+- <u>**Resource-based**</u> policies – Attach inline policies to resources. The most common examples of resource-based policies are Amazon S3 bucket policies and IAM role trust policies. Resource-based policies grant permissions to the principal that is specified in the policy. Principals can be in the same account as the resource or in other accounts.
 
-- Permissions boundaries – Use a managed policy as the permissions boundary for an IAM entity (user or role). That policy defines the maximum permissions that the identity-based policies can grant to an entity, but does not grant permissions. Permissions boundaries do not define the maximum permissions that a resource-based policy can grant to an entity.
+- <u>**Permissions boundaries**</u> – Use a managed policy as the permissions boundary for an IAM entity (user or role). That policy defines the maximum permissions that the identity-based policies can grant to an entity, but does not grant permissions. Permissions boundaries do not define the maximum permissions that a resource-based policy can grant to an entity.
 
-- Organizations SCPs – Use an AWS Organizations service control policy (SCP) to define the maximum permissions for account members of an organization or organizational unit (OU). SCPs limit permissions that identity-based policies or resource-based policies grant to entities (users or roles) within the account, but do not grant permissions.
+- <u>**Organizations SCPs**</u> – Use an AWS Organizations service control policy (SCP) to define the maximum permissions for account members of an organization or organizational unit (OU). SCPs limit permissions that identity-based policies or resource-based policies grant to entities (users or roles) within the account, but do not grant permissions.
 
-- Access control lists (ACLs) – Use ACLs to control which principals in other accounts can access the resource to which the ACL is attached. ACLs are similar to resource-based policies, although they are the only policy type that does not use the JSON policy document structure. ACLs are cross-account permissions policies that grant permissions to the specified principal. ACLs cannot grant permissions to entities within the same account.
+- <u>**Access control lists (ACLs)**</u> – Use ACLs to control which principals in other accounts can access the resource to which the ACL is attached. ACLs are similar to resource-based policies, although they are the only policy type that does not use the JSON policy document structure. ACLs are cross-account permissions policies that grant permissions to the specified principal. ACLs cannot grant permissions to entities within the same account.
 
-- Session policies – Pass advanced session policies when you use the AWS CLI or AWS API to assume a role or a federated user. Session policies limit the permissions that the role or user's identity-based policies grant to the session. Session policies limit permissions for a created session, but do not grant permissions.
+- <u>**Session policies**</u> – Pass advanced session policies when you use the AWS CLI or AWS API to assume a role or a federated user. Session policies limit the permissions that the role or user's identity-based policies grant to the session. Session policies limit permissions for a created session, but do not grant permissions.
 
 - **Identity-based policies vs resource-based policies**
   - Identity-based policies are attached to an IAM user, group, or role. These policies let you specify what that identity can do (its permissions). For example, you can attach the policy to the IAM user named John, stating that he is allowed to perform the Amazon EC2 RunInstances action. The policy could further state that John is allowed to get items from an Amazon DynamoDB table named MyCompany. You can also allow John to manage his own IAM security credentials. Identity-based policies can be managed or inline.
@@ -85,7 +86,14 @@ The following policy types, listed in order from most frequently used to less fr
 - Some AWS service will need to perform actions on your behalf
 - To do so, we will assign permissions to AWS services with IAM Roles. Roles could be assumed by user, ec2 instances, apps...etc.
 - When a user assumes a role. temp security credentials are created dynamically and provided to the user.
-- Assuming Role is done by calling AWS Security Token Service (STS) AssumeRole APIs (AssumeRole, AssumeRoleWithWebIdentity and AssumeRoleWithSAML). API will return temp credentials used to sign requests to AWS service APIs.
+- Assuming Role is done by calling AWS Security Token Service (STS) AssumeRole APIs. API will return temp credentials used to sign requests to AWS service APIs.
+  - AssumeRole
+  - AssumeRoleWithWebIdentity
+  - AssumeRoleWithSAML
+  - GetSessionToken - for MFA from a user or AWS account root user
+  - GetFederationToken - Obtain temp credentials for a federated user
+  - GetCallerIdentity - return details about the IAM user or role used in the API call
+  - DecodeAuthorizationMessage - decode error message when an AWS api is denied
 - Common roles:
   - EC2 Instance Roles
   - Lambda Function Roles
@@ -133,6 +141,68 @@ Consists of
 
 #### Notes
 
+- IAM polices are attached to user, roles and groups
+- Policy is DENY by default and unless explicit ALLOW is stated. DENY overrides ALLOW in policies. Priority from high to low is explicit deny > explicit allow > implicit deny.
+- Multiple policies together outputs the union of these policies.
+  - So S3 bucket policy with NO policy + EC2 Instance that ALLOW writing to that bucket results ALLOW as an output of union.
+  - So S3 bucket policy with ALLOW policy + EC2 Instance that ALLOW writing to that bucket results DENY as an output of union because of the explicit deny.
+- STS also used to [provide access to an IAM user in another AWS account that you own](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_common-scenarios_aws-accounts.html)
+- Passing Role to service
+  - Roles could be passed to services that has trust relationship with that Role. This is done on service setup.
+  - You need IAM permission `iam:PassRole` which often comes with `iam:GetRole` to view the role being passed. Example for role that allows passing role (specified by arn) to ec2 instances
+    ```json
+      { "Version": "2012-10-17",
+        "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+              "iam:PassRole",
+              "ec2:*"
+          ],
+          "Resource": "arn:aws:iam:123456789:ro;e/S3Access"
+        }
+      ]
+    }
+    ```
+  - Example of trust relationship that only lambda service can assume this role
+
+    ```json
+    { "Version": "2012-10-17",
+      "Statement": [{
+              "Effect": "Allow",
+              "Principal": {  "Service": "lambda.amazonaws.com" },
+              "Action": "sts:AssumeRole"
+          }]
+    }
+    ```
+  
+    The role itself
+ 
+    ```json
+    { "Version": "2012-10-17",
+      "Statement": [
+          {
+              "Action": [
+                  "ec2:*"
+              ],
+              "Resource": "*",
+              "Effect": "Allow"
+          },
+          {
+              "Action": [
+                  "logs:*"
+              ],
+              "Resource": "*",
+              "Effect": "Allow"
+          }
+      ]
+    }
+    ```
+
+- [AssumeRole vs PassRole](https://stackoverflow.com/a/63148509/7054574)
+  - AssumeRole is an API action that allows a principal to get temporary credentials that allows them to then make API calls as the assumed role.
+  - PassRole is not an API call itself, but rather a permission required for a principal to pass a role to another AWS service. 
+  - PassRole determines who should have privileges to assign that role to a service. If there wasn’t a permission for this anybody could take any role in their account and assign it to a service. For example, someone with limited permissions could get escalated permissions by assigning an account administrator role to a lambda or EC2 instance.
 - Access to billing information is handled from root account > Account > IAM User and Role Access to Billing Information.
 - Create a cost budget to limit the payment for your account with threshold alert
 - For debugging
@@ -185,6 +255,15 @@ printf 'export JAVA_HOME=$(which javac)' >> ~/.bashrc
 - AWS supports 2 types of AMIs.
   - HVM (Recommended for performance)
   - Paravirtualization
+
+- Purchasing options
+  - On-Demand Instances – Pay, by the second, for the instances that you launch.
+  - Savings Plans – Reduce your Amazon EC2 costs by making a commitment to a consistent amount of usage, in USD per hour, for a term of 1 or 3 years.
+  - Reserved Instances – Reduce your Amazon EC2 costs by making a commitment to a consistent instance configuration, including instance type and Region, for a term of 1 or 3 years.
+  - Spot Instances – Request unused EC2 instances, which can reduce your Amazon EC2 costs significantly.
+  - Dedicated Hosts – Pay for a physical host that is fully dedicated to running your instances, and bring your existing per-socket, per-core, or per-VM software licenses to reduce costs.
+  - Dedicated Instances – Pay, by the hour, for instances that run on single-tenant hardware.
+  - Capacity Reservations – Reserve capacity for your EC2 instances in a specific Availability Zone for any duration.
 
 #### Security Groups
 
@@ -278,10 +357,21 @@ ECS vs EKS
 
 ## Notes
 
+- Retry should be done on 5xx server errors only. 
 - CloudFront used to cache static data in close of users and can get these data from S3.
 - Route53 is for domain name management.
 - Api Gateway as entry point and can delegate requests to Lambda or any backend.
 - STS service used to get temp credentials for cli/sdk usage.
+- AWS Limits
+  - API Rate Limits
+    - DescribeInstances API for EC2 has a limit of 100 calls per seconds
+    - GetObject on S3 has a limit of 5500 GET per second per prefix
+    - For Intermittent Errors: implement Exponential Backoff 
+    - For Consistent Errors: request an API throttling limit increase
+  - Service Quotas (Service Limits)
+    - Running On-Demand Standard Instances: 1152 vCPU
+    - Service limit increase can be requested by opening a ticket
+    - Service quota increase can be requested programmatically by using the Service Quotas API
 
 ---
 

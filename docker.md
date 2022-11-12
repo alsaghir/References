@@ -648,6 +648,14 @@ start_period: 1m #version 3.4 minimum
 - Use `registry` image to make local registry like docker-hub and use volume with it mapping to `/var/lib/registry` to save images in it. Use tag `<IP>:<PORT>/<NAME>` for the image to push it directly to the docker local registry.
 - Use `USER` stanza in your Dockerfile. If group and user not created by your programming language platform image then create one and use it. Container will run using root by default !
 
+  ```Dockerfile
+  FROM eclipse-temurin:17-jdk-alpine
+  ARG USERNAME=developer
+  ARG GROUPNAME=developergroup
+  RUN addgroup "${GROUPNAME}"; adduser --ingroup "${GROUPNAME}" --disabled-password "${USERNAME}"
+  USER $USERNAME
+  ```
+
 --- 
 
 # Kubernetes

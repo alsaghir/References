@@ -8,6 +8,9 @@
 .vscode/extensions.json
 .history/*
 
+# IDE - IDEA
+.idea/*
+
 # System Files
 .DS_Store
 Thumbs.db

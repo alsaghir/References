@@ -27,6 +27,14 @@
 ### Commands
 
 ```sh
+# Repetitive commands
+brew upgrade
+brew update
+sudo apt-get update
+sudo apt-get upgrade
+sdk update
+sdk selfupdate
+
 # IP of wsl instance
 wsl -d "Ubuntu" hostname -I
 ip addr show eth0 | tr '\n' '\r' | sed -r 's/.*inet\s([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\/[0-9]+).*/\1\n/'
