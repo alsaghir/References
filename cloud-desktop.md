@@ -123,6 +123,10 @@ bbb
 brazil ws sync
 # or
 git pull
+
+# Compile and clean built artifacts
+brazil-build clean
+brazil ws clean
 ```
 
 - Port forwarding could be done adding the following record to `~/.ssh/config`
@@ -132,12 +136,4 @@ cat ~/.ssh/config
 host devdsk
   HostName <devdskHostname>
   LocalForward 8385 127.0.0.1:8384
-```
-
-- Tips
-
-```sh
-# Compile and clean built artifacts
-brazil-build clean
-brazil ws clean
 ```
