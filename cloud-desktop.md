@@ -13,9 +13,17 @@ kinit -f && mwinit -o
 echo 'source /apollo/env/envImprovement/var/zshrc' | cat - ~/.zshrc > temp && mv temp ~/.zshrc
 
 # Or creates a ZSH history file
+echo "\n" >> ~/.zshrc
+echo "# History config" >> ~/.zshrc
 echo "HISTFILE=~/.zsh_history" >> ~/.zshrc
 echo "HISTSIZE=10000" >> ~/.zshrc
 echo "SAVEHIST=10000" >> ~/.zshrc
+echo "setopt HIST_EXPIRE_DUPS_FIRST" >> ~/.zshrc;
+echo "setopt HIST_IGNORE_DUPS" >> ~/.zshrc;
+echo "setopt HIST_IGNORE_ALL_DUPS" >> ~/.zshrc;
+echo "setopt HIST_IGNORE_SPACE" >> ~/.zshrc;
+echo "setopt HIST_FIND_NO_DUPS" >> ~/.zshrc;
+echo "setopt HIST_SAVE_NO_DUPS" >> ~/.zshrc;
 # Choose one of
 echo "setopt APPEND_HISTORY" >> ~/.zshrc
 echo "setopt SHARE_HISTORY" >> ~/.zshrc
