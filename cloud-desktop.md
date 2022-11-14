@@ -156,6 +156,7 @@ host devdsk
 !/packageInfo
 !/release-info
 /.idea
+/src/*/env
 /env
 /logs
 /src/*/var
