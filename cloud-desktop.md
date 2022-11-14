@@ -137,3 +137,26 @@ host devdsk
   HostName <devdskHostname>
   LocalForward 8385 127.0.0.1:8384
 ```
+
+- SyncThing ignore pattern
+
+```
+(?d).DS_Store
+(?d)*.iml
+(?d).idea
+*.wasm
+/src/*/build
+/src/*/bin
+/src/*/pkg
+/*/src/*/node_modules
+/*/node_modules
+/**/node_modules
+!/src
+!/repo
+!/packageInfo
+!/release-info
+/.idea
+/env
+/logs
+/src/*/var
+```
