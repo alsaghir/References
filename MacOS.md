@@ -31,6 +31,7 @@ brazil workspace use --platform AL2_x86_64
 - Full screenshot = Shift + Command + 3
 - Region screenshot = Shift + Command + 4
 - Minimize all windows by `Command + Option + H` then `Command + H`
+- Show path in finder `defaults write com.apple.finder _FXShowPosixPathInTitle -bool YES` then ` killall Finder`
 
 ### Terminate hanged SSH connection terminal
 

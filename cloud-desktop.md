@@ -145,6 +145,7 @@ host devdsk
 (?d)*.iml
 (?d).idea
 *.wasm
+/build
 /src/*/build
 /src/*/bin
 /src/*/pkg
