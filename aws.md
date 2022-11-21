@@ -216,6 +216,15 @@ Consists of
     - IAM Access Analyzer generates IAM policies based on access activity in your AWS CloudTrail logs.
 - MFA with CLI could be done using `aws sts get-session-token --serial-number <mfa_device_arn> --token-code <code_from_token> --duration-seconds 3600`
 - STS service used to get temp credentials for cli/sdk usage.
+- Inline dynamic variables can be used to create dynamic policies like `${aws:username}` and the following example
+  ```json
+  {
+    "Sid": "AllowAllS3ActionInUserFolder",
+    "Action":["s3:*"],
+    "Effect":"Allow",
+    "Resource": ["arn:aws:s3:::my-company/home/${aws:username}/*"]
+  }
+  ``` 
 
 ---
 
@@ -233,6 +242,13 @@ EC2 sizing & configuration options
 - How much random-access memory (RAM)
 - How much storage space:
   - Network-attached (EBS & EFS)
+    - EBS volume types
+      - Solid state drives (SSD) — Optimized for transactional workloads involving frequent read/write operations with small I/O size, where the dominant performance attribute is IOPS.
+        - General Purpose SSD volumes (gp3 & gp2)
+        - Provisioned IOPS SSD volumes (io2 & io2 Block Express & io1)
+      - Hard disk drives (HDD) — Optimized for large streaming workloads where the dominant performance attribute is throughput.
+        - Throughput Optimized HDD - A low-cost HDD designed for frequently accessed, throughput-intensive workloads.
+        - Cold HDD - The lowest-cost HDD design for less frequently accessed workloads.
   - hardware (EC2 Instance Store)
 - Network card: speed of the card, Public IP address
 - Firewall rules: **security group**
@@ -261,8 +277,9 @@ printf 'export JAVA_HOME=$(which javac)' >> ~/.bashrc
   - Savings Plans – Reduce your Amazon EC2 costs by making a commitment to a consistent amount of usage, in USD per hour, for a term of 1 or 3 years.
   - Reserved Instances – Reduce your Amazon EC2 costs by making a commitment to a consistent instance configuration, including instance type and Region, for a term of 1 or 3 years.
   - Spot Instances – Request unused EC2 instances, which can reduce your Amazon EC2 costs significantly.
-  - Dedicated Hosts – Pay for a physical host that is fully dedicated to running your instances, and bring your existing per-socket, per-core, or per-VM software licenses to reduce costs.
-  - Dedicated Instances – Pay, by the hour, for instances that run on single-tenant hardware.
+  - Dedicated - The most expensive
+    - Dedicated Hosts – Pay for a physical host that is fully dedicated to running your instances, and bring your existing per-socket, per-core, or per-VM software licenses to reduce costs.
+    - Dedicated Instances – Pay, by the hour, for instances that run on single-tenant hardware.
   - Capacity Reservations – Reserve capacity for your EC2 instances in a specific Availability Zone for any duration.
 
 #### Security Groups
@@ -288,12 +305,31 @@ error or it’s not launched
 - All inbound traffic is **blocked** by default
 - All outbound traffic is **authorized** by default
 
+#### ELB (Elastic Load Balancer)
+
+- ALP (Application Load Balancer) - HTTP/HTTPS
+- NLB (Network Load Balancer) - TCP & High performance
+- CLB (Classic Load Balancer) - HTTP/HTTPS/TCP
+- GLP (Gateway Load Balancer)
+
 #### Notes
 
 - Connect using SSH with user `ec2-user`
 - [Elastic IP address](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html) is a public IPv4 address, which is reachable from the internet. If your instance does not have a public IPv4 address, you can associate an Elastic IP address with your instance to enable communication with the internet. It's designed for dynamic cloud computing
 
 ---
+
+### Route 53
+
+- Amazon DNS Service that allows mapping domain name that you own to
+  - EC2 Instance
+  - Load Balancers
+  - S3 Buckets
+
+### RDS
+
+- Multi-AZ: Used for disaster recovery
+- Read Replicas: Used for scaling and performance
 
 ### Elastic Beanstalk
 

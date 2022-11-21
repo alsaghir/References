@@ -7,7 +7,7 @@
 - [K8S networking](https://docs.docker.com/desktop/networking/)
 - [k8s reference](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/)
 
-### Installation on Windows
+## Installation on Windows
 
 [Install in different directory](https://forums.docker.com/t/docker-installation-directory/32773/11)
 
@@ -28,7 +28,7 @@ New-Item -ItemType Junction -Path "C:\Program Files\Docker" -Target "D:\Apps\doc
 New-Item -ItemType Junction -Path "C:\Users\omega\AppData\Local\Docker" -Target "D:\Apps\docker\Users\omega\AppData\Local\Docker"
 ```
 
-### Installation on CentOS
+## Installation on CentOS
 
 ```bash
 sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
@@ -74,7 +74,7 @@ $ENV:DOCKER_HOST="tcp://192.168.88.2:2375"
 #$ENV:DOCKER_HOST="ssh://zxc@192.168.88.2"
 ```
 
-### Rules
+## Rules
 
 - Always create a network bridge and don't use the default one for your apps. The default bridge network does not have a built-in DNS service. So you'd have to use `--link` to link containers to each other using their names.
 - Make `RUN` in Dockerfile merged as much as possible.
@@ -89,7 +89,7 @@ $ENV:DOCKER_HOST="tcp://192.168.88.2:2375"
 	&& ln -sf /dev/stderr /var/log/nginx/error.log
     ```
 
-### Commands
+## Commands
 
 ```bash
 # Execute command in running container
@@ -227,7 +227,7 @@ docker run --rm -v /var/run/docker.sock:/var/run/docker.sock:ro assaflavie/runli
 docker kill container_id
 ```
 
-#### Docker container run options
+### Docker container run options
 
 `--publish 8080:80` Maps port 8080 on host to port 80 on containers. It's in `<host>:<container>` format.  
 `-publish-all` Publish all exposed ports to random ports.  
@@ -241,7 +241,7 @@ docker kill container_id
 `-v` Volume applying its configs. See Volumes section below for more info.  
 `-dit` is shorthand for detached mode which run command in the background and interactive to keep STDIN open even if not attached and finally Allocate a pseudo-TTY.
 
-### Networking
+## Networking
 
 Drivers types of containers networks
 
@@ -249,7 +249,7 @@ Drivers types of containers networks
 - None - Isolated containers
 - Host - Connected directly to host network
 
-### DockerFile
+## DockerFile
 
 - Files to copy from host must be in the working directory and not outside.
 - Recommended order is
@@ -265,6 +265,7 @@ Drivers types of containers networks
     - EXPOSE - Open ports from container to virtual network. Just allowing packets to be received on specified container port(s).
     - CMD - Run command when launching the container. Use json array format.
     - HEALTHCHECK - To check the app inside the container is running in proper way.
+    - ONBUILD - To run the command in the [build of a Dockerfile that uses current one as FROM image base](https://stackoverflow.com/a/34865361/7054574)
 
 - Examples
 

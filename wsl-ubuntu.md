@@ -58,6 +58,16 @@ brew install zsh-completions
 brew install git
 brew install gcc
 
+# Prevent store duplicates
+echo "" >> ~/.bashrc;
+echo "# History config" >> ~/.bashrc;
+echo "# - Prevent store duplicates" >> ~/.bashrc;
+echo "# - Append to history, don't overwrite it" >> ~/.bashrc;
+echo "# - Save and reload the history after each command finishes" >> ~/.bashrc;
+echo "HISTCONTROL=ignoredups:erasedups" >> ~/.bashrc;
+echo "shopt -s histappend" >> ~/.bashrc;
+echo "PROMPT_COMMAND=\"history -n; history -w; history -c; history -r; \$PROMPT_COMMAND\"" >> ~/.bashrc;
+
 # Java installation
 # https://sdkman.io/install
 curl -s "https://get.sdkman.io" | bash
