@@ -4,6 +4,9 @@
 
 ```shell
 kinit && mwinit
+
+# For not using the VPN
+mwinit --aea
 ```
 
 ## Commands

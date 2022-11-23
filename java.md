@@ -1,6 +1,16 @@
-# Java Log Concept
+# Java
 
-## Loggers
+## JVM Monitoring Tips
+
+VM limits (for Java services)
+- JMX HeapMemoryAfterGCUse - memory usage within the JVM allocation. Using the AFTER garbage collection metric is important to get an accurate reading. It is important to monitor heap usage because Java services that run out of heap space spend a lot of time garbage collecting. This causes increases in service latency or makes the service stop entirely.
+- JMX FileDescriptorUse - includes network sockets because the socket implementation uses a file descriptor. If the service runs out of file descriptors, it cannot write additional log files, and you may lose logs and metrics for the duration of the event. The service will also be unable to open any additional sockets, which will manifest as connection failures visible to customers.
+- Snitch PercentSpaceInUse - Logging and metrics implementations write to disk, so you will lose logs and metrics if the service runs out of disk space. Unless you have tried it and caught all of the exceptions, running out of disk space will likely also cause IO or Monitoring exceptions to bubble up as service errors, which customers may see.
+- Snitch CPU Utilization - Many services have CPU as the limiting factor in their scaling. High CPU utilization will eventually result in additional service latency, as the operating system will not be able to schedule all processes to run immediately. High CPU utilization can be mitigated by reducing load or adding hardware.
+
+## Java Log Concept
+
+### Loggers
 
 Loggers are responsible for capturing events (called LogRecords)
 and passing them to the appropriate Appender.
@@ -21,7 +31,7 @@ Most logging frameworks provide shorthand methods for logging at a particular le
 
 logger.warning(“This is a warning!”);
 
-## Appenders
+### Appenders
 
 Appenders (also called Handlers in some logging frameworks) are responsible for recording
 log events to a destination. Appenders use Layouts to format events before sending them to an output.
@@ -33,7 +43,7 @@ destinations. For instance, a single event can be simultaneously displayed in a 
 
 Note that java.util.logging refers to Appenders as Handlers.
 
-## Layouts
+### Layouts
 
 Layouts (also called Formatters in some logging frameworks)
 are responsible for converting and formatting the data in a log event.
@@ -53,7 +63,7 @@ Filters aren’t required, but they give you greater control over the flow of yo
 
 `APPLICATION >> LOGGER (FILTER OPTIONALLY) >> HANDLER (FILTER OPTIONALLY) >> OUTSIDE WORLD`
 
-## Log Levels
+### Log Levels
 
 SEVERE(HIGHEST LEVEL)
 WARNING
@@ -63,6 +73,6 @@ FINE
 FINER
 FINEST(LOWEST LEVEL)
 
-## More Info
+### More Info
 
 <https://www.loggly.com/ultimate-guide/java-logging-basics>

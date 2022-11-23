@@ -13,11 +13,11 @@ kinit -f && mwinit -o
 echo 'source /apollo/env/envImprovement/var/zshrc' | cat - ~/.zshrc > temp && mv temp ~/.zshrc
 
 # Or creates a ZSH history file
-echo "\n" >> ~/.zshrc
-echo "# History config" >> ~/.zshrc
-echo "HISTFILE=~/.zsh_history" >> ~/.zshrc
-echo "HISTSIZE=10000" >> ~/.zshrc
-echo "SAVEHIST=10000" >> ~/.zshrc
+echo "\n" >> ~/.zshrc;
+echo "# History config" >> ~/.zshrc;
+echo "HISTFILE=~/.zsh_history" >> ~/.zshrc;
+echo "HISTSIZE=10000" >> ~/.zshrc;
+echo "SAVEHIST=10000" >> ~/.zshrc;
 echo "setopt HIST_EXPIRE_DUPS_FIRST" >> ~/.zshrc;
 echo "setopt HIST_IGNORE_DUPS" >> ~/.zshrc;
 echo "setopt HIST_IGNORE_ALL_DUPS" >> ~/.zshrc;
@@ -53,8 +53,10 @@ source "$HOME/.sdkman/bin/sdkman-init.sh"
 sdk install java 17.0.5-amzn
 sdk default java 17.0.5-amzn
 
-echo 'export JAVA_HOME=~/.sdkman/candidates/java/current' >> ~/.zshrc
-echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.zshrc
+echo "\n" >> ~/.zshrc;
+echo "# Java settings" >> ~/.zshrc;
+echo 'export JAVA_HOME=~/.sdkman/candidates/java/current' >> ~/.zshrc;
+echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.zshrc;
 source ~/.zshrc
 
 # mcurl is a CURL wrapper that allows you to call Midway enabled websites.
