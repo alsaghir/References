@@ -45,9 +45,9 @@ chsh -s $(which zsh)
 cd ~
 read -r -d '' zshOptions <<- EOM
 # history options
-setopt INC_APPEND_HISTORY      # immediatly insert history into history file
+setopt INC_APPEND_HISTORY      # immediately insert history into history file
 EOM
-sed s'/\(^#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK\)/'"${zshOptions}"'\n\n\1/' -i .
+sed s'/\(^#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK\)/'"${zshOptions}"'\n\n\1/' -i 
 
 # IP of wsl instance
 wsl -d "Ubuntu" hostname -I
@@ -96,17 +96,32 @@ source "$HOME/.sdkman/bin/sdkman-init.sh"
 sdk install java 17.0.5-amzn
 sdk default java 17.0.5-amzn
 
-cd ~
-sed s'/\(^#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK\)/# Set JAVA_HOME since java executable set by SDKMAN\n\n\1/' -i .zshrc
-sed s'/\(^# Set JAVA_HOME since java executable set by SDKMAN\)/\1\nexport JAVA_HOME=~\/.sdkman\/candidates\/java\/current/' -i .zshrc
-
 source ~/.bashrc
 
 # Install Syncthing
 # Option-1
 brew install syncthing
 # Option-2
-docker run -d --name=syncthing-wsl --network=cnetwork -p 8384:8384 -p 22000:22000/tcp -p 22000:22000/udp -p 21027:21027/udp -v /home/zxc/Sync:/var/syncthing --hostname=syncthing-wsl syncthing/syncthing:latest
+docker run -v /home/zxc/Sync:/var/syncthing -v /home/zxc/code:/code -d --name=syncthing-wsl --network=cnetwork -p 8384:8384 -p 22000:22000/tcp -p 22000:22000/udp -p 21027:21027/udp --hostname=syncthing-wsl syncthing/syncthing:latest
+```
+
+```jshelllanguage
+import java.nio.charset.*;
+// On Windows WSL this should be
+// zhrc = "//wsl$/Ubuntu/home/zxc/.zshrc";
+var zhrc = System.getProperty("user.home") + "/.zshrc";
+var hist = """
+        # History Options
+        setopt INC_APPEND_HISTORY      # immediately insert history into history file
+        
+        # Set JAVA_HOME since java executable set by SDKMAN
+        export JAVA_HOME=~/.sdkman/candidates/java/current/
+        
+        """;
+var path = FileSystems.getDefault().getPath(zhrc);
+var content = Files.readString(path, StandardCharsets.UTF_8);
+var replaced = content.replaceFirst("#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK", hist + "$0");
+Files.writeString(path, replaced, StandardCharsets.UTF_8);
 ```
 
 ### Startup
