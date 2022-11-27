@@ -355,6 +355,20 @@ error or it’s not launched
 - ACL capable of fine-grained control for user/groups/buckets.
 - Access logs are not enabled by default.
 
+#### S3 Encryption
+
+- Encryption in transit
+  - SSL/TLS
+  - HTTPS
+- Client-Side Encryption
+- Encryption at Rest: SSE (Server-Side Encryption)
+  - SSE-S3 (AES 256-bit) (S3 Managed Keys)
+  - SSE-KMS (AWS Key Management Service, Managed Keys)
+  - SSE-C (Server Side Encryption with Customer Provided Keys)
+- Enforcing Encryption with a Bucket Policy by explicitly deny requests that do not include the `x-amz-server-side-encryption` parameter in the request header. Deny requests that do not use `aws:SecureTransport` to enforce the use of HTTPS/SSL. Two options are currently available:
+  - x-amz-server-side-encryption: AES256 (SSE-S3 - S3 managed keys)
+  - x-amz-server-side-encryption: aws:kms (SSE-KMS - KMS managed keys)
+
 ### Elastic Beanstalk
 
 ### Overview
