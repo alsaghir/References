@@ -35,6 +35,20 @@ sudo apt-get upgrade
 sdk update
 sdk selfupdate
 
+# Install ZSH
+sudo apt install zsh
+sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+# If needed, change current user shell to ZSH as the default shell manually
+chsh -s $(which zsh)
+
+# Configure zsh
+cd ~
+read -r -d '' zshOptions <<- EOM
+# history options
+setopt INC_APPEND_HISTORY      # immediatly insert history into history file
+EOM
+sed s'/\(^#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK\)/'"${zshOptions}"'\n\n\1/' -i .
+
 # IP of wsl instance
 wsl -d "Ubuntu" hostname -I
 ip addr show eth0 | tr '\n' '\r' | sed -r 's/.*inet\s([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\/[0-9]+).*/\1\n/'
@@ -50,6 +64,11 @@ explorer.exe .
 # Brew
 # https://brew.sh/
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+echo '# Set PATH, MANPATH, etc., for Homebrew.' >> ~/.zprofile
+echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+sudo apt-get install build-essential
+brew install gcc
 
 # Dev installations
 sudo apt-get install build-essential
@@ -59,6 +78,7 @@ brew install git
 brew install gcc
 
 # Prevent store duplicates
+# Bash
 echo "" >> ~/.bashrc;
 echo "# History config" >> ~/.bashrc;
 echo "# - Prevent store duplicates" >> ~/.bashrc;
@@ -77,8 +97,8 @@ sdk install java 17.0.5-amzn
 sdk default java 17.0.5-amzn
 
 cd ~
-sed s'/\(^#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK\)/# Set JAVA_HOME since java executable set by SDKMAN\n\n\1/' -i .bashrc
-sed s'/\(^# Set JAVA_HOME since java executable set by SDKMAN\)/\1\nexport JAVA_HOME=~\/.sdkman\/candidates\/java\/current/' -i .bashrc
+sed s'/\(^#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK\)/# Set JAVA_HOME since java executable set by SDKMAN\n\n\1/' -i .zshrc
+sed s'/\(^# Set JAVA_HOME since java executable set by SDKMAN\)/\1\nexport JAVA_HOME=~\/.sdkman\/candidates\/java\/current/' -i .zshrc
 
 source ~/.bashrc
 

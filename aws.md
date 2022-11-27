@@ -331,6 +331,30 @@ error or it’s not launched
 - Multi-AZ: Used for disaster recovery
 - Read Replicas: Used for scaling and performance
 
+### S3
+
+- It's object-based
+- File size can be up to 5 TB
+- Unlimited storage
+- S3 is universal namespace
+- Object considered key + value + version id + metadata
+
+#### [Storage classes](https://aws.amazon.com/s3/storage-classes/)
+
+- Standard (Highest cost) - Suitable for most workloads (e.g., websites, content distribution, mobile and gaming applications, and big data analytics).
+- Standard-Infrequent Access - Long-term, infrequently accessed critical data (e.g., backups, data store for disaster recovery files, etc.). Minimum storage duration: 30 days.
+- One Zone-Infrequent Access - Long-term, infrequently accessed, non-critical data. Minimum storage duration: 30 days.
+- Glacier Instant Retrieval - Long-lived data, accessed approximately once per quarter, and needs millisecond retrieval time. Minimum storage duration: 90 days.
+- Glacier Flexible Retrieval - Long-term data archiving that occasionally needs to be accessed within a few hours or minutes. Minimum storage duration: 90 days.
+- Glacier Deep Archive - Rarely accessed data archiving with a default retrieval time of 12 hours (e.g., financial records for regulatory purposes). Minimum storage duration: 180 days.
+- Intelligent-Tiering (Cost optimized for unknown access patterns) - Unknown or unpredictable access patterns. Minimum storage duration: 30 days.
+
+#### ACL
+
+- While bucket policy controls access to buckets, ACLs control access on object level.
+- ACL capable of fine-grained control for user/groups/buckets.
+- Access logs are not enabled by default.
+
 ### Elastic Beanstalk
 
 ### Overview
