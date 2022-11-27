@@ -163,6 +163,18 @@ gradle :app:dependencyInsight --configuration testRuntimeClassPath --dependency 
     - **Configuration**: During this phase the project objects are configured. The build scripts of all projects which are part of the build are executed.
     - **Execution**: Gradle determines the subset of the tasks, created and configured during the configuration phase, to be executed. The subset is determined by the task name arguments passed to the gradle command and the current directory. Gradle then executes each of the selected tasks.
 - Maven phases to Gradle tasks
+- Domain Objects
+  - [Main api package](https://docs.gradle.org/current/javadoc/org/gradle/api/package-summary.html) contains critical interfaces for build cycles
+  - [Gradle](https://docs.gradle.org/current/javadoc/org/gradle/api/invocation/Gradle.html) object represents invocation of the build.
+  - [Project](https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html) domain object represents the main entry point of a build. `project` n<-->1 `gradle`.
+  - [Task](https://docs.gradle.org/current/javadoc/org/gradle/api/Task.html) represents unit of work with potential dependencies. `task` n<-->1 `project`.
+
+    ```kotlin
+      // Example of retrieving gradle version used
+      project.gradle.gradleVersion
+    ```
+- Action is actual work  performed during execution phase. `action` n<-->0 `task`. Examples are `doLast` and `doFirst` actions.
+- Plugin provides reusable logic for a project. It configures domain objects as necessary and has access to them by name or type.
 
 
 #### Examples
@@ -294,25 +306,6 @@ tasks.test {
 allprojects {
     val allDeps by tasks.registering(DependencyReportTask::class) {}
 }
-```
-
-#### Notes about domain Objects
-
-- [Main api package](https://docs.gradle.org/current/javadoc/org/gradle/api/package-summary.html) contains critical interfaces for build cycles
-
-- [Gradle](https://docs.gradle.org/current/javadoc/org/gradle/api/invocation/Gradle.html) object represents invocation of the build.
-
-- [Project](https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html) domain object represents the main entry point of a build. `project` n<-->1 `gradle`.
-
-- [Task](https://docs.gradle.org/current/javadoc/org/gradle/api/Task.html) represents unit of work with potential dependencies. `task` n<-->1 `project`.
-
-- Action is actual work  performed during execution phase. `action` n<-->0 `task`. Examples are `doLast` and `doFirst` actions.
-
-- Plugin provides reusable logic for a project. It configures domain objects as necessary and has access to them by name or type.
-
-```kotlin
-// Example of retrieving gradle version used
-project.gradle.gradleVersion
 ```
 
 ## Java Log Concept
