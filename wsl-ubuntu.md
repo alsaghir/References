@@ -23,6 +23,13 @@
         [user]
         default=username
         ```
+- Prevent `PATH` sharing
+  - Edit `/etc/wsl.conf`
+  - add the following
+      ```conf
+      [interop]
+      appendWindowsPath = false
+      ```
 
 ### Commands
 

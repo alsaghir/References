@@ -163,9 +163,15 @@ gradle :app:dependencyInsight --configuration testRuntimeClassPath --dependency 
     - **Configuration**: During this phase the project objects are configured. The build scripts of all projects which are part of the build are executed.
     - **Execution**: Gradle determines the subset of the tasks, created and configured during the configuration phase, to be executed. The subset is determined by the task name arguments passed to the gradle command and the current directory. Gradle then executes each of the selected tasks.
 - Maven phases to Gradle tasks
+- `script` object is created from any `.gradle` script then delegates a domain object depending on the current phase.
+  - Initialization:
+    - `script` (`settings.gradle`) > delegates to > `settings` > `project`s objects (prepared for execution phase)
+    - `script` (`init.gradle`) > delegates to > `gradle`
+  - Configuration: script (`build.gradle`) > delegates to > project
+  - Execution: script () > delegates > project
 - Domain Objects
   - [Main api package](https://docs.gradle.org/current/javadoc/org/gradle/api/package-summary.html) contains critical interfaces for build cycles
-  - [Gradle](https://docs.gradle.org/current/javadoc/org/gradle/api/invocation/Gradle.html) object represents invocation of the build.
+  - [Gradle](https://docs.gradle.org/current/javadoc/org/gradle/api/invocation/Gradle.html) object represents invocation of the build. 
   - [Project](https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html) domain object represents the main entry point of a build. `project` n<-->1 `gradle`.
   - [Task](https://docs.gradle.org/current/javadoc/org/gradle/api/Task.html) represents unit of work with potential dependencies. `task` n<-->1 `project`.
 
@@ -306,6 +312,21 @@ tasks.test {
 allprojects {
     val allDeps by tasks.registering(DependencyReportTask::class) {}
 }
+
+// Makes the myProperty project property available 
+// via a myProperty delegated property
+// the project property must exist in this case
+// otherwise the build will fail when the build script 
+// attempts to use the myProperty value
+val myProperty: String by project
+
+// Extra properties are available on any 
+// object that implements the ExtensionAware interface
+// Creates a new extra property called myNewProperty
+// in the current context (the project in this case)
+// and initializes it with the value "initial value",
+// which also determines the property’s type
+val myNewProperty by extra("initial value")
 ```
 
 ## Java Log Concept
