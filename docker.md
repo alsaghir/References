@@ -826,6 +826,9 @@ kubectl delete --all deployments
 kubectl debug node/node-worker -it --image=busybox
 kubectl debug -it ephemeral-demo-pod --image=busybox:1.28 --target=ephemeral-demo-pod
 kubectl debug -it pods/service-b-774d4f6cd4-bjf85 -image=ellerbrock/alpine-bash-curl-ssl -— curl 127.0.0.1:8080
+
+# Access cluster ip service from host machine by using port forward
+kubectl port-forward deployment/redis-deployment 6379:6379
 ```
 
 ## YML

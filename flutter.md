@@ -62,6 +62,7 @@ org.gradle.jvmargs=-Xmx1536M --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --ad
 ```powershell
 # Init
 flutter create my_app
+flutter create --platforms=web my_app
 
 # Dev run
 flutter devices
