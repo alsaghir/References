@@ -71,6 +71,7 @@ flutter run -d chrome
 # Release run and build
 flutter help build
 flutter build <target>
+flutter build web
 flutter run --release
 
 # Retrieve dependencies

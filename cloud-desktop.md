@@ -143,9 +143,7 @@ host devdsk
 - SyncThing ignore pattern
 
 ```
-(?d).DS_Store
-(?d)*.iml
-(?d).idea
+// Brazil
 *.wasm
 /build
 /src/*/build
@@ -163,4 +161,55 @@ host devdsk
 /env
 /logs
 /src/*/var
+
+// Gradle
+/.gradle
+
+// Miscellaneous
+(?d).DS_Store
+(?d)*.iml
+(?d).idea
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+// IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+// The .vscode folder contains launch configuration and tasks you configure in
+// VS Code which you may wish to be included in version control, so this line
+// is commented out by default.
+//.vscode/
+
+// Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+/**/.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+// Symbolication related
+app.*.symbols
+
+// Obfuscation related
+app.*.map.json
+
+// Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
 ```

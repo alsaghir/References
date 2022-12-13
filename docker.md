@@ -252,6 +252,7 @@ Drivers types of containers networks
 ## DockerFile
 
 - Files to copy from host must be in the working directory and not outside.
+- `ENTRYPOINT` for making the container dedicated to specific command and `CMD` will be passed to entry point. [Check this for more explanation](https://stackoverflow.com/questions/21553353/what-is-the-difference-between-cmd-and-entrypoint-in-a-dockerfile).
 - Recommended order is
     - FROM - Base image
     - LABEL
@@ -999,3 +1000,4 @@ spec:
 # K8S Example
 
 - [fibonacci calculator](./docker_assets/fib/README.md)
+- [votes appender app](./docker_assets/votes/README.md)

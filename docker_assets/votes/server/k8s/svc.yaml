@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector:
+    component: server
+  ports:
+    - port: 5000 # route from this port to the targetPort
+      targetPort: 8081 # reroute to this port in the pod

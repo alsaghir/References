@@ -34,6 +34,9 @@
 ### Commands
 
 ```sh
+# Terminate WSL
+taskkill /IM wslservice.exe /F
+
 # Repetitive commands
 brew upgrade
 brew update

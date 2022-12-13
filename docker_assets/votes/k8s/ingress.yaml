@@ -1,0 +1,36 @@
+# https://kubernetes.github.io/ingress-nginx/examples/
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-service
+  namespace: default
+  annotations: # Use Kubernetes annotations to specific Ingress objects to customize their behavior
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+    # https://kubernetes.github.io/ingress-nginx/examples/rewrite/#examples
+    # nginx.ingress.kubernetes.io/rewrite-target: /$1 # Rewrite to target of slash then the matched text (captured group)
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /?(.*)
+            pathType: Prefix # Prefix based matching
+            backend:
+              service:
+                name: client-cluster-ip-service
+                port:
+                  number: 3000
+          - path: /api/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: server-cluster-ip-service
+                port:
+                  number: 5000
+          - path: /events/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: server-cluster-ip-service
+                port:
+                  number: 5000
