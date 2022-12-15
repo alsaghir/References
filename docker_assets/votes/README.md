@@ -26,10 +26,7 @@ cd ..
 
 cd server
 docker build --progress=plain -f ./k8s/Dockerfile-build -t vote-server-build .
-docker container run -it --rm `
-    --mount type=bind,source=${PWD},target=/opt/app `
-    --mount type=volume,src=gradle_home,dst=/opt/gradle-home `
-    vote-server-build
+docker container run -it --rm  -v ${PWD}:/opt/app -v gradle_home:/opt/gradle-home vote-server-build
 docker build --progress=plain -f ./k8s/Dockerfile -t vote-server .
 cd ..
 
