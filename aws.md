@@ -141,7 +141,7 @@ Consists of
 
 #### Notes
 
-- IAM polices are attached to user, roles and groups
+- IAM polices are attached to user, roles and groups. Best to NOT assign polices to users as this is become hard to manage.
 - Policy is DENY by default and unless explicit ALLOW is stated. DENY overrides ALLOW in policies. Priority from high to low is explicit deny > explicit allow > implicit deny.
 - Multiple policies together outputs the union of these policies.
   - So S3 bucket policy with NO policy + EC2 Instance that ALLOW writing to that bucket results ALLOW as an output of union.
