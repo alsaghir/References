@@ -129,6 +129,11 @@ git pull
 # Compile and clean built artifacts
 brazil-build clean
 brazil ws clean
+
+# Restart brazil cache daemon
+brazil-package-cache stop;
+brazil-package-cache start;
+brazil-package-cache start;
 ```
 
 - Port forwarding could be done adding the following record to `~/.ssh/config`
