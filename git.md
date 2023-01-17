@@ -323,24 +323,23 @@ List a tree of files and folders in the repository based on the reference passed
 
 ## Branches
 
-`git branch` - See what branches are there and what's you're working on right now  
-<a name="create-branch"></a>`git branch new_branch_name` or `git branch new_branch_name HEAD` - Create new branch. Use letters, numbers and underscores as best practice. Branch created from the commit currently HEAD looking into on the current working branch  
-<a name="switch-branch"></a>`git checkout new_branch_name` - Switch to other branch. HEAD will still look to same hash until new commit is done then HEAD moves accordingly. When switching branches, all files and folders are changing to match that branch immediately.  
-<a name="checkout-new-branch"></a>`git checkout -b new_branch_name` - Create new branch and switch to it at once  
-Use `git log --graph --oneline --decorate --all` to see commit quick differences between branches  
-<a name="compare-branches"></a>`git diff master..other_branch` - Compare two branches and adding `--color-words` will make it in one line comparison  
-`git diff master..other_branch^` - Comparison with the commit before the last on `other_branch`  
-`git branch --merged` - Find out whether one branch completely contains another branch or not. Branches showed using this command means they are included in the current branch  
-`git branch -m old_branch_name new_branch_name` - Rename a branch. `-m` is same as `--move`  
-`git branch -d branch_name` or `--delete` - Delete a branch
+- `git branch` - See what branches are there and what's you're working on right now  
+- <a name="create-branch"></a>`git branch new_branch_name` or `git branch new_branch_name HEAD` - Create new branch. Use letters, numbers and underscores as best practice. Branch created from the commit currently HEAD looking into on the current working branch  
+- <a name="switch-branch"></a>`git checkout new_branch_name` - Switch to other branch. HEAD will still look to same hash until new commit is done then HEAD moves accordingly. When switching branches, all files and folders are changing to match that branch immediately.  
+- <a name="checkout-new-branch"></a>`git checkout -b new_branch_name` - Create new branch and switch to it at once  
+- Use `git log --graph --oneline --decorate --all` to see commit quick differences between branches  
+- <a name="compare-branches"></a>`git diff master..other_branch` - Compare two branches and adding `--color-words` will make it in one line comparison  
+- `git diff master..other_branch^` - Comparison with the commit before the last on `other_branch`  
+- `git branch --merged` - Find out whether one branch completely contains another branch or not. Branches showed using this command means they are included in the current branch  
+- `git branch -m old_branch_name new_branch_name` - Rename a branch. `-m` is same as `--move`  
+- `git branch -d branch_name` or `--delete` - Delete a branch
+- <a name="merge-branches"></a>`git merge other_branch_name` - Merge `other_branch_name` to current working branch that I'm working on. This might do fast-forward (without commit message) merge specially if the branch I'm working on (merge receiver) has no changes at all since `other_branch_name` has been made  
+- `git merge --ff-only other_branch_name` - Do fast-forward merge if possible or abort.
 
-<a name="merge-branches"></a>`git merge other_branch_name` - Merge `other_branch_name` to current working branch that I'm working on. This might do fast-forward (without commit message) merge specially if the branch I'm working on (merge receiver) has no changes at all since `other_branch_name` has been made  
-`git merge --ff-only other_branch_name` - Do fast-forward merge if possible or abort.
+- **Fast forward** merge is when commits done on the other branch but HEAD still as it is (no commits/changes done) on this branch. Git looks from the last commit parent and up on the other branch. If HEAD is there on any corresponding commit on this branch (which should be the case since no changes done on this branch) then fast-forward is done which is simply append different commits from other branch to this branch then moving the HEAD to the last commit
 
-**Fast forward** merge is when commits done on the other branch but HEAD still as it is (no commits/changes done) on this branch. Git looks from the last commit parent and up on the other branch. If HEAD is there on any corresponding commit on this branch (which should be the case since no changes done on this branch) then fast-forward is done which is simply append different commits from other branch to this branch then moving the HEAD to the last commit
-
-`git merge --no-ff other_branch_name` - Enforce new commit message for the merge so no fast-forward merge  
-<a name="abort-merge"></a>`git merge --abort` - Exit merge status if you're in the middle of a merge waiting to resolve conflict
+- `git merge --no-ff other_branch_name` - Enforce new commit message for the merge so no fast-forward merge  
+- <a name="abort-merge"></a>`git merge --abort` - Exit merge status if you're in the middle of a merge waiting to resolve conflict
 
 ### Conflict
 
