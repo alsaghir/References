@@ -338,6 +338,8 @@ List a tree of files and folders in the repository based on the reference passed
 
 - **Fast forward** merge is when commits done on the other branch but HEAD still as it is (no commits/changes done) on this branch. Git looks from the last commit parent and up on the other branch. If HEAD is there on any corresponding commit on this branch (which should be the case since no changes done on this branch) then fast-forward is done which is simply append different commits from other branch to this branch then moving the HEAD to the last commit
 
+- **Merge squash** using `git merge --squash bugfix` assuming you're on `master` branch will take all the commits from the `bugfix` branch, squash them into 1 commit, and merge it with your master branch.
+
 - `git merge --no-ff other_branch_name` - Enforce new commit message for the merge so no fast-forward merge  
 - <a name="abort-merge"></a>`git merge --abort` - Exit merge status if you're in the middle of a merge waiting to resolve conflict
 
