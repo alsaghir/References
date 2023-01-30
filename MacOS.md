@@ -28,10 +28,8 @@ brazil setup platform-support
 
 brazil workspace use --platform AL2_x86_64
 
-# Debug Brazil build in unit tests
-# Run the command and brazil will suspend
-# waiting for remote debug connection
-brazil-build -Dtests.additional.jvmargs="-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1040"
+# Port forward to cloud desktop
+ssh -o ProxyCommand=none -T -N -L 1041:localhost:1040 asolyman.aka.corp.amazon.com
 ```
 
 ## Tips

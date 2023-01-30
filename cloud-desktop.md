@@ -133,6 +133,14 @@ brazil ws clean
 # Restart brazil cache daemon
 brazil-package-cache stop;
 brazil-package-cache start;
+
+# Debug Brazil build in unit tests (use one of the two)
+# Run the command and brazil will suspend
+# waiting for remote debug connection
+brazil-build -Dtests.additional.jvmargs="-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1040"
+brazil-build -Dtests.additional.jvmargs="-Xdebug -Xnoagent -agentlib:jdwp=transport=dt_socket,server=y,address=localhost:1040"
+
+brazil-recursive-cmd --allPackages --reverse --continue brazil-build clean && brazil ws --sync && brazil-recursive-cmd --allPackages brazil-build test
 ```
 
 - Port forwarding could be done adding the following record to `~/.ssh/config`
