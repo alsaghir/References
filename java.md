@@ -397,3 +397,18 @@ FINEST(LOWEST LEVEL)
 ### More Info
 
 <https://www.loggly.com/ultimate-guide/java-logging-basics>
+
+## Spring Security
+
+- `DelegatingFilterProxy` allows bridging between the Servlet container’s lifecycle and Spring’s `ApplicationContext`.
+- Spring Security’s Servlet support is contained within `FilterChainProxy`. `FilterChainProxy` is a special Filter provided by Spring Security that allows delegating to many Filter instances through `SecurityFilterChain`. Since `FilterChainProxy` is a Bean, it is typically wrapped in a `DelegatingFilterProxy`.
+- `SecurityFilterChain` is used by `FilterChainProxy` to determine which Spring Security Filter instances should be invoked for the current request.
+- If you try to troubleshoot Spring Security’s Servlet support, adding a debug point in `FilterChainProxy` is a great place to start.
+
+### SecurityFilterChain
+
+The Security Filters in [SecurityFilterChain](https://docs.spring.io/spring-security/reference/servlet/architecture.html#servlet-securityfilterchain) are typically Beans, but they are registered with `FilterChainProxy` instead of `DelegatingFilterProxy`. `FilterChainProxy` provides a number of advantages to registering directly with the Servlet container or `DelegatingFilterProxy`. First, it provides a starting point for all of Spring Security’s Servlet support. For that reason, if you try to troubleshoot Spring Security’s Servlet support, ***adding a debug point*** in `FilterChainProxy` is a great place to start.
+
+Second, since `FilterChainProxy` is central to Spring Security usage, it can perform tasks that are not viewed as optional. For example, it clears out the `SecurityContext` to avoid memory leaks. It also applies Spring Security’s `HttpFirewall` to protect applications against certain types of attacks.
+
+In addition, it provides more flexibility in determining when a `SecurityFilterChain` should be invoked. In a Servlet container, Filter instances are invoked based upon the URL alone. However, `FilterChainProxy` can determine invocation based upon anything in the `HttpServletRequest` by using the `RequestMatcher` interface.
