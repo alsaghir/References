@@ -57,7 +57,7 @@
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
-			<version>42.5.0</version>
+			<version>42.5.1</version>
 		</dependency>
 		<!-- END DB -->
 
