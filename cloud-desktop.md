@@ -141,6 +141,9 @@ brazil-build -Dtests.additional.jvmargs="-Xdebug -Xnoagent -Xrunjdwp:transport=d
 brazil-build -Dtests.additional.jvmargs="-Xdebug -Xnoagent -agentlib:jdwp=transport=dt_socket,server=y,address=localhost:1040"
 
 brazil-recursive-cmd --allPackages --reverse --continue brazil-build clean && brazil ws --sync && brazil-recursive-cmd --allPackages brazil-build test
+
+# Build and output to file
+brazil-build 2>&1 | tee build-output.log
 ```
 
 - Port forwarding could be done adding the following record to `~/.ssh/config`
