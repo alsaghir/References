@@ -35,6 +35,33 @@ toolbox install brazilcli
 toolbox install cr
 toolbox install brazil-octane
 
+# RDE installation
+# https://builderhub.corp.amazon.com/docs/rde/user-guide/setting-up-rde.html
+toolbox install rde
+rde env validate
+
+# Auto completion
+mkdir -p ~/.zsh/completion
+
+echo "\n" >> ~/.zshrc;
+echo "# Auto completion scripts" >> ~/.zshrc;
+echo 'fpath=(~/.zsh/completion $fpath)' >> ~/.zshrc;
+echo 'autoload -Uz compinit && compinit -i' >> ~/.zshrc;
+source ~/.zshrc
+
+# Add the cli section of the following
+# to the config file under properties section
+# version: "1.0"
+# properties:
+#   # ...
+#   cli:
+#     completionscriptpaths:
+#       zsh: ~/.zsh/completion/_rde
+vim ~/.config/rde/config.yml
+
+# Generate the completion file by running
+rde env setup completion
+
 # AWS Developer Account (ADA)
 toolbox install ada
 
