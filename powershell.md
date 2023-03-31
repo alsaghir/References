@@ -15,13 +15,14 @@
 
 - [Reference](https://github.com/dahlbyk/posh-git)
 - Add `Import-Module posh-git` to startup profile. Any maybe `$GitPromptSettings.EnableFileStatus = $false` for performance.
+- [Starship](https://github.com/starship/starship#%F0%9F%9A%80-installation) for awesome shell.
 
 ```powershell
-# Git
-Import-Module posh-git
-$GitPromptSettings.EnableFileStatus = $false
+# Starship
+Invoke-Expression (&starship init powershell)
 
 # Autocomplete
+Import-Module DockerCompletion
 # Shows navigable menu of all options when hitting Tab
 Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 # Autocompletion for arrow keys
