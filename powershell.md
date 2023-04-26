@@ -18,6 +18,9 @@
 - [Starship](https://github.com/starship/starship#%F0%9F%9A%80-installation) for awesome shell.
 
 ```powershell
+# Git auto complete
+Import-Module posh-git
+
 # Starship
 Invoke-Expression (&starship init powershell)
 

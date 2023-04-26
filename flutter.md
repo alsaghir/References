@@ -63,6 +63,7 @@ org.gradle.jvmargs=-Xmx1536M --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --ad
 # Init
 flutter create my_app
 flutter create --platforms=web my_app
+flutter create --platforms=web --project-name=spring_petclinic_ui .
 
 # Dev run
 flutter devices

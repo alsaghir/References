@@ -15,7 +15,17 @@
 ### WSL config
 
 - Create  a  `%UserProfile%\.wslconfig` file in Windows and use it to limit memory assigned to WSL2 VM. [Github](https://github.com/microsoft/WSL/issues/4166#issuecomment-526725261) & [Doc](https://docs.microsoft.com/en-us/windows/wsl/release-notes#build-18945).
-- Reference - https://docs.microsoft.com/en-us/windows/wsl/wsl-config#configure-global-options-with-wslconfig
+- Reference - https://docs.microsoft.com/en-us/windows/wsl/wsl-config#configure-global-options-with-wslconfig. Example for docker:
+    ```
+    [wsl2]
+    memory=8GB
+    swap=0
+    localhostForwarding=true
+    WESTON_RDP_DISABLE_FRACTIONAL_HI_DPI_SCALING=false
+    export QT_SCALE_FACTOR=3
+    export GDK_SCALE=3
+    WESTON_RDP_DISABLE_HI_DPI_SCALING=true
+    ```
 - [Set default user](https://superuser.com/questions/1566022/how-to-set-default-user-for-manually-installed-wsl-distro/1627461#1627461)
     - Edit `/etc/wsl.conf`
     - add the following
