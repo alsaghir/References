@@ -259,7 +259,7 @@ Drivers types of containers networks
     - LABEL
     - ARG
     - ENV - Environment variables
-    - RUN - run commands on the container
+    - RUN - run commands on the container in the build stage. Every `RUN` executed in separate shell.
     - WORKDIR - Like `CD`. Preferred over using `RUN cd /some/path`
     - USER
     - COPY - From host to container.
@@ -274,6 +274,58 @@ Drivers types of containers networks
     ```Dockerfile
     # Every 5 seconds ping to the API endpoint or exit with status 1 if timeout of 3 seconds is reached
     HEALTHCHECK --interval=5s --timeout=3s CMD curl --fail http://localhost:8091/pools || exit 1
+    ```
+
+    Spring Boot
+
+    ```Dockerfile
+    # Global Args
+    ARG WORKDIR_APP=/workspace/app
+    ARG EXTRACTED=${WORKDIR_APP}/target/extracted
+
+    # Build stage
+    FROM maven:3-eclipse-temurin-17-alpine as builder
+
+    ARG SERVICE_NAME
+    ARG WORKDIR_APP
+    ARG EXTRACTED
+    WORKDIR ${WORKDIR_APP}
+
+    COPY pom.xml .
+    COPY ./docker/pom.jsh .
+    COPY ${SERVICE_NAME}/*.xml ./${SERVICE_NAME}/
+    COPY ${SERVICE_NAME}/src ./${SERVICE_NAME}/src
+
+    RUN jshell -R-Dproject=${SERVICE_NAME} pom.jsh
+
+    # Mount of type cache is visible to the current executed command
+    # and must be specified to other commands that wish to see it as well
+    RUN --mount=type=cache,target=/root/.m2 mvn -B dependency:resolve dependency:resolve-plugins dependency:go-offline
+    RUN --mount=type=cache,target=/root/.m2 mvn -B install \
+        && mkdir -p target/extracted  \
+        && java -Djarmode=layertools -jar ${SERVICE_NAME}/target/*.jar extract --destination target/extracted
+
+    # Run stage using non-root user
+    # https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#container-images.dockerfiles
+    FROM eclipse-temurin:17-jdk-alpine
+    ARG USERNAME=developer
+    ARG GROUPNAME=developergroup
+    RUN addgroup -S "${GROUPNAME}"; adduser --ingroup "${GROUPNAME}" --disabled-password -S "${USERNAME}"
+
+    # Tell docker that all future commands should run as the user
+    USER $USERNAME
+
+    ARG WORKDIR_APP
+    ARG EXTRACTED
+    WORKDIR $WORKDIR_APP
+
+    # Spring Boot build files
+    COPY --from=builder $EXTRACTED/dependencies/ ./
+    COPY --from=builder $EXTRACTED/spring-boot-loader/ ./
+    COPY --from=builder $EXTRACTED/snapshot-dependencies/ ./
+    COPY --from=builder $EXTRACTED/application/ ./
+    ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
+
     ```
 
 - Sample
