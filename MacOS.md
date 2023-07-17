@@ -81,6 +81,10 @@ ssh -L 8888:db_server_ip:3306 -i <path-of-pem-file> USER@server.domain.com
 ssh -f -N -M -S /tmp/sshtunnel -D 1080 USER@server.domain.com -p22
 # Disable tunnelling
 ssh -S /tmp/sshtunnel -O exit server.domain.com -p22
+# See if process is active
+ps -ax | grep ssh
+# See connections
+lsof -i -n -P | grep ssh
 
 # List used port process
 netstat -vanp tcp | grep 3000
