@@ -3,10 +3,12 @@
 ## JVM Monitoring Tips
 
 VM limits (for Java services)
+
 - JMX HeapMemoryAfterGCUse - memory usage within the JVM allocation. Using the AFTER garbage collection metric is important to get an accurate reading. It is important to monitor heap usage because Java services that run out of heap space spend a lot of time garbage collecting. This causes increases in service latency or makes the service stop entirely.
 - JMX FileDescriptorUse - includes network sockets because the socket implementation uses a file descriptor. If the service runs out of file descriptors, it cannot write additional log files, and you may lose logs and metrics for the duration of the event. The service will also be unable to open any additional sockets, which will manifest as connection failures visible to customers.
 - Snitch PercentSpaceInUse - Logging and metrics implementations write to disk, so you will lose logs and metrics if the service runs out of disk space. Unless you have tried it and caught all of the exceptions, running out of disk space will likely also cause IO or Monitoring exceptions to bubble up as service errors, which customers may see.
 - Snitch CPU Utilization - Many services have CPU as the limiting factor in their scaling. High CPU utilization will eventually result in additional service latency, as the operating system will not be able to schedule all processes to run immediately. High CPU utilization can be mitigated by reducing load or adding hardware.
+- Tools to keep in mind are JFR, JCMD & VisualVM
 
 ## JShell
 
@@ -54,7 +56,7 @@ jshell --add-modules java.logging
 
 ### Maven
 
-##### Examples
+#### Examples
 
 `mvn help:describe -Dplugin=archetype` - To get help about a plugin which is `archetype` in this case
 
@@ -84,12 +86,12 @@ jshell --add-modules java.logging
 
 `mvn archetype:generate -DgroupId=com.example -DartifactId=sampleApp -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false` - Notice the parameter [`-DarchetypeArtifactId=maven-archetype-quickstart`](https://maven.apache.org/archetypes/maven-archetype-quickstart/dependency-info.html) which identifies already existing archetype so we create a sample built on it.
 
-##### Repository
+#### Repository
 
 - search.maven.org
 - Local repository in ~/.m2
 
-##### Archiva
+#### Archiva
 
 Archiva could be used for deployment directly in the folder and scan the jars with its POM. This also could be done from command line like this
 
@@ -97,7 +99,7 @@ Archiva could be used for deployment directly in the folder and scan the jars wi
 mvn org.apache.maven.plugins:maven-deploy-plugin:3.0.0-M1:deploy-file -Durl=http://10.0.10.107:8088/repository/arrow/ -DrepositoryId=arrow -Dfile=dfc.jar -Dfiles=dfc.jar -Dclassifiers=debug -Dtypes=jar -DgroupId=com.documentum -DartifactId=dfc -Dversion=16.4.0000.0185 -Dpackaging=jar
 ```
 
-##### References
+## References for Maven
 
 [Plugins](https://maven.apache.org/plugins/index.html)  
 [Lifecycles Reference](https://maven.apache.org/maven-core/lifecycles.html) & [Introduction to Lifecycle Reference](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html#Lifecycle_Reference)  
@@ -109,7 +111,7 @@ mvn org.apache.maven.plugins:maven-deploy-plugin:3.0.0-M1:deploy-file -Durl=http
 
 ### Gradle
 
-#### References
+#### References for Gradle
 
 - [Getting Started](https://docs.gradle.org/current/userguide/getting_started.html)
 - [Organizing Gradle Projects](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html#organizing_gradle_projects)
@@ -159,9 +161,9 @@ gradle :app:dependencyInsight --configuration testRuntimeClassPath --dependency 
 
 - Settings file executed during initialization phase. `settings.gradle.kts` file in the root project of the multi-project hierarchy.
 - Build phases: A Gradle build has three distinct phases.
-    - **Initialization**: Gradle supports single and multi-project builds. During the initialization phase, Gradle determines which projects are going to take part in the build, and creates a Project instance for each of these projects.
-    - **Configuration**: During this phase the project objects are configured. The build scripts of all projects which are part of the build are executed.
-    - **Execution**: Gradle determines the subset of the tasks, created and configured during the configuration phase, to be executed. The subset is determined by the task name arguments passed to the gradle command and the current directory. Gradle then executes each of the selected tasks.
+  - **Initialization**: Gradle supports single and multi-project builds. During the initialization phase, Gradle determines which projects are going to take part in the build, and creates a Project instance for each of these projects.
+  - **Configuration**: During this phase the project objects are configured. The build scripts of all projects which are part of the build are executed.
+  - **Execution**: Gradle determines the subset of the tasks, created and configured during the configuration phase, to be executed. The subset is determined by the task name arguments passed to the gradle command and the current directory. Gradle then executes each of the selected tasks.
 - Maven phases to Gradle tasks
 - `script` object is created from any `.gradle` script then delegates a domain object depending on the current phase.
   - Initialization:
@@ -171,7 +173,7 @@ gradle :app:dependencyInsight --configuration testRuntimeClassPath --dependency 
   - Execution: script () > delegates > project
 - Domain Objects
   - [Main api package](https://docs.gradle.org/current/javadoc/org/gradle/api/package-summary.html) contains critical interfaces for build cycles
-  - [Gradle](https://docs.gradle.org/current/javadoc/org/gradle/api/invocation/Gradle.html) object represents invocation of the build. 
+  - [Gradle](https://docs.gradle.org/current/javadoc/org/gradle/api/invocation/Gradle.html) object represents invocation of the build.
   - [Project](https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html) domain object represents the main entry point of a build. `project` n<-->1 `gradle`.
   - [Task](https://docs.gradle.org/current/javadoc/org/gradle/api/Task.html) represents unit of work with potential dependencies. `task` n<-->1 `project`.
 
@@ -179,11 +181,11 @@ gradle :app:dependencyInsight --configuration testRuntimeClassPath --dependency 
       // Example of retrieving gradle version used
       project.gradle.gradleVersion
     ```
+
 - Action is actual work  performed during execution phase. `action` n<-->0 `task`. Examples are `doLast` and `doFirst` actions.
 - Plugin provides reusable logic for a project. It configures domain objects as necessary and has access to them by name or type.
 
-
-#### Examples
+#### Examples for Gradle
 
 ```kotlin
 // Apply script plugin from external script file
@@ -193,9 +195,9 @@ apply(from = "other.gradle.kts")
 ```kotlin
 // Plugins
 plugins {
-	id("org.springframework.boot") version "2.6.6"
-	id("io.spring.dependency-management") version "1.0.11.RELEASE"
-	id("java")
+    id("org.springframework.boot") version "2.6.6"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    id("java")
 }
 
 // build metadata
@@ -207,32 +209,32 @@ java {
 }
 
 configurations {
-	compileOnly {
-		extendsFrom(configurations.annotationProcessor.get())
-	}
+    compileOnly {
+      extendsFrom(configurations.annotationProcessor.get())
+    }
 }
 
 // Where to find dependencies
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-actuator")
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation("org.springframework.boot:spring-boot-starter-security")
-	implementation("org.springframework.boot:spring-boot-starter-web")
-	compileOnly("org.projectlombok:lombok")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	runtimeOnly("mysql:mysql-connector-java")
-	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-	annotationProcessor("org.projectlombok:lombok")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("org.springframework.security:spring-security-test")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    compileOnly("org.projectlombok:lombok")
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    runtimeOnly("mysql:mysql-connector-java")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    annotationProcessor("org.projectlombok:lombok")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
 }
 
 tasks.named<Test>("test") {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 ```
 
@@ -303,7 +305,7 @@ myCopy {
 
 // Configure task added by plugin
 tasks.test {
-	// whatever
+    // whatever
 }
 
 // Register new task called allDeps for all projects
@@ -412,3 +414,19 @@ The Security Filters in [SecurityFilterChain](https://docs.spring.io/spring-secu
 Second, since `FilterChainProxy` is central to Spring Security usage, it can perform tasks that are not viewed as optional. For example, it clears out the `SecurityContext` to avoid memory leaks. It also applies Spring Security’s `HttpFirewall` to protect applications against certain types of attacks.
 
 In addition, it provides more flexibility in determining when a `SecurityFilterChain` should be invoked. In a Servlet container, Filter instances are invoked based upon the URL alone. However, `FilterChainProxy` can determine invocation based upon anything in the `HttpServletRequest` by using the `RequestMatcher` interface.
+
+---
+
+## General References
+
+Monitoring & Analyzing
+
+- [JMX Guide](https://www.baeldung.com/java-management-extensions)
+- [Dump Heap Capture](https://www.baeldung.com/java-heap-dump-capture)
+- [Thread Dump Capture](https://www.baeldung.com/java-thread-dump)
+- [Analyze Thread Dumps](https://www.baeldung.com/java-analyze-thread-dumps)
+- [JFR Guide](https://www.baeldung.com/java-flight-recorder-monitoring)
+- [JFR Guide](https://www.javatpoint.com/java-flight-recorder)
+- [How to use JDK Flight Recorder (JFR)](https://access.redhat.com/solutions/662203)
+- [JCMD](https://docs.oracle.com/en/java/javase/11/tools/jcmd.html#GUID-59153599-875E-447D-8D98-0078A5778F05)
+- [Java Profilers](https://www.baeldung.com/java-profilers)
