@@ -37,6 +37,9 @@ Host bastion-non-prod-1
 ## Commands
 
 ```sh
+# Dev installations
+brew analtrics off
+
 # https://sdkman.io/install
 # Show hiddend files and show path in Finder
 defaults write com.apple.finder AppleShowAllFiles YES
@@ -56,6 +59,8 @@ brew install --cask drawio
 
 brew install --cask biglybt --verbose --debug
 brew install --cask caffeine
+
+sdk install java 17.0.4-amzn
 
 # Flush DNS
 sudo killall -HUP mDNSResponder;sudo killall mDNSResponderHelper;sudo dscacheutil -flushcache
@@ -100,6 +105,7 @@ kill -9 <PID>
 - Full screenshot = Shift + Command + 3
 - Region screenshot = Shift + Command + 4
 - Minimize all windows by `Command + Option + H` then `Command + H`
+- Show path in finder `defaults write com.apple.finder _FXShowPosixPathInTitle -bool YES` then ` killall Finder`
 
 ### Terminate hanged SSH connection terminal
 

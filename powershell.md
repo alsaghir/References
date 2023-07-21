@@ -11,6 +11,23 @@
 - [Reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-7.1)
 - Path is `$Home\Documents\PowerShell\Profile.ps1`
 
+### Installations
+
+```powershell
+
+winget install --id Microsoft.Powershell --source winget
+# Choose one
+# winget install JanDeDobbeleer.OhMyPosh -s winget
+winget install --id Starship.Starship
+winget install -e --id BiglySoftware.BiglyBT
+winget install -e --id Google.Chrome
+winget install -e --id Mozilla.Firefox
+winget install JanDeDobbeleer.OhMyPosh -s winget
+winget install --id Docker.DockerDesktop
+winget install -e --id JetBrains.IntelliJIDEA.Ultimate
+winget install -e --id Postman.Postman
+```
+
 ### Recommended Startup Script
 
 - [Reference](https://github.com/dahlbyk/posh-git)
@@ -24,8 +41,12 @@ Import-Module posh-git
 # Starship
 Invoke-Expression (&starship init powershell)
 
-# Autocomplete
+# Docker Autocomplete
 Import-Module DockerCompletion
+
+# Scoop Autocomplete
+Import-Module "$($(Get-Item $(Get-Command scoop.ps1).Path).Directory.Parent.FullName)\modules\scoop-completion"
+
 # Shows navigable menu of all options when hitting Tab
 Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 # Autocompletion for arrow keys
@@ -65,6 +86,18 @@ Install git
 
 ```powershell
 PowerShellGet\Install-Module posh-git -Scope CurrentUser -Force
+```
+
+Install [Scoop](https://github.com/ScoopInstaller/Install#readme)
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+irm get.scoop.sh -outfile 'install.ps1'
+.\install.ps1 -ScoopDir 'D:\Apps\scoop\dir' -ScoopGlobalDir 'D:\Apps\scoop\globaldir' -ScoopCacheDir 'D:\Apps\scoop\cache'
+Remove-Item .\install.ps1
+scoop bucket add extras
+scoop install scoop-completion
+
 ```
 
 ---
