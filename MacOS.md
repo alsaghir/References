@@ -106,6 +106,7 @@ kill -9 <PID>
 - Region screenshot = Shift + Command + 4
 - Minimize all windows by `Command + Option + H` then `Command + H`
 - Show path in finder `defaults write com.apple.finder _FXShowPosixPathInTitle -bool YES` then ` killall Finder`
+- To open app with unverified developer use the command `xattr -d com.apple.quarantine fly` assuming the app is `fly` in this example
 
 ### Terminate hanged SSH connection terminal
 
