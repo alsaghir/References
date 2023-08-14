@@ -451,7 +451,19 @@ ECS vs EKS
 
 ## Commands
 
-```powershell
+```sh
 # Get AMI details using filter of image-id extracted from aws console
 aws ec2 describe-images --owners self amazon --no-include-deprecated --filters "Name=image-id,Values=ami-0a8dc52684ee2fee2"
+
+# Assume role SAML
+aws sts assume-role --role-arn "arn:aws:iam::855389350164:role/dxDeveloper" --role-session-name AWSCLI-Session
+export AWS_ACCESS_KEY_ID="ASIA4OKJNVEKITT3RXTU";
+export AWS_SECRET_ACCESS_KEY="P7jdnpIKdwNcsukRHqtVnjWzGZQWS4l4D0AuY7jn";
+export AWS_SESSION_TOKEN="IQoJb3JpZ2luX2VjEBQaCWV1LXdlc3QtMSJHMEUCIQDVXRveBp3N5WYRmP6LnnATeREFtkddejxSkf8qnDXTPAIgHf06D4FCpRcqPPpTwmJIgjwtYTlyD2XTL1tVembMkp8qpAIIvf//////////ARAEGgw4NTUzODkzNTAxNjQiDD0fc+LtVvUisVhfByr4AbCtU2T5iixLrlLeo8CCqbUl/+FPilOwav/CzUrlS79R0zrQDnUz58teV4PQbCXn+sKjUBBcZz5XhT9dXnx+Qw0pjCTvy+3+WGnd3E4LljUrKWCb42LkKuiBGio5IzeBjan8ZkEQ7xWku66DN32fjB1f2LXRQVHJDTGiwCtP4KHkuiYoamnKy59j03rG8rr0EYMQVlQZQLsDM8GjbOlqZFTlJCmCc1ukBJTBKxrIwP1CFfweGqyj3GLzJUSu7OPWstjrxUwX4+08HgDsFQKo44hQhr5gSJDAOSLZrAYCbwS3um2z3Rar3tVno0pX5kpkimA/ckXAU+cFMP6i06YGOp0B3v9hhqm7AewXLsSx9K0VBVvGlM3O0IIMNX3aYsQrS0sg4/pZj7WUzX+xuniMjlGjUefMlPmycYKcI96KoPVi4vWDdiRE4l7uP2U075Pyk7zi2BAm6ec7yK4lJP6m91thSbNthz2btADS64SLAl5CixoW0g3BPoqcnKPUx6J7G1zECN/5ZNSpOoejTTcvDQ7JLemljBRpN0eo2Bin6w==";
+
+# Get credentials to set in environment variables above
+aws sts get-caller-identity
+
+# Invoke Lambda function
+aws lambda invoke --region=eu-west-1 --function-name arn:aws:lambda:eu-west-1:855389350164:function:dal-ent-til-client-lambda-dev1 --invocation-type RequestResponse --payload fileb://req.json response.json
 ```
