@@ -466,4 +466,9 @@ aws sts get-caller-identity
 
 # Invoke Lambda function
 aws lambda invoke --region=eu-west-1 --function-name arn:aws:lambda:eu-west-1:855389350164:function:dal-ent-til-client-lambda-dev1 --invocation-type RequestResponse --payload fileb://req.json response.json
+
+# saml2aws
+brew install saml2aws
+saml2aws login --skip-prompt --role=arn:aws:iam::855389350164:role/vfDeveloperReadOnly
+saml2aws configure
 ```
