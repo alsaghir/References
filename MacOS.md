@@ -40,6 +40,11 @@ Host bastion-non-prod-1
 # Dev installations
 brew analtrics off
 
+# Update to latest versions
+brew outdated -g
+brew upgrade --greedy
+brew upgrade visual-studio-code
+
 # https://sdkman.io/install
 # Show hiddend files and show path in Finder
 defaults write com.apple.finder AppleShowAllFiles YES
@@ -64,6 +69,21 @@ sdk install java 17.0.4-amzn
 
 # Flush DNS
 sudo killall -HUP mDNSResponder;sudo killall mDNSResponderHelper;sudo dscacheutil -flushcache
+
+# Port forwarding
+# -o: This option is used to specify configuration options for the SSH connection. The option should be followed by the configuration option and its value, separated by an equals sign. For example, ssh -o "Port=2222" user@host specifies that the SSH connection should use port 2222.
+# -T: This option disables pseudo-terminal allocation. It is useful when you want to execute a command on the remote host without interacting with a shell, for example when running a script.
+# -N: This option tells the SSH client not to execute any command on the remote host. It is useful when you only want to forward ports or establish a tunnel.
+# -L: This option is used to set up local port forwarding. It takes three arguments: the local port, the remote host, and the remote port. For example, ssh -L 8080:localhost:80 user@host forwards connections from port 8080 on the local machine to port 80 on the remote host.
+
+# Example of tunnelling with port forwarding in the same command
+# Requesting https://localhost:1443 will
+# be as requesting https://dal.dx-dev1-blue.internal.vodafoneaws.co.uk
+# or https://dal.dx-dev1-blue.internal.vodafoneaws.co.uk:443
+ssh -N -M -S /tmp/sshtunnel -D 8080 ahmed.elsagheer2@non-prod-1-bastion.non-prod-1.digital.vodafoneaws.co.uk -p22 -L 1443:dal.dx-dev1-blue.internal.vodafoneaws.co.uk:443 -o ServerAliveInterval=240 -o ProxyCommand=none -i ~/.ssh/ahmedalsaghir.pem
+
+# Port forward to specific destination
+ssh -L 8888:server_host_db:3306 -i ~/.ssh/ahmedalsaghir.pem ahmed.elsagheer2@bastion-non-prod-1
 
 # Control keep-alive flag interval for preventing connection getting closed
 ssh -o ServerAliveInterval=60 SER@server.domain.com
