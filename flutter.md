@@ -24,6 +24,34 @@
 - [Flutter Layout Cheat Sheet](https://medium.com/flutter-community/flutter-layout-cheat-sheet-5363348d037e)
 - [Navigation Cookbook](https://docs.flutter.dev/cookbook/navigation) & [Navigator](https://api.flutter.dev/flutter/widgets/Navigator-class.html) & [ModalRoute.of()](https://docs.flutter.dev/cookbook/navigation/navigate-with-arguments#2-create-a-widget-that-extracts-the-arguments)
 - [Widget catalog](https://docs.flutter.dev/development/ui/widgets)
+- [Riverpod](https://riverpod.dev/docs/concepts/reading)
+
+## State Management
+
+- Ephemeral state: UI state or local state which is the state you can neatly contain in a single widget. Managed by using `StatefulWidget` and usage of `setState()` method
+- App state: Shared state across many parts of the app
+
+### Provider package
+
+- `ChangeNotifier`: Like `Observable`. Gets extended by models which are representing the state. Must call `notifyListeners()` inside any model method that would change the state. This class is easily testable without widgets and without other dependencies than flutter.
+- `ChangeNotifierProvider`: is the widget that provides an instance of a `ChangeNotifier` to its descendants. It comes from the `provider` package. `MultiProvider` [can be used for providing multiple models](https://docs.flutter.dev/data-and-backend/state-mgmt/simple#changenotifierprovider). Note that You don’t want to place `ChangeNotifierProvider` higher than necessary to prevent rebuilding unneeded widgets that are irrelative to the state update.
+- `Consumer`: Uses the model to consume data from it. Should be as deep as possible and could use the builder third param to get child widgets and reuse them avoiding rebuilding them whever this consumer consumes new values. `Consumer` is called on every `notifyListeners()` call.
+
+### Riverpod
+
+- `Provider` are used to provide states and states sources and can be read from anywhere in flutter in general like classes or widgets.
+- `WidgetRef` used to read providers.
+  - `ref.watch()` reads value from provider and subscribe to the provider for any other change.
+    - Do not call asynchronously, like inside an onPressed of an ElevatedButton.
+    - Nor should it be used inside initState and other State life-cycles. In those cases, consider using `ref.read` instead.
+  - `ref.read()` obtaining the value of a provider while ignoring changes. This is useful when we need the value of a provider in an event such as "on click". 
+    - Should be avoided as much as possible because it is not reactive. It exists for cases where using `watch` or `listen` would cause issues. If you can, it is almost always better to use `watch`/`listen`, especially `watch`.
+    - DON'T use `ref.read` inside the `build` method directly.
+  - `ref.listen` is similar to `watch` but rather than rebuilding the widget/provider if the listened to provider changes, using `ref.listen` will instead call a custom function.
+    - Useful for performing actions when a certain change happens, such as showing a snackbar when an error happens.
+    - `ref.listen` method needs 2 positional arguments, the first one is the Provider and the second one is the callback function that we want to execute when the state changes. The callback function when called will be passed 2 values, the value of the previous State and the value of the new State.
+    - Should not be called asynchronously, like inside an onPressed of an ElevatedButton. Nor should it be used inside initState and other State life-cycles
+
 
 ## After download Flutter & Android SDK
 
@@ -152,6 +180,38 @@ flutter pub outdated
 - For using theme [data define a them](https://docs.flutter.dev/cookbook/design/themes#extending-the-parent-theme) or use the default provided one then [use the theme](https://docs.flutter.dev/cookbook/design/themes#using-a-theme) to get its data like `Theme.of(context).colorScheme.secondary`
 - Use [ListView](https://api.flutter.dev/flutter/widgets/ListView-class.html) for scrollable list of widgets arranged linearly. Mostly the first row/column in the scaffold. A ListView is basically a `CustomScrollView` with a single SliverList in its `CustomScrollView.slivers` property. An optimization to the combination of `SingleChildScrollView` & `Column` which is another option if you have full column to render at once instead of rendering them dynamically. For dynamic rendering use `Listview.builder()` for optimization.
 - Avoid [using `cast` specially for json decoding](https://dart.dev/guides/language/effective-dart/usage#dont-use-cast-when-a-nearby-operation-will-do).
+
+### Flutter dependencies
+
+```sh
+# Freezed
+# https://pub.dev/packages/freezed#how-to-use
+flutter pub add freezed_annotation
+flutter pub add --dev build_runner
+flutter pub add --dev freezed
+# if using freezed to generate fromJson/toJson, also add:
+flutter pub add json_annotation
+flutter pub add --dev json_serializable
+
+# Riverpod + flutter hooks + Code generator
+# https://docs-v2.riverpod.dev/docs/introduction/getting_started
+flutter pub add hooks_riverpod flutter_hooks riverpod_annotation dev:riverpod_generator dev:build_runner dev:custom_lint dev:riverpod_lint
+
+# Dio http client
+# https://pub.dev/packages/dio/install
+flutter pub add dio
+
+# Go Router for navigation
+# https://pub.dev/packages/go_router
+flutter pub add go_router
+
+# URL launch handler
+# https://pub.dev/packages/url_launcher
+flutter pub add url_launcher
+
+# Look INto
+# https://pub.dev/packages/shimmer
+```
 
 ## Dart
 

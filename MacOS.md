@@ -50,6 +50,7 @@ brew upgrade visual-studio-code
 defaults write com.apple.finder AppleShowAllFiles YES
 defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 brew install git
 brew install zsh-completions
 brew install --cask iterm2
@@ -66,6 +67,28 @@ brew install --cask biglybt --verbose --debug
 brew install --cask caffeine
 
 sdk install java 17.0.4-amzn
+
+brew install pnpm
+pnpm install http-proxy-to-socks
+
+brew install pyenv
+
+# https://github.com/pyenv/pyenv#set-up-your-shell-environment-for-pyenv
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
+echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
+echo 'eval "$(pyenv init -)"' >> ~/.zshrc
+
+pyenv latest -k 3
+pyenv latest 3
+pyenv install 3
+
+# https://pypa.github.io/pipx/
+brew install pipx
+pipx ensurepath
+pipx completions
+
+# https://virtualenv.pypa.io/en/latest/installation.html
+pipx install virtualenv
 
 # Flush DNS
 sudo killall -HUP mDNSResponder;sudo killall mDNSResponderHelper;sudo dscacheutil -flushcache
@@ -117,6 +140,13 @@ lsof -i tcp:3000
 # -9 kills the process immediately, and gives it no chance of cleaning up after itself.
 # This may cause problems. Consider using -15 (TERM) or -3 (QUIT) for a softer termination which allows the process to clean up after itself.
 kill -9 <PID>
+
+# To map http/https proxy to socks
+pnpm exec hpts -s 127.0.0.1:8080 -p 1080
+
+# Kill docker and reopen for starting the daemon
+pkill -SIGHUP -f /Applications/Docker.app 'docker serve'
+open -a Docker
 ```
 
 ## Tips

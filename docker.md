@@ -225,6 +225,11 @@ docker run --rm -v /var/run/docker.sock:/var/run/docker.sock:ro assaflavie/runli
 
 # Kill the container, useful for kubernetes testing
 docker kill container_id
+
+# MacOS shutdown docker destkop and reopen it for docker
+# daemon to start
+pkill -SIGHUP -f /Applications/Docker.app 'docker serve' 
+open -a Docker
 ```
 
 ### Docker container run options
