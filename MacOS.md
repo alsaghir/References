@@ -90,6 +90,38 @@ pipx completions
 # https://virtualenv.pypa.io/en/latest/installation.html
 pipx install virtualenv
 
+# VSCode extenstions
+code --install-extension asciidoctor.asciidoctor-vscode
+code --install-extension blaxou.freezed
+code --install-extension Dart-Code.dart-code
+code --install-extension Dart-Code.flutter
+code --install-extension dgileadi.java-decompiler
+code --install-extension DotJoshJohnson.xml
+code --install-extension eamodio.gitlens
+code --install-extension esbenp.prettier-vscode
+code --install-extension KevinRose.vsc-python-indent
+code --install-extension leodevbro.blockman
+code --install-extension marclipovsky.string-manipulation
+code --install-extension ms-azuretools.vscode-docker
+code --install-extension ms-python.python
+code --install-extension ms-python.vscode-pylance
+code --install-extension ms-vsliveshare.vsliveshare
+code --install-extension redhat.fabric8-analytics
+code --install-extension redhat.java
+code --install-extension SonarSource.sonarlint-vscode
+code --install-extension streetsidesoftware.code-spell-checker
+code --install-extension VisualStudioExptTeam.intellicode-api-usage-examples
+code --install-extension VisualStudioExptTeam.vscodeintellicode
+code --install-extension vmware.vscode-boot-dev-pack
+code --install-extension vmware.vscode-spring-boot
+code --install-extension vscjava.vscode-java-debug
+code --install-extension vscjava.vscode-java-dependency
+code --install-extension vscjava.vscode-java-pack
+code --install-extension vscjava.vscode-java-test
+code --install-extension vscjava.vscode-maven
+code --install-extension vscjava.vscode-spring-boot-dashboard
+code --install-extension vscjava.vscode-spring-initializr
+
 # Flush DNS
 sudo killall -HUP mDNSResponder;sudo killall mDNSResponderHelper;sudo dscacheutil -flushcache
 
