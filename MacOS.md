@@ -105,6 +105,7 @@ code --install-extension marclipovsky.string-manipulation
 code --install-extension ms-azuretools.vscode-docker
 code --install-extension ms-python.python
 code --install-extension ms-python.vscode-pylance
+code --install-extension ms-vscode-remote.remote-containers
 code --install-extension ms-vsliveshare.vsliveshare
 code --install-extension redhat.fabric8-analytics
 code --install-extension redhat.java
@@ -121,6 +122,7 @@ code --install-extension vscjava.vscode-java-test
 code --install-extension vscjava.vscode-maven
 code --install-extension vscjava.vscode-spring-boot-dashboard
 code --install-extension vscjava.vscode-spring-initializr
+code --install-extension xyz.local-history
 
 # Flush DNS
 sudo killall -HUP mDNSResponder;sudo killall mDNSResponderHelper;sudo dscacheutil -flushcache
@@ -179,6 +181,9 @@ pnpm exec hpts -s 127.0.0.1:8080 -p 1080
 # Kill docker and reopen for starting the daemon
 pkill -SIGHUP -f /Applications/Docker.app 'docker serve'
 open -a Docker
+
+# List vscode extensions
+code --list-extensions
 ```
 
 ## Tips
