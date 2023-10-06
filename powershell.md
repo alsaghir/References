@@ -4,6 +4,8 @@
 
 - https://docs.microsoft.com/en-us/powershell/?view=powershell-7.1
 - https://www.improvescripting.com/easy-steps-for-writing-powershell-functions/
+- [Remove path limitation](https://docs.python.org/3/using/windows.html#removing-the-max-path-limitation)
+- [Python Venv For Windows](https://docs.python.org/3/library/venv.html)
 
 ---
 ## Profile on startup
@@ -14,7 +16,6 @@
 ### Installations
 
 ```powershell
-
 winget install --id Microsoft.Powershell --source winget
 # Choose one
 # winget install JanDeDobbeleer.OhMyPosh -s winget
@@ -97,7 +98,18 @@ irm get.scoop.sh -outfile 'install.ps1'
 Remove-Item .\install.ps1
 scoop bucket add extras
 scoop install scoop-completion
+```
 
+Install Python
+
+```powershell
+scoop install python
+# Make it detectable by other apps
+D:\Apps\scoop\dir\apps\python\current\install-pep-514.reg
+# Create virtual environment
+python -m venv D:\Apps\venv
+# Activate it
+D:\Apps\venv\Scripts\activate.ps1
 ```
 
 ---
