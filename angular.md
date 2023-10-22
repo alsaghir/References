@@ -1,5 +1,13 @@
 # Angular-CLI
 
+## Initialization
+
+```sh
+npm install -g @angular/cli
+pnpm add -g @angular/cli
+ng new portal1 --package-manager=pnpm
+```
+
 ## Update global angular
 
 `npm uninstall -g angular-cli`  
