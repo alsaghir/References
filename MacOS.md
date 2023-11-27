@@ -94,26 +94,37 @@ pipx install virtualenv
 # Listings
 code --list-extensions
 # Installing
+code --install-extension adpyke.codesnap
 code --install-extension asciidoctor.asciidoctor-vscode
 code --install-extension blaxou.freezed
+code --install-extension DanielSanMedium.dscodegpt
 code --install-extension Dart-Code.dart-code
 code --install-extension Dart-Code.flutter
+code --install-extension DavidAnson.vscode-markdownlint
 code --install-extension dgileadi.java-decompiler
+code --install-extension donjayamanne.githistory
 code --install-extension donjayamanne.python-environment-manager
 code --install-extension DotJoshJohnson.xml
 code --install-extension eamodio.gitlens
+code --install-extension EasyCodeAI.chatgpt-gpt4-gpt3-vscode
 code --install-extension esbenp.prettier-vscode
+code --install-extension geeebe.duplicate
+code --install-extension k--kato.intellij-idea-keybindings
 code --install-extension KevinRose.vsc-python-indent
 code --install-extension leodevbro.blockman
 code --install-extension marclipovsky.string-manipulation
+code --install-extension mhutchie.git-graph
 code --install-extension ms-azuretools.vscode-docker
 code --install-extension ms-python.python
 code --install-extension ms-python.vscode-pylance
 code --install-extension ms-vscode-remote.remote-containers
 code --install-extension ms-vscode-remote.remote-wsl
+code --install-extension ms-vscode.powershell
 code --install-extension ms-vsliveshare.vsliveshare
 code --install-extension redhat.fabric8-analytics
 code --install-extension redhat.java
+code --install-extension ryu1kn.partial-diff
+code --install-extension ShreeRuparel.chatgpt-unit-test-generator
 code --install-extension SonarSource.sonarlint-vscode
 code --install-extension streetsidesoftware.code-spell-checker
 code --install-extension VisualStudioExptTeam.intellicode-api-usage-examples
