@@ -90,12 +90,16 @@ pipx completions
 # https://virtualenv.pypa.io/en/latest/installation.html
 pipx install virtualenv
 
-# VSCode extenstions
+# VSCode extensions
+# Listings
+code --list-extensions
+# Installing
 code --install-extension asciidoctor.asciidoctor-vscode
 code --install-extension blaxou.freezed
 code --install-extension Dart-Code.dart-code
 code --install-extension Dart-Code.flutter
 code --install-extension dgileadi.java-decompiler
+code --install-extension donjayamanne.python-environment-manager
 code --install-extension DotJoshJohnson.xml
 code --install-extension eamodio.gitlens
 code --install-extension esbenp.prettier-vscode
@@ -106,6 +110,7 @@ code --install-extension ms-azuretools.vscode-docker
 code --install-extension ms-python.python
 code --install-extension ms-python.vscode-pylance
 code --install-extension ms-vscode-remote.remote-containers
+code --install-extension ms-vscode-remote.remote-wsl
 code --install-extension ms-vsliveshare.vsliveshare
 code --install-extension redhat.fabric8-analytics
 code --install-extension redhat.java
