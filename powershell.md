@@ -17,6 +17,30 @@
 
 ```powershell
 winget install --id Microsoft.Powershell --source winget
+
+# https://scoop.sh 
+scoop bucket add nonportable
+scoop bucket add extras
+scoop bucket add nerd-fonts
+
+scoop install nerd-fonts/JetBrainsMono-NF
+scoop install main/starship
+
+scoop install nonportable/biglybt-np
+scoop install extras/draw.io
+scoop install extras/sharex
+scoop install extras/anydesk
+scoop install extras/greenshot
+scoop install extras/jetbrains-toolbox
+scoop install extras/mkvtoolnix
+scoop install extras/makemkv
+scoop install extras/firefox
+scoop install extras/postman
+scoop install extras/rufus
+scoop install extras/vlc
+scoop install extras/vscode
+scoop install extras/googlechrome
+
 # Choose one
 # winget install JanDeDobbeleer.OhMyPosh -s winget
 winget install --id Starship.Starship

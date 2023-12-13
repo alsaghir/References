@@ -70,6 +70,10 @@ jshell --add-modules java.logging
 
 `mvn clean install` - Resolve and organize updating references
 
+`mvn clean package -Dmaven.test.skip=true` - Compiles all except tests. `=true` could be removed.
+
+`mvn clean package -DskipTests` - Compiles everything, includes tests but does NOT execute unit tests.
+
 `mvn dependency:sources` - Download sources jars javadoc
 
 `mvn dependency:resolve -Dclassifier=javadoc` - Download javadoc for all dependencies
