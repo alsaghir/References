@@ -7,25 +7,15 @@
 - [K8S networking](https://docs.docker.com/desktop/networking/)
 - [k8s reference](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/)
 
-## Installation on Windows
+## Change Docker Data Root Path on Windows
 
-[Install in different directory](https://forums.docker.com/t/docker-installation-directory/32773/11)
+Either from setting or editing `%USERPROFILE%\.docker\daemon.json` and set `data-root` as following
 
-```powershell
-mklink /j "C:\ProgramData\Docker" "D:\Apps\docker\ProgramData\Docker"
-# mklink /j "C:\ProgramData\DockerDesktop" "D:\Apps\docker\ProgramData\DockerDesktop"
-mklink /j "C:\Program Files\Docker" "D:\Apps\docker\Program Files\Docker"
-mklink /j "C:\Users\omega\AppData\Local\Docker" "D:\Apps\docker\Users\omega\AppData\Local\Docker"
-
-New-Item -ItemType Directory -Force -Path "D:\Apps\docker\ProgramData\Docker"
-New-Item -ItemType Directory -Force -Path "D:\Apps\docker\ProgramData\DockerDesktop"
-New-Item -ItemType Directory -Force -Path "D:\Apps\docker\Program Files\Docker"
-New-Item -ItemType Directory -Force -Path "D:\Apps\docker\Users\omega\AppData\Local\Docker"
-
-New-Item -ItemType Junction -Path "C:\ProgramData\Docker" -Target "D:\Apps\docker\ProgramData\Docker"
-New-Item -ItemType Junction -Path "C:\ProgramData\DockerDesktop" -Target "D:\Apps\docker\ProgramData\DockerDesktop"
-New-Item -ItemType Junction -Path "C:\Program Files\Docker" -Target "D:\Apps\docker\Program Files\Docker"
-New-Item -ItemType Junction -Path "C:\Users\omega\AppData\Local\Docker" -Target "D:\Apps\docker\Users\omega\AppData\Local\Docker"
+```json
+{
+  "data-root": "E:\\Docker\\ProgramData",
+  "experimental": false,
+}
 ```
 
 ## Installation on CentOS
