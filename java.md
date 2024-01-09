@@ -1,6 +1,6 @@
 # Java
 
-## JVM Monitoring Tips
+## JVM Monitoring
 
 VM limits (for Java services)
 
@@ -9,6 +9,94 @@ VM limits (for Java services)
 - Snitch PercentSpaceInUse - Logging and metrics implementations write to disk, so you will lose logs and metrics if the service runs out of disk space. Unless you have tried it and caught all of the exceptions, running out of disk space will likely also cause IO or Monitoring exceptions to bubble up as service errors, which customers may see.
 - Snitch CPU Utilization - Many services have CPU as the limiting factor in their scaling. High CPU utilization will eventually result in additional service latency, as the operating system will not be able to schedule all processes to run immediately. High CPU utilization can be mitigated by reducing load or adding hardware.
 - Tools to keep in mind are JFR, JCMD & VisualVM
+
+### Monitoring & Analyzing
+
+Tools
+
+- [VisualVM](https://visualvm.github.io/) (jvisualvm.exe) for data visualization
+- JConsole (jconsole.exe)
+- Java Mission Control (jmc.exe) for data visualization.
+- Diagnostic Command Tool (jcmd.exe)
+- jps - which is useful for getting the process id of the app you want to inspect with the other tools
+- jmap histogram
+
+#### JFR
+
+JFR, jcmd and JMC — form a complete suite for collecting low-level runtime information of a running Java program. Two ways to use JFR
+
+- when starting a Java application
+- passing diagnostic commands of the jcmd tool when a Java application is already running
+
+JFR Events
+
+- an instant event is logged immediately once it occurs
+- a duration event is logged if its duration succeeds a specified threshold
+- a sample event is used to sample the system activity
+
+JFR Dataflow
+
+JFR saves data about the events in a single output file, flight.jfr.
+
+Commands
+
+```powershell
+# on startup
+java -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=duration=200s,filename=flight.jfr path-to-class-file
+# Another example for on startup recording
+java -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=duration=200s,filename=flight.jfr -cp ./out/ com.baeldung.flightrecorder.FlightRecorder
+
+# start an application then get PID then start registering the events by using the jcmd tool
+java -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -cp ./out/ com.baeldung.Main
+jps
+jcmd 1234 JFR.start duration=100s filename=flight.jfr
+
+# Heap dump
+
+# live: if set, it only prints objects which have active references and discards the ones that are ready to be garbage collected. This parameter is optional.
+# format=b: specifies that the dump file will be in binary format. If not set, the result is the same.
+# file: the file where the dump will be written to
+# pid: id of the Java process
+jps
+jmap -dump:[live],format=b,file=<file-path> <pid>
+jmap -dump:live,format=b,file=/tmp/dump.hprof 12587
+
+jps
+jcmd <pid> GC.heap_dump <file-path>
+jcmd 12587 GC.heap_dump /tmp/dump.hprof
+
+# On java.lang.OutOfMemoryError error
+java -XX:+HeapDumpOnOutOfMemoryError
+java -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=<file-or-dir-path>
+
+# Thread Dump
+
+# -F option forces a thread dump; handy to use when jstack pid doesn’t respond (the process is hung)
+# -l option instructs the utility to look for ownable synchronizers in the heap and locks
+# -m option prints native stack frames (C & C++) in addition to the Java stack frames
+jstack [-F] [-l] [-m] <pid>
+jstack 17264 > /tmp/threaddump.txt
+
+jcmd 17264 Thread.print
+```
+
+#### jcmd
+
+Once the application is running, we use its process id in order to execute various commands `jcmd <pid|MainClass> <command> [parameters]`
+
+- JFR.start – starts a new JFR recording
+- JFR.check – checks running JFR recording(s)
+- JFR.stop – stops a specific JFR recording
+- JFR.dump – copies contents of a JFR recording to file
+
+Each command has a series of parameters. For example, the JFR.start command has the following parameters:
+
+- name – the name of the recording; it serves to be able to reference this recording later with other commands
+- delay – dimensional parameter for a time delay of recording start, the default value is 0s
+- duration – dimensional parameter for a time interval of the duration of the recording; the default value is 0s, which means unlimited
+- filename – the name of a file that contains the collected data
+- maxage – dimensional parameter for the maximum age of collected data; the default value is 0s, which means unlimited
+- maxsize – the maximum size of buffers for collected data in bytes; the default value is 0, which means no max size
 
 ## JShell
 
@@ -89,6 +177,19 @@ jshell --add-modules java.logging
 `mvn archetype:generate -Dfilter=maven-archetype=quickstart` - Use [archetype](https://maven.apache.org/archetype/maven-archetype-plugin/) plugin to create new project filtering specific archetype
 
 `mvn archetype:generate -DgroupId=com.example -DartifactId=sampleApp -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false` - Notice the parameter [`-DarchetypeArtifactId=maven-archetype-quickstart`](https://maven.apache.org/archetypes/maven-archetype-quickstart/dependency-info.html) which identifies already existing archetype so we create a sample built on it.
+
+##### Scripting with dependencies
+
+```powershell
+# Example of downloading and copying package to local folder
+mvn dependency:get -D remoteRepositories=repo.maven.apache.org -D artifact=org.apache.ant:ant:1.8.1
+mvn dependency:copy -D artifact=commons-io:commons-io:2.11.0 -D outputDirectory=./lib
+
+# Execute JShell script with all jars in the lib folder in classpath
+jshell --class-path lib/* script.jsh
+```
+
+
 
 #### Repository
 
