@@ -117,7 +117,80 @@ flutter pub upgrade
 
 # Identify out-of-date package dependencies and get advice on how to update them
 flutter pub outdated
+
+# Common packages
+flutter pub add go_router
+flutter pub add yaml
+flutter pub add dio
+flutter pub add flutter_form_builder
+flutter pub add flutter_hooks
+flutter pub add flutter_localizations --sdk=flutter
+flutter pub add intl:any
+dart pub add dev:json_serializable
+dart pub add freezed
+flutter pub add dev:build_runner
+
+# Errors logging
+flutter pub add talker_flutter
+flutter pub add talker_dio_logger
+
+
+# https://riverpod.dev/docs/introduction/getting_started
+# Without hooks, flutter_riverpod is used instead
+flutter pub add hooks_riverpod
+flutter pub add riverpod_annotation
+flutter pub add dev:riverpod_generator
+flutter pub add dev:build_runner
+
+# Optional
+flutter pub add dev:lint
+flutter pub add dev:custom_lint
+flutter pub add dev:riverpod_lint
+
+# Different endpoints
+$env:PUB_HOSTED_URL="https://pub.flutter-io.cn"
+$ENV:FLUTTER_STORAGE_BASE_URL="https://storage.flutter-io.cn"
+
+# https://docs.flutter.dev/ui/accessibility-and-internationalization/internationalization
+# Generate files in ${FLUTTER_PROJECT}/.dart_tool/flutter_gen/gen_l10n without running the app
+flutter gen-l10n
+
+# Code generation
+dart run build_runner build --delete-conflicting-outputs
+
+# Watcher for code generations
+dart run build_runner watch --delete-conflicting-outputs
 ```
+
+## Internationalization
+
+- `pubspec.yaml` Should contains the following
+
+```yaml
+# The following section is specific to Flutter.
+flutter:
+  generate: true # Add this line
+```
+
+- `l10n.yaml` should be in the root folder with the following content
+
+```yaml
+arb-dir: lib/infra/l10n # Put the App Resource Bundle (.arb) input files in ${FLUTTER_PROJECT}/lib/infra/l10n. The .arb provide localization resources for your app
+template-arb-file: app_en.arb # Set the English template as app_en.arb
+output-localization-file: app_localizations.dart # Told Flutter to generate localizations in the app_localizations.dart file
+```
+
+- Generate `.arb` files
+
+```powershell
+# https://docs.flutter.dev/ui/accessibility-and-internationalization/internationalization
+# Generate files in ${FLUTTER_PROJECT}/.dart_tool/flutter_gen/gen_l10n without running the app
+flutter gen-l10n
+```
+
+- Add `.arb` files as you need with specific local like `app_es.arb`
+
+- Use `AppLocalizations.delegate` and `AppLocalizations.supportedLocale` for `MaterialApp` configurations.
 
 ## Flutter Common Classes & functions
 

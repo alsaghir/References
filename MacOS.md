@@ -13,7 +13,7 @@ mwinit --aea
 
 Example of `~/.ssh/config`
 
-```
+```config
 Host github.com
   AddKeysToAgent yes
   IdentityFile ~/.ssh/id_rsa
@@ -97,38 +97,41 @@ code --list-extensions
 code --install-extension adpyke.codesnap
 code --install-extension asciidoctor.asciidoctor-vscode
 code --install-extension blaxou.freezed
-code --install-extension DanielSanMedium.dscodegpt
-code --install-extension Dart-Code.dart-code
-code --install-extension Dart-Code.flutter
-code --install-extension DavidAnson.vscode-markdownlint
+code --install-extension codeium.codeium
+code --install-extension codium.codium
+code --install-extension dart-code.dart-code
+code --install-extension dart-code.flutter
+code --install-extension davidanson.vscode-markdownlint
 code --install-extension dgileadi.java-decompiler
 code --install-extension donjayamanne.githistory
 code --install-extension donjayamanne.python-environment-manager
-code --install-extension DotJoshJohnson.xml
+code --install-extension dotjoshjohnson.xml
 code --install-extension eamodio.gitlens
-code --install-extension EasyCodeAI.chatgpt-gpt4-gpt3-vscode
 code --install-extension esbenp.prettier-vscode
 code --install-extension geeebe.duplicate
+code --install-extension google.arb-editor
+code --install-extension hzgood.dart-data-class-generator
 code --install-extension k--kato.intellij-idea-keybindings
-code --install-extension KevinRose.vsc-python-indent
+code --install-extension kevinrose.vsc-python-indent
 code --install-extension leodevbro.blockman
 code --install-extension marclipovsky.string-manipulation
+code --install-extension marufhassan.flutter-snippets
 code --install-extension mhutchie.git-graph
 code --install-extension ms-azuretools.vscode-docker
+code --install-extension ms-python.debugpy
 code --install-extension ms-python.python
 code --install-extension ms-python.vscode-pylance
-code --install-extension ms-vscode-remote.remote-containers
-code --install-extension ms-vscode-remote.remote-wsl
 code --install-extension ms-vscode.powershell
 code --install-extension ms-vsliveshare.vsliveshare
 code --install-extension redhat.fabric8-analytics
 code --install-extension redhat.java
+code --install-extension robert-brunhage.flutter-riverpod-snippets
 code --install-extension ryu1kn.partial-diff
-code --install-extension ShreeRuparel.chatgpt-unit-test-generator
-code --install-extension SonarSource.sonarlint-vscode
 code --install-extension streetsidesoftware.code-spell-checker
-code --install-extension VisualStudioExptTeam.intellicode-api-usage-examples
-code --install-extension VisualStudioExptTeam.vscodeintellicode
+code --install-extension tabnine.tabnine-vscode
+code --install-extension trinm1709.dracula-theme-from-intellij
+code --install-extension visualstudioexptteam.intellicode-api-usage-examples
+code --install-extension visualstudioexptteam.vscodeintellicode
 code --install-extension vmware.vscode-boot-dev-pack
 code --install-extension vmware.vscode-spring-boot
 code --install-extension vscjava.vscode-java-debug
@@ -139,6 +142,26 @@ code --install-extension vscjava.vscode-maven
 code --install-extension vscjava.vscode-spring-boot-dashboard
 code --install-extension vscjava.vscode-spring-initializr
 code --install-extension xyz.local-history
+
+# IDEA extensions
+idea64.exe installPlugins org.asciidoctor.intellij.asciidoc
+idea64.exe installPlugins codiumai.codiumai
+idea64.exe installPlugins com.codeium.intellij
+idea64.exe installPlugins google-java-format
+idea64.exe installPlugins GrepConsole
+idea64.exe installPlugins HighlightBracketPair
+idea64.exe installPlugins dev.jbang.intellij.JBangPlugin
+idea64.exe installPlugins JFormDesigner
+idea64.exe installPlugins com.haulmont.jpab
+idea64.exe installPlugins "Key Promoter X"
+idea64.exe installPlugins com.yiycf.plugins.mavenDependencyHelper
+idea64.exe installPlugins org.kubicz.mavenexecutor.plugin.id
+idea64.exe installPlugins MavenRunHelper
+idea64.exe installPlugins izhangzhihao.rainbow.brackets
+idea64.exe installPlugins org.sonarlint.idea
+idea64.exe installPlugins com.github.lipiridi.spotless-applier
+idea64.exe installPlugins String Manipulation
+idea64.exe installPlugins com.tabnine.TabNine
 
 # Flush DNS
 sudo killall -HUP mDNSResponder;sudo killall mDNSResponderHelper;sudo dscacheutil -flushcache
