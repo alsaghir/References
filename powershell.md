@@ -23,34 +23,39 @@ scoop bucket add nonportable
 scoop bucket add extras
 scoop bucket add nerd-fonts
 
+# Utilities
 scoop install nerd-fonts/JetBrainsMono-NF
 scoop install main/starship
+scoop install extras/firewallappblocker
 
+# Desktop Apps
 scoop install nonportable/biglybt-np
 scoop install extras/draw.io
+scoop install extras/jetbrains-toolbox
+scoop install extras/rufus
+
+scoop install extras/vscode
+
+# Screen share, meetings and screenshots
 scoop install extras/sharex
 scoop install extras/anydesk
 scoop install extras/greenshot
-scoop install extras/jetbrains-toolbox
+
+# Multimedia
 scoop install extras/mkvtoolnix
 scoop install extras/makemkv
+scoop install extras/vlc
+scoop install extras/qmplay2
+scoop install extras/smplayer
+scoop install extras/shutter-encoder
+
+# Browsers
 scoop install extras/firefox
 scoop install extras/postman
-scoop install extras/rufus
-scoop install extras/vlc
-scoop install extras/vscode
 scoop install extras/googlechrome
 
-# Choose one
-# winget install JanDeDobbeleer.OhMyPosh -s winget
-winget install --id Starship.Starship
-winget install -e --id BiglySoftware.BiglyBT
-winget install -e --id Google.Chrome
-winget install -e --id Mozilla.Firefox
-winget install JanDeDobbeleer.OhMyPosh -s winget
+# Docker
 winget install --id Docker.DockerDesktop
-winget install -e --id JetBrains.IntelliJIDEA.Ultimate
-winget install -e --id Postman.Postman
 ```
 
 ### Recommended Startup Script
