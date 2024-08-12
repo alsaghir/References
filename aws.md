@@ -461,6 +461,14 @@ export AWS_ACCESS_KEY_ID="Key ID Here";
 export AWS_SECRET_ACCESS_KEY="Access Key Here";
 export AWS_SESSION_TOKEN="Token Here";
 
+# Assume role as one command
+export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" \
+$(aws sts assume-role \
+--role-arn arn:aws:iam::855389350164:role/dxDeveloper \
+--role-session-name AWSCLI-Session \
+--query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
+--output text))
+
 # Get credentials to set in environment variables above
 aws sts get-caller-identity
 
@@ -471,4 +479,5 @@ aws lambda invoke --region=eu-west-1 --function-name arn:aws:lambda:eu-west-1:85
 brew install saml2aws
 saml2aws login --skip-prompt --role=arn:aws:iam::855389350164:role/vfDeveloperReadOnly
 saml2aws configure
+
 ```
