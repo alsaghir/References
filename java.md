@@ -189,8 +189,6 @@ mvn dependency:copy -D artifact=commons-io:commons-io:2.11.0 -D outputDirectory=
 jshell --class-path lib/* script.jsh
 ```
 
-
-
 #### Repository
 
 - search.maven.org
@@ -519,6 +517,24 @@ The Security Filters in [SecurityFilterChain](https://docs.spring.io/spring-secu
 Second, since `FilterChainProxy` is central to Spring Security usage, it can perform tasks that are not viewed as optional. For example, it clears out the `SecurityContext` to avoid memory leaks. It also applies Spring Security’s `HttpFirewall` to protect applications against certain types of attacks.
 
 In addition, it provides more flexibility in determining when a `SecurityFilterChain` should be invoked. In a Servlet container, Filter instances are invoked based upon the URL alone. However, `FilterChainProxy` can determine invocation based upon anything in the `HttpServletRequest` by using the `RequestMatcher` interface.
+
+## Java Platform Module System / JPMS / Modules
+
+### Descriptor aspects
+
+- Name – the name of our module
+- Dependencies – a list of other modules that this module depends on
+- Public Packages – a list of all packages we want accessible from outside the module
+- Services Offered – we can provide service implementations that can be consumed by other modules
+- Services Consumed – allows the current module to be a consumer of a service
+- Reflection Permissions – explicitly allows other classes to use reflection to access the private members of a package
+
+### Module Types
+
+- System Modules – These are the modules listed when we run  `java --list-modules` and they include the Java SE and JDK modules.
+- Application Modules – What we define in module-info.class file included in the assembled JAR.
+- Automatic Modules – Unofficial modules derived from the name of the JAR and have full read access to every other module loaded by the path.
+- Unnamed Module – When a class or JAR is loaded onto the classpath, but not the module path, it’s automatically added to the unnamed module. It’s a catch-all module to maintain backward compatibility with previously-written Java code.
 
 ---
 

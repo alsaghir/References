@@ -30,12 +30,16 @@
 
 - Ephemeral state: UI state or local state which is the state you can neatly contain in a single widget. Managed by using `StatefulWidget` and usage of `setState()` method
 - App state: Shared state across many parts of the app
+- Riverpod
+  - StatelessWidget > ConsumerWidget > HookConsumerWidget
+  - StatefulWidget > ConsumerStatefulWidget > StatefulHookConsumerWidget
+  - State > ConsumerState
 
 ### Provider package
 
 - `ChangeNotifier`: Like `Observable`. Gets extended by models which are representing the state. Must call `notifyListeners()` inside any model method that would change the state. This class is easily testable without widgets and without other dependencies than flutter.
 - `ChangeNotifierProvider`: is the widget that provides an instance of a `ChangeNotifier` to its descendants. It comes from the `provider` package. `MultiProvider` [can be used for providing multiple models](https://docs.flutter.dev/data-and-backend/state-mgmt/simple#changenotifierprovider). Note that You don’t want to place `ChangeNotifierProvider` higher than necessary to prevent rebuilding unneeded widgets that are irrelative to the state update.
-- `Consumer`: Uses the model to consume data from it. Should be as deep as possible and could use the builder third param to get child widgets and reuse them avoiding rebuilding them whever this consumer consumes new values. `Consumer` is called on every `notifyListeners()` call.
+- `Consumer`: Uses the model to consume data from it. Should be as deep as possible and could use the builder third param to get child widgets and reuse them avoiding rebuilding them whenever this consumer consumes new values. `Consumer` is called on every `notifyListeners()` call.
 
 ### Riverpod
 
@@ -44,14 +48,13 @@
   - `ref.watch()` reads value from provider and subscribe to the provider for any other change.
     - Do not call asynchronously, like inside an onPressed of an ElevatedButton.
     - Nor should it be used inside initState and other State life-cycles. In those cases, consider using `ref.read` instead.
-  - `ref.read()` obtaining the value of a provider while ignoring changes. This is useful when we need the value of a provider in an event such as "on click". 
+  - `ref.read()` obtaining the value of a provider while ignoring changes. This is useful when we need the value of a provider in an event such as "on click".
     - Should be avoided as much as possible because it is not reactive. It exists for cases where using `watch` or `listen` would cause issues. If you can, it is almost always better to use `watch`/`listen`, especially `watch`.
     - DON'T use `ref.read` inside the `build` method directly.
   - `ref.listen` is similar to `watch` but rather than rebuilding the widget/provider if the listened to provider changes, using `ref.listen` will instead call a custom function.
     - Useful for performing actions when a certain change happens, such as showing a snackbar when an error happens.
     - `ref.listen` method needs 2 positional arguments, the first one is the Provider and the second one is the callback function that we want to execute when the state changes. The callback function when called will be passed 2 values, the value of the previous State and the value of the new State.
     - Should not be called asynchronously, like inside an onPressed of an ElevatedButton. Nor should it be used inside initState and other State life-cycles
-
 
 ## After download Flutter & Android SDK
 
@@ -118,12 +121,44 @@ flutter pub upgrade
 # Identify out-of-date package dependencies and get advice on how to update them
 flutter pub outdated
 
+
+# Freezed
+# https://pub.dev/packages/freezed#how-to-use
+flutter pub add freezed_annotation
+flutter pub add --dev build_runner
+flutter pub add --dev freezed
+# if using freezed to generate fromJson/toJson, also add:
+flutter pub add json_annotation
+flutter pub add --dev json_serializable
+
+# Riverpod + flutter hooks + Code generator
+# https://docs-v2.riverpod.dev/docs/introduction/getting_started
+flutter pub add hooks_riverpod flutter_hooks riverpod_annotation dev:riverpod_generator dev:build_runner dev:custom_lint dev:riverpod_lint
+
+# Dio http client
+# https://pub.dev/packages/dio/install
+flutter pub add dio
+
+# Go Router for navigation
+# https://pub.dev/packages/go_router
+flutter pub add go_router
+
+# URL launch handler
+# https://pub.dev/packages/url_launcher
+flutter pub add url_launcher
+
+# Look INto
+# https://pub.dev/packages/shimmer
+
 # Common packages
 flutter pub add go_router
-flutter pub add yaml
+flutter pub add flutter_hooks # Also with riverpod
+
+# Per usage
 flutter pub add dio
+flutter pub add stomp_dart_client
+flutter pub add yaml
 flutter pub add flutter_form_builder
-flutter pub add flutter_hooks
 flutter pub add flutter_localizations --sdk=flutter
 flutter pub add intl:any
 dart pub add dev:json_serializable
@@ -134,18 +169,14 @@ flutter pub add dev:build_runner
 flutter pub add talker_flutter
 flutter pub add talker_dio_logger
 
-
 # https://riverpod.dev/docs/introduction/getting_started
 # Without hooks, flutter_riverpod is used instead
-flutter pub add hooks_riverpod
-flutter pub add riverpod_annotation
-flutter pub add dev:riverpod_generator
-flutter pub add dev:build_runner
+flutter pub add hooks_riverpod dev:custom_lint dev:riverpod_lint
+# Added separately
+flutter pub add flutter_hooks
 
 # Optional
 flutter pub add dev:lint
-flutter pub add dev:custom_lint
-flutter pub add dev:riverpod_lint
 
 # Different endpoints
 $env:PUB_HOSTED_URL="https://pub.flutter-io.cn"
@@ -210,7 +241,7 @@ flutter gen-l10n
   - [Usage with SingleChildScrollView](https://www.youtube.com/watch?v=neAn35cY8y0)
   - Multi-children layout widgets
   - Usually used to make row or column scrollable
-  - Some of its common properties related to axis size, axis alignment, direction, 
+  - Some of its common properties related to axis size, axis alignment, direction.
 - [Expanded](https://api.flutter.dev/flutter/widgets/Expanded-class.html)
   - A widget that expands a child of a Row, Column, or Flex so that the child fills the available space.
   - Use `flex` factor to determine the width to occupy
@@ -225,7 +256,7 @@ flutter gen-l10n
 
 - [compute()](https://api.flutter.dev/flutter/foundation/compute-constant.html) to run in a background [isolate](https://api.flutter.dev/flutter/dart-isolate/Isolate-class.html)
 - [GestureDetector](https://api.flutter.dev/flutter/widgets/GestureDetector-class.html)
-- [AnimationController ](https://api.flutter.dev/flutter/animation/AnimationController-class.html) & [TickerProvider](https://api.flutter.dev/flutter/scheduler/TickerProvider-class.html) & [CurvedAnimation](https://api.flutter.dev/flutter/animation/CurvedAnimation-class.html) & [Curves](https://api.flutter.dev/flutter/animation/Curves-class.html)
+- [AnimationController](https://api.flutter.dev/flutter/animation/AnimationController-class.html) & [TickerProvider](https://api.flutter.dev/flutter/scheduler/TickerProvider-class.html) & [CurvedAnimation](https://api.flutter.dev/flutter/animation/CurvedAnimation-class.html) & [Curves](https://api.flutter.dev/flutter/animation/Curves-class.html)
 - [Platform](https://api.flutter.dev/flutter/dart-io/Platform-class.html) - Information about the environment in which the current program is running.
 
 - [CircleAvatar](https://api.flutter.dev/flutter/material/CircleAvatar-class.html)
@@ -253,38 +284,6 @@ flutter gen-l10n
 - For using theme [data define a them](https://docs.flutter.dev/cookbook/design/themes#extending-the-parent-theme) or use the default provided one then [use the theme](https://docs.flutter.dev/cookbook/design/themes#using-a-theme) to get its data like `Theme.of(context).colorScheme.secondary`
 - Use [ListView](https://api.flutter.dev/flutter/widgets/ListView-class.html) for scrollable list of widgets arranged linearly. Mostly the first row/column in the scaffold. A ListView is basically a `CustomScrollView` with a single SliverList in its `CustomScrollView.slivers` property. An optimization to the combination of `SingleChildScrollView` & `Column` which is another option if you have full column to render at once instead of rendering them dynamically. For dynamic rendering use `Listview.builder()` for optimization.
 - Avoid [using `cast` specially for json decoding](https://dart.dev/guides/language/effective-dart/usage#dont-use-cast-when-a-nearby-operation-will-do).
-
-### Flutter dependencies
-
-```sh
-# Freezed
-# https://pub.dev/packages/freezed#how-to-use
-flutter pub add freezed_annotation
-flutter pub add --dev build_runner
-flutter pub add --dev freezed
-# if using freezed to generate fromJson/toJson, also add:
-flutter pub add json_annotation
-flutter pub add --dev json_serializable
-
-# Riverpod + flutter hooks + Code generator
-# https://docs-v2.riverpod.dev/docs/introduction/getting_started
-flutter pub add hooks_riverpod flutter_hooks riverpod_annotation dev:riverpod_generator dev:build_runner dev:custom_lint dev:riverpod_lint
-
-# Dio http client
-# https://pub.dev/packages/dio/install
-flutter pub add dio
-
-# Go Router for navigation
-# https://pub.dev/packages/go_router
-flutter pub add go_router
-
-# URL launch handler
-# https://pub.dev/packages/url_launcher
-flutter pub add url_launcher
-
-# Look INto
-# https://pub.dev/packages/shimmer
-```
 
 ## Dart
 
@@ -318,6 +317,7 @@ dart pub add args
 - Return type should be `Future<void>` or `Future<T>`
 
 #### async and await
+
 - To define an async function, add async before the function body
 - The await keyword works only in async functions.
 - You can use the await keyword to wait for a future to complete
@@ -325,6 +325,7 @@ dart pub add args
   ```Dart
   print(await createOrderMessage());
   ```
+
 - The `await` keyword only works within an `async` function.
 
 ### Notes
@@ -398,4 +399,3 @@ in `android/app/src/main/AndroidManifest.xml`
 ```
 
 [cmd-tools]: https://developer.android.com/studio#cmdline-tools
-

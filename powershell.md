@@ -8,6 +8,7 @@
 - [Python Venv For Windows](https://docs.python.org/3/library/venv.html)
 
 ---
+
 ## Profile on startup
 
 - [Reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-7.1)
@@ -55,7 +56,7 @@ scoop install extras/postman
 scoop install extras/googlechrome
 
 # Docker
-winget install --id Docker.DockerDesktop
+scoop install extras/rancher-desktop
 ```
 
 ### Recommended Startup Script
@@ -65,14 +66,17 @@ winget install --id Docker.DockerDesktop
 - [Starship](https://github.com/starship/starship#%F0%9F%9A%80-installation) for awesome shell.
 
 ```powershell
-# Git auto complete
-Import-Module posh-git
+# Git auto complete [Optional]
+# Import-Module posh-git
 
 # Starship
 Invoke-Expression (&starship init powershell)
 
 # Docker Autocomplete
 Import-Module DockerCompletion
+
+# For general auto complete customizations
+Import-Module PSReadLine
 
 # Scoop Autocomplete
 Import-Module "$($(Get-Item $(Get-Command scoop.ps1).Path).Directory.Parent.FullName)\modules\scoop-completion"
@@ -142,6 +146,7 @@ D:\Apps\venv\Scripts\activate.ps1
 ```
 
 ---
+
 ## Powershell 101
 
 ### Line Breaks
@@ -162,6 +167,59 @@ Controlled by environment variable `POWERSHELL_UPDATECHECK` with values `off`, `
 ---
 
 ## CMDlets
+
+### SSH
+
+sshd_config
+
+```config
+PasswordAuthentication no
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+LogLevel DEBUG
+```
+
+```powershell
+# https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell
+Get-WindowsCapability -Online | ? Name -like 'OpenSSH*'
+# Output from previous command, install client or server as needed
+Add-WindowsCapability -Online -Name "OpenSSH.Server~~~~0.0.1.0"
+Start-Service sshd
+# OPTIONAL but recommended:
+Set-Service -Name sshd -StartupType 'Automatic'
+
+# Confirm the Firewall rule is configured. It should be created automatically by setup. Run the following to verify
+if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue | Select-Object Name, Enabled)) {
+    Write-Output "Firewall Rule 'OpenSSH-Server-In-TCP' does not exist, creating it..."
+    New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+} else {
+    Write-Output "Firewall rule 'OpenSSH-Server-In-TCP' has been created and exists."
+}
+
+# Restart the service
+Restart-Service sshd
+
+# Add public key of local client to authorized_keys file on remote machine
+# Then run these permissions commands
+# and do the same for $HOME\.ssh\authorized_keys
+# Notice that C:\ProgramData\ssh\administrators_authorized_keys
+# is used if the user is admin
+$acl = Get-Acl C:\ProgramData\ssh\administrators_authorized_keys
+$acl.SetAccessRuleProtection($true, $false)
+$administratorsRule = New-Object system.security.accesscontrol.filesystemaccessrule("Administrators","FullControl","Allow")
+$systemRule = New-Object system.security.accesscontrol.filesystemaccessrule("SYSTEM","FullControl","Allow")
+$acl.SetAccessRule($administratorsRule)
+$acl.SetAccessRule($systemRule)
+$acl | Set-Acl
+
+
+# Windows remoting tools over ssh
+# https://learn.microsoft.com/en-us/powershell/scripting/security/remoting/ssh-remoting-in-powershell?view=powershell-7.2#windows-to-windows
+# https://gist.github.com/gildas/6b4ec9b80c3f61e61b01e29dccc87c8c#powershell-core-sessions
+Install-Module Microsoft.PowerShell.RemotingTools
+Enable-SSHRemoting
+help Enable-SSHRemoting
+```
 
 ### Execution Policy
 
@@ -334,15 +392,16 @@ $env:Path = "C:\MyPath;$env:Path"
      ("INCLUDE", $env:INCLUDE, [System.EnvironmentVariableTarget]::User)
 
 # Add to the system environment variable
-
 [Environment]::SetEnvironmentVariable(
     "Path",
     [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine) + ";C:\bin",
     [EnvironmentVariableTarget]::Machine)
 
 # String based solution is also possible if you don't want to write types
-
 [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\bin", "Machine")
+
+# Remove the environment variable
+[Environment]::SetEnvironmentVariable('FVM_HOME', [NullString]::Value, 'User')
 
 # Syncthing docker command
 docker run -v //d/Apps/syncthing_data:/var/syncthing -v //d/code/code-wsl:/code -d --name=syncthing-windows --network=cnetwork -p 8385:8384 -p 22001:22000/tcp -p 22001:22000/udp -p 21028:21027/udp --hostname=syncthing-windows syncthing/syncthing:latest
@@ -350,4 +409,3 @@ docker run -v //d/Apps/syncthing_data:/var/syncthing -v //d/code/code-wsl:/code 
 # IP of wsl instance
 wsl -d "Ubuntu" hostname -I
 ```
-
