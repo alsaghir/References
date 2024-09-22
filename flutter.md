@@ -271,16 +271,16 @@ flutter gen-l10n
 
 ## Rule of thumb
 
-- `build` should be used only for layout. While `initState` is usually used for variable initialization
+- Always wrap `Column` in `SingleChildScrollView` either directly or indirectly. Use `SingleChildScrollView` to fix size of `Card` or `Container` to prevent resizing the window to make a mess of the height.
 - Wrap widgets like `TextField` into `Flexible` or `Expanded` to tell `Row` [how much space expected to be taken](https://stackoverflow.com/a/45990477/7054574).
 - Beware to [box constraints](https://docs.flutter.dev/development/ui/layout/box-constraints#flex)
 - Generate icons from [appicon](https://appicon.co/) and add it to Android path `android/app/src/main/res` and iOS path `ios/Runner/Assets.xcassets/AppIcon.appiconset`
-- Stateful widgets lifecycle controlled by `initState`, `build` and `deactivate` methods
-- `MaterialApp` > `Scaffold` > `SafeArea`
-- Use `Container` for everything like every child in a `Column`
-- Use `SizedBox` to space between elements with `Divider` child if needed
+- Stateful widgets lifecycle controlled by `initState`, `build` and `deactivate` methods. - `build` should be used only for layout. While `initState` is usually used for variable initialization.
+- `MaterialApp` > `Scaffold` > `SafeArea`.
+- Use `Container` for everything like every child in a `Column`.
+- Use `SizedBox` to space between elements with `Divider` child if needed.
 - Use `Card` and `ListTile` instead of `Container` if possible with parent `Padding` widget.
-- Use `Flexible` or `Expanded` as direct child of `Row` to tell `Row` [how much space expected to be taken](https://stackoverflow.com/a/45990477/7054574). `Expanded` will fill as big as possible in vertical/horizontal directions (column/row) and use its `flex` property to determine its percentage sizing relative to other children
+- Use `Flexible` or `Expanded` as direct child of `Row` to tell `Row` [how much space expected to be taken](https://stackoverflow.com/a/45990477/7054574). `Expanded` will fill as big as possible in vertical/horizontal directions (column/row) and use its `flex` property to determine its percentage sizing relative to other children.
 - For using theme [data define a them](https://docs.flutter.dev/cookbook/design/themes#extending-the-parent-theme) or use the default provided one then [use the theme](https://docs.flutter.dev/cookbook/design/themes#using-a-theme) to get its data like `Theme.of(context).colorScheme.secondary`
 - Use [ListView](https://api.flutter.dev/flutter/widgets/ListView-class.html) for scrollable list of widgets arranged linearly. Mostly the first row/column in the scaffold. A ListView is basically a `CustomScrollView` with a single SliverList in its `CustomScrollView.slivers` property. An optimization to the combination of `SingleChildScrollView` & `Column` which is another option if you have full column to render at once instead of rendering them dynamically. For dynamic rendering use `Listview.builder()` for optimization.
 - Avoid [using `cast` specially for json decoding](https://dart.dev/guides/language/effective-dart/usage#dont-use-cast-when-a-nearby-operation-will-do).

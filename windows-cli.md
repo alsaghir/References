@@ -64,3 +64,14 @@ SET PATH=%JAVA_HOME%\bin;%MAVEN_HOME%\bin;%PATH%
 
 @echo on
 ```
+
+## OBS
+
+- Use `Alt` and drag the frames to cut instead of scaling the screen.
+
+## Davinci Resolve
+
+- `Shift` + `J/K/L` for fast playback speeding and slowing. `J/K/L` alone for normal playback and fast speeding without slowing.
+- `Ctrl` + `B` Split selected tracks.
+- `Backspace` Delete without ripple effect. `Shift` + `Backspace` for ripple delete. Also `Delete` button for ripple delete.
+- `Ctrl` + `R` Enable Retime controls to change speed by dragging.
