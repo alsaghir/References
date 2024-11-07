@@ -144,6 +144,110 @@ jshell --add-modules java.logging
 
 ### Maven
 
+#### Build Performance
+
+- Use build cache extension - https://maven.apache.org/extensions/index.html
+
+- Measuring without cache
+
+```sh
+# https://gradle.com/blog/five-ways-to-speed-up-your-apache-maven-builds
+# Add the extension to the project
+mvn com.gradle:develocity-maven-extension:1.22.2:init
+
+# Disable build caching
+# It will be re-enabled at the end of the post!
+export MAVEN_OPTS="-Ddevelocity.cache.local.enabled=false"
+
+# Run a build
+mvn clean install
+```
+
+- Enable parallel execution using Junit 5
+
+```xml
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-surefire-plugin</artifactId>
+  <configuration>
+    <properties>
+      <!-- JUnit 5 specific configuration -->
+      <!-- Also supported for Failsafe plugin -->
+      <!-- https://junit.org/junit5/docs/snapshot/user-guide/#writing-tests-parallel-execution-config -->
+      <configurationParameters>
+        junit.jupiter.execution.parallel.enabled = true
+        junit.jupiter.execution.parallel.mode.default = concurrent
+      </configurationParameters>
+    </properties>
+  </configuration>
+</plugin>
+```
+
+- Parallel builds should be enabled by creating a `.mvn/maven.config` file and add `--threads=1.5C` or  `-T=1.5C`.
+
+- Additional option is to customize clean phase
+
+```xml
+<properties>
+    <timestamp>${maven.build.timestamp}</timestamp>
+    <maven.build.timestamp.format>yyyy-MM-dd-HH-mm</maven.build.timestamp.format>
+    <trashdir>trash/target-${maven.build.timestamp}</trashdir>
+</properties>
+
+    <profile>
+        <id>quickclean</id>
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>rename_target</id>
+                            <phase>pre-clean</phase>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                            <configuration>
+                                <tasks>
+                                    <move todir="${trashdir}" failonerror="false">
+                                        <fileset dir="target/"/>
+                                    </move>
+                                </tasks>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </build>
+    </profile>
+    <profile>
+        <id>trashclean</id>
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>clean_trash</id>
+                            <phase>clean</phase>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                            <configuration>
+                                <tasks>
+                                    <delete dir="trash/" failonerror="false"/>
+                                </tasks>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </build>
+    </profile>
+```
+
 #### Examples
 
 `mvn help:describe -Dplugin=archetype` - To get help about a plugin which is `archetype` in this case

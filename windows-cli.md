@@ -75,3 +75,40 @@ SET PATH=%JAVA_HOME%\bin;%MAVEN_HOME%\bin;%PATH%
 - `Ctrl` + `B` Split selected tracks.
 - `Backspace` Delete without ripple effect. `Shift` + `Backspace` for ripple delete. Also `Delete` button for ripple delete.
 - `Ctrl` + `R` Enable Retime controls to change speed by dragging.
+
+## Firefox
+
+- After update using scoop, set default profile and delete others
+
+```sh
+$defaultProfile = "$env:USERPROFILE\scoop\persist\firefox\profile"
+$content = @"
+[General]
+StartWithLastProfile=1
+Version=2
+
+[Profile0]
+Name=Scoop
+IsRelative=0
+Path=$defaultProfile
+Default=1
+
+[Install9261CA6489C7D24]
+Default=$defaultProfile
+Locked=1
+"@
+
+$content | Set-Content "$env:APPDATA\Mozilla\Firefox\profiles.ini"
+
+$content = @"
+[9261CA6489C7D24]
+Default=$defaultProfile
+Locked=1
+"@
+
+$content | Set-Content "$env:APPDATA\Mozilla\Firefox\installs.ini"
+
+$profilesDir = "$env:APPDATA\Mozilla\Firefox\Profiles"
+
+Get-ChildItem -Path $profilesDir | Remove-Item -Recurse -Force -Confirm:$false
+```
