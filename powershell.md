@@ -66,6 +66,12 @@ scoop install extras/rancher-desktop
 - [Starship](https://github.com/starship/starship#%F0%9F%9A%80-installation) for awesome shell.
 
 ```powershell
+# Unicode for displaying
+# $OutputEncoding = [Console]::InputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding
+# https://stackoverflow.com/a/49481797
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+
 # Git auto complete [Optional]
 # Import-Module posh-git
 
@@ -98,6 +104,10 @@ Register-ArgumentCompleter -Native -CommandName winget -ScriptBlock {
             [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
         }
 }
+
+# Run specific script on startup using call operator &
+# https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_operators?view=powershell-7.4#call-operator-
+& "C:\Users\ahmed\Desktop\data\apps\pyenv\Scripts\Activate.ps1"
 ```
 
 - [Reference](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-completion.html#cli-command-completion-windows)
