@@ -41,9 +41,11 @@ Host bastion-non-prod-1
 brew analtrics off
 
 # Update to latest versions
+brew update --auto-update
 brew outdated -g
 brew upgrade --greedy
 brew upgrade visual-studio-code
+brew cleanup
 
 # https://sdkman.io/install
 # Show hiddend files and show path in Finder
