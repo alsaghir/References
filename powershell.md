@@ -229,6 +229,14 @@ $acl | Set-Acl
 Install-Module Microsoft.PowerShell.RemotingTools
 Enable-SSHRemoting
 help Enable-SSHRemoting
+
+# Connecting
+Enter-PSSession -HostName Desktop-server -UserName Echo -KeyFilePath ~/.ssh/id_ed25519
+ssh -v -i ~/.ssh/id_ed25519 Echo@Desktop-server
+scp -T 'Echo@Desktop-server:"C:\Users\Echo\Documents\Deadpool And Wolverine 2024 1080p 10bit WEBRip 6CH X265 HEVC-PSA.mkv"' C:\Users\ahmed\Desktop
+
+# Misc
+Get-Service ssh-agent | Set-Service -StartupType Automatic
 ```
 
 ### Execution Policy

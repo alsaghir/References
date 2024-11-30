@@ -95,6 +95,7 @@ org.gradle.jvmargs=-Xmx1536M --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --ad
 flutter create my_app
 flutter create --platforms=web my_app
 flutter create --platforms=web --project-name=spring_petclinic_ui .
+fvm flutter create --platforms="windows,web" spring_petclinic_ui
 
 # Dev run
 flutter devices
@@ -191,6 +192,13 @@ dart run build_runner build --delete-conflicting-outputs
 
 # Watcher for code generations
 dart run build_runner watch --delete-conflicting-outputs
+
+# Flutter configurations using FVM
+fvm flutter upgrade
+fvm flutter config --list
+fvm flutter config --enable-web --no-enable-linux-desktop --no-enable-macos-desktop --no-enable-windows-desktop --no-enable-android --no-enable-ios --no-enable-fuchsia
+fvm global stable
+
 ```
 
 ## Internationalization
