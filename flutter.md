@@ -122,27 +122,11 @@ flutter pub upgrade
 # Identify out-of-date package dependencies and get advice on how to update them
 flutter pub outdated
 
+# Standard
+flutter pub add dev:lint dev:custom_lint dev:riverpod_lint hooks_riverpod flutter_hooks dio go_router
 
-# Freezed
-# https://pub.dev/packages/freezed#how-to-use
-flutter pub add freezed_annotation
-flutter pub add --dev build_runner
-flutter pub add --dev freezed
-# if using freezed to generate fromJson/toJson, also add:
-flutter pub add json_annotation
-flutter pub add --dev json_serializable
-
-# Riverpod + flutter hooks + Code generator
-# https://docs-v2.riverpod.dev/docs/introduction/getting_started
-flutter pub add hooks_riverpod flutter_hooks riverpod_annotation dev:riverpod_generator dev:build_runner dev:custom_lint dev:riverpod_lint
-
-# Dio http client
-# https://pub.dev/packages/dio/install
-flutter pub add dio
-
-# Go Router for navigation
-# https://pub.dev/packages/go_router
-flutter pub add go_router
+# Errors logging
+flutter pub add talker_flutter talker_dio_logger talker_riverpod_logger
 
 # URL launch handler
 # https://pub.dev/packages/url_launcher
@@ -151,33 +135,14 @@ flutter pub add url_launcher
 # Look INto
 # https://pub.dev/packages/shimmer
 
-# Common packages
-flutter pub add go_router
-flutter pub add flutter_hooks # Also with riverpod
 
 # Per usage
-flutter pub add dio
 flutter pub add stomp_dart_client
 flutter pub add yaml
 flutter pub add flutter_form_builder
 flutter pub add flutter_localizations --sdk=flutter
 flutter pub add intl:any
 dart pub add dev:json_serializable
-dart pub add freezed
-flutter pub add dev:build_runner
-
-# Errors logging
-flutter pub add talker_flutter
-flutter pub add talker_dio_logger
-
-# https://riverpod.dev/docs/introduction/getting_started
-# Without hooks, flutter_riverpod is used instead
-flutter pub add hooks_riverpod dev:custom_lint dev:riverpod_lint
-# Added separately
-flutter pub add flutter_hooks
-
-# Optional
-flutter pub add dev:lint
 
 # Different endpoints
 $env:PUB_HOSTED_URL="https://pub.flutter-io.cn"
@@ -292,6 +257,7 @@ flutter gen-l10n
 - For using theme [data define a them](https://docs.flutter.dev/cookbook/design/themes#extending-the-parent-theme) or use the default provided one then [use the theme](https://docs.flutter.dev/cookbook/design/themes#using-a-theme) to get its data like `Theme.of(context).colorScheme.secondary`
 - Use [ListView](https://api.flutter.dev/flutter/widgets/ListView-class.html) for scrollable list of widgets arranged linearly. Mostly the first row/column in the scaffold. A ListView is basically a `CustomScrollView` with a single SliverList in its `CustomScrollView.slivers` property. An optimization to the combination of `SingleChildScrollView` & `Column` which is another option if you have full column to render at once instead of rendering them dynamically. For dynamic rendering use `Listview.builder()` for optimization.
 - Avoid [using `cast` specially for json decoding](https://dart.dev/guides/language/effective-dart/usage#dont-use-cast-when-a-nearby-operation-will-do).
+- Use LayoutBuilder for responsive design. If the child should be smaller than the parent, consider wrapping the child in an Align widget. If the child might want to be bigger, consider wrapping it in a SingleChildScrollView or OverflowBox.
 
 ## Dart
 
