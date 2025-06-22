@@ -123,7 +123,8 @@ flutter pub upgrade
 flutter pub outdated
 
 # Standard
-flutter pub add dev:lint dev:custom_lint dev:riverpod_lint hooks_riverpod flutter_hooks dio go_router
+flutter pub add dev:lint dev:custom_lint dev:riverpod_lint hooks_riverpod flutter_hooks dio go_router dev:test dev:mockito meta
+flutter pub add 'dev:integration_test:{"sdk":"flutter"}'
 
 # Errors logging
 flutter pub add talker_flutter talker_dio_logger talker_riverpod_logger

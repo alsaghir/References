@@ -479,5 +479,5 @@ aws lambda invoke --region=eu-west-1 --function-name arn:aws:lambda:eu-west-1:85
 brew install saml2aws
 saml2aws login --skip-prompt --role=arn:aws:iam::855389350164:role/vfDeveloperReadOnly
 saml2aws configure
-
+saml2aws login --username <userName> --password <password> --role arn:aws:iam::855389350164:role/vfDeveloperReadOnly --session-duration 3600
 ```

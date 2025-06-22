@@ -6,6 +6,8 @@
 - https://www.improvescripting.com/easy-steps-for-writing-powershell-functions/
 - [Remove path limitation](https://docs.python.org/3/using/windows.html#removing-the-max-path-limitation)
 - [Python Venv For Windows](https://docs.python.org/3/library/venv.html)
+- [.NET in PowerShell](https://xkln.net/blog/using-net-with-powershell/#net-syntax-in-powershell)
+- [Type Accelerator](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_type_accelerators?view=powershell-7.4)
 
 ---
 
@@ -19,7 +21,7 @@
 ```powershell
 winget install --id Microsoft.Powershell --source winget
 
-# https://scoop.sh 
+# https://scoop.sh
 scoop bucket add nonportable
 scoop bucket add extras
 scoop bucket add nerd-fonts
@@ -79,6 +81,8 @@ scoop install extras/rancher-desktop
 Invoke-Expression (&starship init powershell)
 
 # Docker Autocomplete
+# Might need
+# Install-Module -Name DockerCompletion -Scope CurrentUser
 Import-Module DockerCompletion
 
 # For general auto complete customizations
@@ -121,8 +125,8 @@ Register-ArgumentCompleter -Native -CommandName aws -ScriptBlock {
         aws_completer.exe | ForEach-Object {
             [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
         }
-        Remove-Item Env:\COMP_LINE     
-        Remove-Item Env:\COMP_POINT  
+        Remove-Item Env:\COMP_LINE
+        Remove-Item Env:\COMP_POINT
 }
 ```
 
@@ -153,6 +157,100 @@ D:\Apps\scoop\dir\apps\python\current\install-pep-514.reg
 python -m venv D:\Apps\venv
 # Activate it
 D:\Apps\venv\Scripts\activate.ps1
+```
+
+MacOS Startup File
+
+```powershell
+# https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/09-functions?view=powershell-7.5#advanced-functions
+# https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_cmdletbindingattribute?view=powershell-7.5
+[CmdletBinding()] param ()
+
+# Unicode for displaying
+# $OutputEncoding = [Console]::InputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding
+# https://stackoverflow.com/a/49481797
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+# Curl
+$env:PATH = '/opt/homebrew/opt/curl/bin:' + $env:Path     # attach to the beginning
+$env:LDFLAGS = "-L/opt/homebrew/opt/curl/lib"
+$env:CPPFLAGS = "-I/opt/homebrew/opt/curl/include"
+
+# Rancher desktop. Aut managed in .zshrc
+$env:PATH += ":$env:HOME/.rd/bi"
+
+# Binaries
+$env:PATH += ':/usr/local/bin'
+$env:PATH += ':/usr/bin'
+
+# Brew
+$(/opt/homebrew/bin/brew shellenv) | Invoke-Expression
+
+# Mise
+mise activate pwsh | Out-String | Invoke-Expression
+
+# Starship
+Invoke-Expression (&starship init powershell)
+
+# Brew completions
+if ((Get-Command brew) -and (Test-Path ($completions = "$(brew --prefix)/share/pwsh/completions"))) {
+  foreach ($f in Get-ChildItem -Path $completions -File) {
+    . $f
+  }
+}
+
+# pnpm
+# Set PNPM_HOME environment variable
+$env:PNPM_HOME = "$env:HOME/Library/pnpm"
+
+# Check if PNPM_HOME is already in the PATH
+if ($env:PATH -notcontains $env:PNPM_HOME) {
+  # Add PNPM_HOME to the PATH
+  $env:PATH = $env:PNPM_HOME + ":" + $env:PATH
+}
+# pnpm end
+
+# Docker Autocomplete
+Import-Module DockerCompletion
+
+# For general auto complete customizations
+Import-Module PSReadLine
+
+# Shows navigable menu of all options when hitting Tab
+Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+# Autocompletion for arrow keys
+Set-PSReadlineKeyHandler -Key UpArrow -Function HistorySearchBackward
+Set-PSReadlineKeyHandler -Key DownArrow -Function HistorySearchForward
+
+# SAML2AWS
+$env:SAML2AWS_BROWSER_TYPE = "firefox"
+
+# Mvnd - Dynamically resolve and add the mvnd binary path to PATH
+try {
+  # Use Invoke-Expression to capture command output
+  # Get the base mvnd path
+  $mvndBase = Invoke-Expression "mise where mvnd 2>&1"
+  
+  if ($mvndBase -and (Test-Path $mvndBase)) {
+    # Use a more direct pattern to find the bin directory
+    # Look for any maven-mvnd-* directory first, then find the bin directory within it
+    $mavenMvndDir = Get-ChildItem -Path $mvndBase -Directory | 
+    Where-Object { $_.Name -match "maven-mvnd-" } | 
+    Select-Object -First 1 -ExpandProperty FullName
+      
+    if ($mavenMvndDir) {
+      $mvndBinPath = Join-Path $mavenMvndDir "bin"
+          
+      if (Test-Path $mvndBinPath) {
+        $env:PATH = "$mvndBinPath" + [System.IO.Path]::PathSeparator + $env:PATH
+      }
+    }
+  }
+}
+catch {
+  # https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_try_catch_finally?view=powershell-7.5#using-multiple-catch-statements
+  Write-Host "Error setting up mvnd PATH: $_"
+}
 ```
 
 ---
