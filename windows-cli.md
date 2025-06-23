@@ -75,6 +75,8 @@ SET PATH=%JAVA_HOME%\bin;%MAVEN_HOME%\bin;%PATH%
 - `Ctrl` + `B` Split selected tracks.
 - `Backspace` Delete without ripple effect. `Shift` + `Backspace` for ripple delete. Also `Delete` button for ripple delete.
 - `Ctrl` + `R` Enable Retime controls to change speed by dragging.
+- In Fusion tab, select line between two nodes and press `Shift` + `Space` to add an effect. Right click on the node (usually the shape) and edit splines to control the keyframe markers on the timeline.
+- In Fusion tab, `Merge` node input are foreground and background. For example, `Rectangle` -> `Background` -> `Merge` should be the foreground while `MediaIn` -> `Merge` should be the background.
 
 ## Firefox
 
