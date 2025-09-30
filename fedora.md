@@ -139,7 +139,6 @@ flatpak install --user -y flathub org.kde.haruna
 flatpak install --user -y flathub org.videolan.VLC
 
 # Monitors
-# 
 kde-inotify-survey
 
 # Tips
