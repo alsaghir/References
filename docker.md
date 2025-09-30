@@ -1,13 +1,15 @@
-# Docker
+# Containerization
 
-## References
+## Docker
+
+### References
 
 - [Installation](https://docs.docker.com/engine/install/centos/#install-using-the-repository)
 - [Best practices & Developing with Docker](https://docs.docker.com/develop/develop-images/multistage-build/#stop-at-a-specific-build-stage)
 - [K8S networking](https://docs.docker.com/desktop/networking/)
 - [k8s reference](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/)
 
-## Change Docker Data Root Path on Windows
+### Change Docker Data Root Path on Windows
 
 Either from setting or editing `%USERPROFILE%\.docker\daemon.json` and set `data-root` as following
 
@@ -18,7 +20,7 @@ Either from setting or editing `%USERPROFILE%\.docker\daemon.json` and set `data
 }
 ```
 
-## Installation on CentOS
+### Installation on CentOS
 
 ```bash
 sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
@@ -64,7 +66,7 @@ $ENV:DOCKER_HOST="tcp://192.168.88.2:2375"
 #$ENV:DOCKER_HOST="ssh://zxc@192.168.88.2"
 ```
 
-## Rules
+### Rules
 
 - Always create a network bridge and don't use the default one for your apps. The default bridge network does not have a built-in DNS service. So you'd have to use `--link` to link containers to each other using their names.
 - Make `RUN` in Dockerfile merged as much as possible.
@@ -79,7 +81,7 @@ $ENV:DOCKER_HOST="tcp://192.168.88.2:2375"
 	&& ln -sf /dev/stderr /var/log/nginx/error.log
     ```
 
-## Commands
+### Commands
 
 ```bash
 # Execute command in running container
@@ -236,7 +238,7 @@ open -a Docker
 `-v` Volume applying its configs. See Volumes section below for more info.  
 `-dit` is shorthand for detached mode which run command in the background and interactive to keep STDIN open even if not attached and finally Allocate a pseudo-TTY.
 
-## Networking
+### Networking
 
 Drivers types of containers networks
 
@@ -244,7 +246,7 @@ Drivers types of containers networks
 - None - Isolated containers
 - Host - Connected directly to host network
 
-## DockerFile
+### DockerFile
 
 - [Unnamed volumes created in Dockerfile are removed](https://stackoverflow.com/a/46992367/7054574) when using `rm` with `docker container run`.
 - Files to copy from host must be in the working directory and not outside.
@@ -708,9 +710,9 @@ start_period: 1m #version 3.4 minimum
 
 --- 
 
-# Kubernetes
+## Kubernetes
 
-## Components
+### Components
 
 - Control plane: Control plane nodes manage the worker nodes and the pods in the cluster. The control plane determines when tasks are scheduled and where they are routed to.
   - Control plane nodes
@@ -732,11 +734,11 @@ start_period: 1m #version 3.4 minimum
 
 ![K8S components](docker_assets/k8s_components.png "K8S components")
 
-## Master vs Worker Nodes
+### Master vs Worker Nodes
 
 Master has `kube-apiserver` while worker node has kubelet interacting with each other. ETCD stores values on the master. The master has also the controller and schedular. The worker node got the container runtime installed on it.
 
-## Info
+### Info
 
 - K8s expects all images to already be built
 - One config file per object we want to create
@@ -766,14 +768,14 @@ Master has `kube-apiserver` while worker node has kubelet interacting with each 
   - Create secrets manually using imperative style (command)
   - Delete resource (like deployment) using imperative style
 
-### PVC (PersistentVolumeClaim)
+#### PVC (PersistentVolumeClaim)
 
 - k8s volume is temp on pod level and is destroyed with pod destruction.
 - Persistent Volume is outside pod and stick around. Statically provisioned volumes created ahead of time and dynamically provisioned volumes created when requested on the fly.
 - Persistent Volume Claim is a request to these volumes.
 - [Access Modes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes) controls how volume is used.
 
-## Commands
+### Commands for k8s
 
 ```bash
 # Deploy apps on the cluster
@@ -880,7 +882,7 @@ kubectl debug -it pods/service-b-774d4f6cd4-bjf85 -image=ellerbrock/alpine-bash-
 kubectl port-forward deployment/redis-deployment 6379:6379
 ```
 
-## YML
+### YML
 
 Creating a POD
 
@@ -1045,7 +1047,7 @@ spec:
                   key: PGPASSWORD  # the secret key
 ```
 
-# K8S Example
+### K8S Examples
 
 - [fibonacci calculator](./docker_assets/fib/README.md)
 - [votes appender app](./docker_assets/votes/README.md)
