@@ -179,4 +179,16 @@ flatpak override --user $FLATPAK_ID \
     --set-session-bus-policy=org.freedesktop.Flatpak=talk \
     --set-session-bus-policy=org.freedesktop.secrets=talk \
     --set-session-bus-policy=org.kde.kwalletd6=talk
+
+# Blutooth suspension fix
+# Add IdleTimeout=0
+sudo vi /etc/bluetooth/input.conf
+# Add options bluetooth disable_autosuspend=1
+sudo vi /etc/modprobe.d/bluetooth.conf
+# Add options btusb enable_autosuspend=0
+sudo vi /etc/modprobe.d/btusb-no-autosuspend.conf
+# Add usbcore.autosuspend=-1 to GRUB_CMDLINE_LINUX end line like
+# GRUB_CMDLINE_LINUX="commands_that_are_already_there_dont_touch usbcore.autosuspend=-1"
+sudo nano /etc/default/grub
+sudo grub2-mkconfig -o /etc/grub2.cfg && sudo grub2-mkconfig -o /etc/grub2-efi.cfg
 ```
