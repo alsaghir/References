@@ -118,26 +118,6 @@ mise use -g kind
 # Run using nvidia
 flatpak run --env=__NV_PRIME_RENDER_OFFLOAD=1 --env=__GLX_VENDOR_LIBRARY_NAME=nvidia org.gnome.Evolution
 
-# Flatpaks
-flatpak install --user -y flathub com.biglybt.BiglyBT
-flatpak install --user -y flathub com.discordapp.Discord
-flatpak install --user -y flathub com.github.IsmaelMartinez.teams_for_linux
-flatpak install --user -y flathub com.github.tchx84.Flatseal
-flatpak install --user -y flathub com.microsoft.Edge
-# https://code.visualstudio.com/docs/configure/settings-sync#_recommended-configure-the-keyring-to-use-with-vs-code
-flatpak install --user -y flathub com.visualstudio.code
-flatpak install --user -y flathub info.smplayer.SMPlayer
-flatpak install --user -y flathub io.github.mpc_qt.mpc-qt
-flatpak install --user -y flathub io.github.zaps166.QMPlay2
-flatpak install --user -y flathub io.missioncenter.MissionCenter
-flatpak install --user -y flathub io.podman_desktop.PodmanDesktop
-flatpak install --user -y flathub one.ablaze.floorp
-# Env
-# GTK_THEME=Breeze:dark
-flatpak install --user -y flathub org.gnome.Evolution
-flatpak install --user -y flathub org.kde.haruna
-flatpak install --user -y flathub org.videolan.VLC
-
 # Monitors
 kde-inotify-survey
 
@@ -151,34 +131,6 @@ cat /proc/sys/fs/inotify/max_user_watches
 # Podman, kubernetes, kind
 # https://github.com/containers/podman/blob/main/docs/tutorials/socket_activation.md
 export KIND_CONTAINER_RUNTIME=podman
-export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
-systemctl --user enable --now podman.socket
-ls $XDG_RUNTIME_DIR/podman/podman.sock
-export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
-# To make flatpak podman desktop work with the user socket
-FLATPAK_ID="com.redhat.PodmanDesktop" # Define the Flatpak application ID.
-SOCKET_PATH="/run/user/$UID/podman/podman.sock" # Define the full, dynamic path to the user's Podman socket. OR unix:///run/user/$UID/podman/podman.sock
-
-flatpak override --user $FLATPAK_ID \
-    --nofilesystem=host \ 
-    --filesystem=home \
-    --filesystem=/run/docker.sock \
-    --filesystem=xdg-run/podman:create \
-    --filesystem=xdg-run/containers:create \
-    --share=network \
-    --share=ipc \
-    --socket=x11 \
-    --socket=session-bus \
-    --socket=system-bus \
-    --device=dri \
-    --env=KIND_CONTAINER_RUNTIME=podman \
-    --env=DOCKER_HOST=unix:$SOCKET_PATH \
-    --env=XCURSOR_PATH=/run/host/user-share/icons:/run/host/share/icons \
-    --set-session-bus-policy=org.kde.StatusNotifierWatcher=talk \
-    --set-session-bus-policy=org.freedesktop.Notifications=talk \
-    --set-session-bus-policy=org.freedesktop.Flatpak=talk \
-    --set-session-bus-policy=org.freedesktop.secrets=talk \
-    --set-session-bus-policy=org.kde.kwalletd6=talk
 
 # Blutooth suspension fix
 # Add IdleTimeout=0
@@ -191,4 +143,85 @@ sudo vi /etc/modprobe.d/btusb-no-autosuspend.conf
 # GRUB_CMDLINE_LINUX="commands_that_are_already_there_dont_touch usbcore.autosuspend=-1"
 sudo nano /etc/default/grub
 sudo grub2-mkconfig -o /etc/grub2.cfg && sudo grub2-mkconfig -o /etc/grub2-efi.cfg
+```
+
+## Silverblue or Bluefin
+
+- Layers
+
+```sh
+# Asus
+sudo sh -c 'echo "[copr:copr.fedorainfracloud.org:lukenukem:asus-linux]
+name=Copr repo for asus-linux owned by lukenukem
+baseurl=https://download.copr.fedorainfracloud.org/results/lukenukem/asus-linux/fedora-\$releasever-\$basearch/
+type=rpm-md$fpath
+skip_if_unavailable=True
+gpgcheck=1
+gpgkey=https://download.copr.fedorainfracloud.org/results/lukenukem/asus-linux/pubkey.gpg
+repo_gpgcheck=0
+enabled=1
+enabled_metadata=1" > /etc/yum.repos.d/asus.repo'
+
+# Envycontrol
+RELEASEVER=$(grep '^VERSION_ID=' /etc/os-release | cut -d'=' -f2)
+sudo wget -O /etc/yum.repos.d/sunwire-envycontrol.repo https://copr.fedorainfracloud.org/coprs/sunwire/envycontrol/repo/fedora-$RELEASEVER/sunwire-envycontrol-fedora-$RELEASEVER.repo
+
+# Terra repo
+# Mainly for jetbrainsmono-nerd-fonts. Brew fonts should be used instead
+sudo curl -fsSL https://github.com/terrapkg/subatomic-repos/raw/main/terra.repo | pkexec tee > /etc/yum.repos.d/terra.repo
+
+# VScode repo
+echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null
+
+# Install
+# jetbrainsmono-nerd-fonts should be used by brew instead
+sudo rpm-ostree install asusctl asusctl-rog-gui code python-envycontrol polkit
+```
+
+- Commands
+
+```sh
+# Flatpaks
+flatpak install -y flathub com.biglybt.BiglyBT \
+    com.discordapp.Discord \
+    com.github.IsmaelMartinez.teams_for_linux \
+    com.github.tchx84.Flatseal \
+    com.microsoft.Edge \
+    com.raggesilver.BlackBox \
+    com.slack.Slack \
+    info.smplayer.SMPlayer \
+    io.missioncenter.MissionCenter \
+    io.podman_desktop.PodmanDesktop \
+    org.fedoraproject.MediaWriter \
+    org.kde.konsole \
+    org.mozilla.firefox \
+    org.remmina.Remmina \
+    org.videolan.VLC \
+    page.tesk.Refine
+
+brew install mise
+brew install --cask font-jetbrains-mono-nerd-font
+
+mise use -g gradle java@25
+
+# https://github.com/ivan-hc/am?tab=readme-ov-file#installation
+wget -q https://raw.githubusercontent.com/ivan-hc/AM/main/AM-INSTALLER && chmod a+x ./AM-INSTALLER && ./AM-INSTALLER && rm ./AM-INSTALLER
+
+am -i appimageupdatetool
+am -i appimagetool
+am -i sas
+am -e https://github.com/valicm/VSCode-AppImage vscode
+```
+
+- Distrobox: check [DevEnvironment](DevEnvironment) for automated setup. Use the following commands within the project folder for starting it up.
+
+```sh
+# Build base image
+podman build -f Containerfile -t dev --build-arg USER_NAME=ahmed
+
+# Start up
+gradle devEnvUp
+
+# cleanup container, home folder and volume folder (for directories exposed from the container)
+distrobox rm -f java-dev-box; rm -rf ~/distrobox/java-dev-box; rm -rf ~/distrobox/java-dev-box-volume
 ```
