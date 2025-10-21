@@ -30,20 +30,24 @@ tasks.register<Exec>("createDistrobox") {
     description =
         "Creates/Replaces the development container if it doesn't exist. Should be run once at the start of the setup."
 
-    environment("TERM", "dumb")
+    //environment("TERM", "dumb")
+    environment("TERM", "xterm-256color")
 
-    if(volumeDir().notExists()){
+    if (volumeDir().notExists()) {
         Files.createDirectory(volumeDir())
     }
 
-    if(miseDir().notExists()){
+    if (miseDir().notExists()) {
         Files.createDirectory(miseDir())
     }
 
-    commandLine("bash", "-lc", "distrobox assemble create --file ${Constants.CONFIG_FILE} -- nvidia")
+    commandLine(
+        "sh", "-c",
+        "script -qefc 'distrobox assemble create --file ${Constants.CONFIG_FILE} -- nvidia' /dev/null"
+
+    )
 
     standardOutput = System.out
-    errorOutput = System.err
     isIgnoreExitValue = false
 }
 
@@ -80,8 +84,22 @@ tasks.register<Exec>("setupDevTools") {
     )
 }
 
+tasks.register<Exec>("cleanDesktopEntry") {
+    group = "distrobox"
+    description = "Clean desktop entry on the host"
+    dependsOn("setupDevTools")
+
+    val containerName = Constants.CONTAINER_NAME
+
+    commandLine("distrobox", "generate-entry", containerName, "--delete")
+
+    doLast {
+        logger.lifecycle("Container Desktop entry cleaned")
+    }
+}
+
 tasks.register("devEnvUp") {
     group = "distrobox"
     description = "Runs the full setup and provisioning sequence."
-    dependsOn("setupDevTools")
+    dependsOn("cleanDesktopEntry")
 }

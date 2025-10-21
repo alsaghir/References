@@ -306,7 +306,7 @@ Archiva could be used for deployment directly in the folder and scan the jars wi
 mvn org.apache.maven.plugins:maven-deploy-plugin:3.0.0-M1:deploy-file -Durl=http://10.0.10.107:8088/repository/arrow/ -DrepositoryId=arrow -Dfile=dfc.jar -Dfiles=dfc.jar -Dclassifiers=debug -Dtypes=jar -DgroupId=com.documentum -DartifactId=dfc -Dversion=16.4.0000.0185 -Dpackaging=jar
 ```
 
-## References for Maven
+#### References for Maven
 
 [Plugins](https://maven.apache.org/plugins/index.html)  
 [Lifecycles Reference](https://maven.apache.org/maven-core/lifecycles.html) & [Introduction to Lifecycle Reference](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html#Lifecycle_Reference)  
@@ -394,6 +394,8 @@ gradle :app:dependencyInsight --configuration testRuntimeClassPath --dependency 
 
 #### Examples for Gradle
 
+- Check [starter project](kotlin-starter-gradle) for multi-module kotlin/jvm sample
+
 ```kotlin
 // Apply script plugin from external script file
 apply(from = "other.gradle.kts")
@@ -407,42 +409,6 @@ plugins {
     id("java")
 }
 
-// build metadata
-group = "org.goodat"
-version = "0.0.1"
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-}
-
-configurations {
-    compileOnly {
-      extendsFrom(configurations.annotationProcessor.get())
-    }
-}
-
-// Where to find dependencies
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    compileOnly("org.projectlombok:lombok")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
-    runtimeOnly("mysql:mysql-connector-java")
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-    annotationProcessor("org.projectlombok:lombok")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.security:spring-security-test")
-}
-
-tasks.named<Test>("test") {
-    useJUnitPlatform()
-}
 ```
 
 ```kotlin
@@ -508,18 +474,6 @@ val myCopy by tasks.existing(Copy::class) {
 // configure the task by referenced variable
 myCopy {
     include("**/*.txt", "**/*.xml", "**/*.properties")
-}
-
-// Configure task added by plugin
-tasks.test {
-    // whatever
-}
-
-// Register new task called allDeps for all projects
-// Running gradle allDeps with execute 'dependencies' task
-// which is coming from 'DependencyReportTask' on all projects
-allprojects {
-    val allDeps by tasks.registering(DependencyReportTask::class) {}
 }
 
 // Makes the myProperty project property available 

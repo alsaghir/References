@@ -59,6 +59,7 @@ cgroup_manager = "cgroupfs"
 events_logger="file"
 EOF
 
-distrobox-export --bin /usr/bin/podman-compose;
-distrobox-export --bin /mise/installs/kind/latest/kind;
-distrobox-export --bin /mise/installs/kubectl/latest/kubectl;
+# Will use these from host if enabled, but not recommended to keep the host intact
+#distrobox-export --bin /usr/bin/podman-compose;
+#distrobox-export --bin /mise/installs/kind/latest/kind;
+#distrobox-export --bin /mise/installs/kubectl/latest/kubectl;

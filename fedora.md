@@ -176,6 +176,18 @@ echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com
 # Install
 # jetbrainsmono-nerd-fonts should be used by brew instead
 sudo rpm-ostree install asusctl asusctl-rog-gui code python-envycontrol polkit
+
+# https://discussion.fedoraproject.org/t/setup-hibernation-on-fedora-atomic-desktops/121534/3
+# Enable swapfile
+sudo btrfs filesystem mkswapfile --size 64g --uuid clear /var/swap/swapfile
+# Add the following line to /etc/fstab
+# /var/swap/swapfile                        none                    swap    defaults,pri=5,nofail,x-systemd.requires-mounts-for=/var/swap 0 0
+# You might want to check
+# sudo btrfs subvolume list /
+# and add the followign couple of lines instead, notice the path in the first line from previous command as well as UUID
+# using the command sudo findmnt -no UUID -T /var/swap/swapfile
+# UUID=c5292113-a5c9-4b96-8eb8-81285e3c3d35 /var/swap btrfs subvol=root/ostree/deploy/fedora/var/swap,compress=zstd:1,nofail 0 0
+# /var/swap/swapfile                        none                    swap    defaults,pri=5,nofail 0 0
 ```
 
 - Commands
@@ -222,6 +234,13 @@ podman build -f Containerfile -t dev --build-arg USER_NAME=ahmed
 # Start up
 gradle devEnvUp
 
+# Start working inside the container shell
+# This will reload .zshrc from inside the container rather than the host's own .zshrc
+distrobox enter java-dev-box -- /bin/zsh -l
+
 # cleanup container, home folder and volume folder (for directories exposed from the container)
-distrobox rm -f java-dev-box; rm -rf ~/distrobox/java-dev-box; rm -rf ~/distrobox/java-dev-box-volume
+distrobox rm --rm-home -f java-dev-box; rm -rf ~/distrobox/java-dev-box; rm -rf ~/distrobox/java-dev-box-volume
 ```
+
+## Silverblue or Bluefin
+
