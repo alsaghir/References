@@ -175,7 +175,30 @@ echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com
 
 # Install
 # jetbrainsmono-nerd-fonts should be used by brew instead
-sudo rpm-ostree install asusctl asusctl-rog-gui code python-envycontrol polkit
+sudo rpm-ostree install asusctl asusctl-rog-gui code python-envycontrol polkit nemo nemo-fileroller
+# Make Nemo the default for directories and related types
+xdg-mime default nemo.desktop x-directory/normal inode/directory application/x-gnome-saved-search
+# Tell GIO too (helps some apps)
+gio mime inode/directory nemo.desktop
+gio mime x-directory/normal nemo.desktop
+gio mime application/x-gnome-saved-search nemo.desktop
+# In GNOME Tweaks > Legacy Applications> Theme > Adwaita-dark
+# Verify
+xdg-mime query default inode/directory
+gio mime inode/directory
+xdg-open ~
+flatpak-spawn --host xdg-open ~
+# Add Nemo Desktop as startup app using gnome tweaks
+gsettings set org.gnome.desktop.background show-desktop-icons false
+gsettings set org.nemo.desktop show-desktop-icons true
+
+# Make Nemo answer “Show in Files” requests via DBus
+mkdir -p ~/.local/share/dbus-1/services
+cat > ~/.local/share/dbus-1/services/org.freedesktop.FileManager1.service << 'EOF'
+[D-BUS Service]
+Name=org.freedesktop.FileManager1
+Exec=/usr/bin/nemo --gapplication-service
+EOF
 
 # https://discussion.fedoraproject.org/t/setup-hibernation-on-fedora-atomic-desktops/121534/3
 # Enable swapfile
