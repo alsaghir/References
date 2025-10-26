@@ -176,6 +176,24 @@ echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com
 # Install
 # jetbrainsmono-nerd-fonts should be used by brew instead
 sudo rpm-ostree install asusctl asusctl-rog-gui code python-envycontrol polkit nemo nemo-fileroller
+
+# Install nix
+# https://gist.github.com/queeup/1666bc0a5558464817494037d612f094
+# See home.nix example below
+sudo tee /etc/ostree/prepare-root.conf <<'EOL'
+[composefs]
+enabled = yes
+[root]
+transient = true
+EOL
+
+rpm-ostree initramfs-etc --reboot --track=/etc/ostree/prepare-root.conf
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install ostree --no-confirm
+echo "Defaults  secure_path = /nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/sbin:$(sudo printenv PATH)" | sudo tee /etc/sudoers.d/nix-sudo-env
+
+nix flake update --flake /var/home/ahmed/.config/home-manager
+home-manager switch --flake ~/.config/home-manager/#ahmed
+
 # Make Nemo the default for directories and related types
 xdg-mime default nemo.desktop x-directory/normal inode/directory application/x-gnome-saved-search
 # Tell GIO too (helps some apps)
@@ -192,14 +210,6 @@ flatpak-spawn --host xdg-open ~
 gsettings set org.gnome.desktop.background show-desktop-icons false
 gsettings set org.nemo.desktop show-desktop-icons true
 
-# Make Nemo answer “Show in Files” requests via DBus
-mkdir -p ~/.local/share/dbus-1/services
-cat > ~/.local/share/dbus-1/services/org.freedesktop.FileManager1.service << 'EOF'
-[D-BUS Service]
-Name=org.freedesktop.FileManager1
-Exec=/usr/bin/nemo --gapplication-service
-EOF
-
 # https://discussion.fedoraproject.org/t/setup-hibernation-on-fedora-atomic-desktops/121534/3
 # Enable swapfile
 sudo btrfs filesystem mkswapfile --size 64g --uuid clear /var/swap/swapfile
@@ -211,6 +221,62 @@ sudo btrfs filesystem mkswapfile --size 64g --uuid clear /var/swap/swapfile
 # using the command sudo findmnt -no UUID -T /var/swap/swapfile
 # UUID=c5292113-a5c9-4b96-8eb8-81285e3c3d35 /var/swap btrfs subvol=root/ostree/deploy/fedora/var/swap,compress=zstd:1,nofail 0 0
 # /var/swap/swapfile                        none                    swap    defaults,pri=5,nofail 0 0
+```
+
+- home.nix example
+
+```nix
+{ config, pkgs, ... }:
+
+{
+  xdg = {
+   enable = true;
+ };
+  xdg.mime.enable = true;
+  targets.genericLinux.enable = true;
+  fonts.fontconfig.enable = true;
+  
+  nixpkgs.config.allowUnfreePredicate = pkg:
+    builtins.elem ((builtins.parseDrvName pkg.pname).name) [
+      "code"
+      "vscode"
+    ];
+
+  home.username = "ahmed";
+  home.homeDirectory = "/var/home/ahmed";
+
+  home.stateVersion = "25.05"; # Please read the comment before changing.
+
+  home.packages = with pkgs; [
+
+    (vscode.override {
+    commandLineArgs = [
+      "--force-device-scale-factor=1"
+      "--enable-features=UseOzonePlatform"
+      "--ozone-platform=wayland"
+    ];
+  })
+
+  ];
+
+  home.file = {  };
+
+  home.sessionVariables = {
+    NIXOS_OZONE_ENABLED = "1";
+    NIXOS_OZONE_WL = "1";
+    GDK_SCALE = "2.2";
+    GDK_DPI_SCALE = "0.4";
+    _JAVA_OPTIONS = "-Dsun.java2d.uiScale=2.2";
+    QT_AUTO_SCREEN_SCALE_FACTOR = "1";
+    XCURSOR_SIZE = "128";
+  };
+  xresources.properties = {
+    "Xft.dpi" = 220;
+  };
+
+  systemd.user.sessionVariables.PATH = "$HOME/.nix-profile/bin:$PATH";
+  programs.home-manager.enable = true;
+}
 ```
 
 - Commands
@@ -232,7 +298,10 @@ flatpak install -y flathub com.biglybt.BiglyBT \
     org.mozilla.firefox \
     org.remmina.Remmina \
     org.videolan.VLC \
-    page.tesk.Refine
+    page.tesk.Refine \
+    org.gtk.Gtk3theme.adw-gtk3-dark \
+    org.gtk.Gtk3theme.adw-gtk3 \
+    org.kde.dolphin
 
 brew install mise
 brew install --cask font-jetbrains-mono-nerd-font
@@ -264,6 +333,4 @@ distrobox enter java-dev-box -- /bin/zsh -l
 # cleanup container, home folder and volume folder (for directories exposed from the container)
 distrobox rm --rm-home -f java-dev-box; rm -rf ~/distrobox/java-dev-box; rm -rf ~/distrobox/java-dev-box-volume
 ```
-
-## Silverblue or Bluefin
 
