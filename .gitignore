@@ -17,3 +17,7 @@ Thumbs.db
 
 # Output binaries
 docker_assets/**/bin/*
+
+# Gradle
+.gradle
+build/
