@@ -229,53 +229,116 @@ sudo btrfs filesystem mkswapfile --size 64g --uuid clear /var/swap/swapfile
 { config, pkgs, ... }:
 
 {
-  xdg = {
-   enable = true;
- };
-  xdg.mime.enable = true;
-  targets.genericLinux.enable = true;
-  fonts.fontconfig.enable = true;
-  
-  nixpkgs.config.allowUnfreePredicate = pkg:
+   xdg = {
+     enable = true;
+   };
+   xdg.mime.enable = true;
+   targets.genericLinux.enable = true;
+   fonts.fontconfig.enable = true;
+
+   nixpkgs.config.allowUnfreePredicate = pkg:
     builtins.elem ((builtins.parseDrvName pkg.pname).name) [
       "code"
       "vscode"
-    ];
-
-  home.username = "ahmed";
-  home.homeDirectory = "/var/home/ahmed";
-
-  home.stateVersion = "25.05"; # Please read the comment before changing.
-
-  home.packages = with pkgs; [
-
-    (vscode.override {
-    commandLineArgs = [
-      "--force-device-scale-factor=1"
-      "--enable-features=UseOzonePlatform"
-      "--ozone-platform=wayland"
-    ];
-  })
-
   ];
 
-  home.file = {  };
+  programs.zsh = {
+    enable = true;
+    enableCompletion = true;
+    syntaxHighlighting.enable = true;
+    autosuggestion.enable = true;
 
+    sessionVariables = {
+      SHELL  = "${pkgs.zsh}/bin/zsh";
+    };
+
+    oh-my-zsh = {
+      enable = true;
+      theme = "robbyrussell";
+
+      plugins = [
+            "git"
+            "brew"
+            "cp"
+            "gradle"
+            "history"
+            "kind"
+            "kubectl"
+            "mise"
+            "podman"
+            "ssh"
+            "ssh-agent"
+            "sudo"
+            "systemd"
+        # NOTE: zsh-autosuggestions is better managed as a separate module
+        # { name = "zsh-autosuggestions"; } 
+      ];
+    };
+
+
+    initContent = ''
+      source /etc/profile
+      # Starship prompt
+      eval "$(starship init zsh)"
+
+      # Mise activation for zsh
+      eval "$(mise activate zsh)"
+
+      # Distrobox home prefix
+      export DBX_CONTAINER_HOME_PREFIX=$HOME/distrobox
+
+      # Nix auto-completion if you have it
+      if command -v determinate-nixd >/dev/null 2>&1; then
+        eval "$(determinate-nixd completion zsh)"
+      fi
+    '';
+
+  };
+
+  xdg.desktopEntries.code = {
+    name = "Visual Studio Code";
+    genericName = "Text Editor";
+    # exec = "code %F";
+    exec = "env ELECTRON_OZONE_PLATFORM_HINT=wayland ${pkgs.vscode}/bin/code --ozone-platform-hint=auto --enable-features=WaylandWindowDecorations %F";
+    terminal = false;
+    categories = [ "Utility" "TextEditor" "Development" "IDE" ];
+    mimeType = [ "text/plain" "inode/directory" ];
+    icon = "vscode";
+    settings = { Keywords = "vscode"; };
+  };
+
+
+  home.username = "ahmed";
+  home.homeDirectory = "/home/ahmed";
+
+  
+  home.stateVersion = "25.05"; 
+
+  home.packages = with pkgs; [
+    terminator
+    kdePackages.konsole
+    mise
+    vscode
+
+    # zsh
+    zsh
+    oh-my-zsh
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+    starship
+  ];
+
+
+  home.file = {
+
+  };
+
+ 
   home.sessionVariables = {
-    NIXOS_OZONE_ENABLED = "1";
-    NIXOS_OZONE_WL = "1";
-    GDK_SCALE = "2.2";
-    GDK_DPI_SCALE = "0.4";
-    _JAVA_OPTIONS = "-Dsun.java2d.uiScale=2.2";
-    QT_AUTO_SCREEN_SCALE_FACTOR = "1";
-    XCURSOR_SIZE = "128";
-  };
-  xresources.properties = {
-    "Xft.dpi" = 220;
   };
 
-  systemd.user.sessionVariables.PATH = "$HOME/.nix-profile/bin:$PATH";
   programs.home-manager.enable = true;
+
 }
 ```
 
@@ -315,6 +378,9 @@ am -i appimageupdatetool
 am -i appimagetool
 am -i sas
 am -e https://github.com/valicm/VSCode-AppImage vscode
+
+# Default shell
+sudo usermod -s /bin/bash $USERNAME
 ```
 
 - Distrobox: check [DevEnvironment](DevEnvironment) for automated setup. Use the following commands within the project folder for starting it up.
