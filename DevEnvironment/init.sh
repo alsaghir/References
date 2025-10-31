@@ -41,23 +41,7 @@ mise trust --ignore $RUN_HOST_USER_HOME/.config/mise/config.toml;
 
 mise use -g usage pnpm node java@17 java@21 kubectl kind maven gradle@8 mvnd;
 
-# Compose
-# https://distrobox.it/useful_tips/#using-podman-inside-a-distrobox
-sudo usermod --add-subuids 10000-65536 $USER;
-sudo usermod --add-subgids 10000-65536 $USER;
 
-cat << EOF | sudo tee /etc/containers/containers.conf
-[containers]
-netns="host"
-userns="host"
-ipcns="host"
-utsns="host"
-cgroupns="host"
-log_driver = "k8s-file"
-[engine]
-cgroup_manager = "cgroupfs"
-events_logger="file"
-EOF
 
 # Will use these from host if enabled, but not recommended to keep the host intact
 #distrobox-export --bin /usr/bin/podman-compose;

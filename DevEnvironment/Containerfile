@@ -38,9 +38,9 @@ RUN dnf install -y \
 
 RUN chsh -s /usr/bin/zsh
 
-ARG HOST_USER_HOME="/var/home/ahmed"
-ARG CUSTOM_USER_HOME="$HOST_USER_HOME/distrobox/java-dev-box"
-ARG USER_NAME=user
+ARG HOST_USER_HOME
+ARG CUSTOM_USER_HOME
+ARG USER_NAME
 ARG USER_UID=1000
 ARG USER_GID=1000
 
@@ -66,3 +66,6 @@ RUN mise install pnpm node java@17 java@21 kubectl kind maven gradle@8 mvnd
 ENV HOME=$CUSTOM_USER_HOME
 USER $USER_NAME
 WORKDIR ${CUSTOM_USER_HOME}
+
+RUN echo $USER_NAME
+RUN echo ${CUSTOM_USER_HOME}

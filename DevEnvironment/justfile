@@ -1,0 +1,22 @@
+build-dev-image:
+  podman build -f Containerfile -t dev \
+    --build-arg USER_NAME=ahmed \
+    --build-arg HOST_USER_HOME=/var/home/ahmed \
+    --build-arg CUSTOM_USER_HOME=/var/home/ahmed/Distrobox/dev-box .
+
+run-dev-container:
+  mkdir -p $HOME/Distrobox/dev-box-volume/mise
+  distrobox assemble create --file dev-environment.ini -- nvidia
+
+initialize-tools-dev-container:
+  gradle devEnvUp \
+    -PcontaienrName=dev-box \
+    -PconfigFile=dev-environment.ini \
+    -PinitScript=init.sh \
+    -PdistroboxRoot=Distrobox
+
+enter-dev-container:
+  distrobox enter dev-box -- /bin/zsh -l
+
+remove-dev-container:
+  distrobox rm --rm-home -f dev-box; rm -rf ~/Distrobox/dev-box; rm -rf ~/Distrobox/dev-box-volume

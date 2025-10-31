@@ -131,6 +131,8 @@ cat /proc/sys/fs/inotify/max_user_watches
 # Podman, kubernetes, kind
 # https://github.com/containers/podman/blob/main/docs/tutorials/socket_activation.md
 export KIND_CONTAINER_RUNTIME=podman
+sudo ln -sf /home/ahmed/.local/share/mise/installs/kubectl/latest/kubectl /usr/local/bin/kubectl
+sudo ln -sf /home/ahmed/.local/share/mise/installs/kind/latest/kind /usr/local/bin/kind 
 
 # Blutooth suspension fix
 # Add IdleTimeout=0
@@ -191,6 +193,7 @@ rpm-ostree initramfs-etc --reboot --track=/etc/ostree/prepare-root.conf
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install ostree --no-confirm
 echo "Defaults  secure_path = /nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/sbin:$(sudo printenv PATH)" | sudo tee /etc/sudoers.d/nix-sudo-env
 
+# Run regularly for updates
 nix flake update --flake /var/home/ahmed/.config/home-manager
 home-manager switch --flake ~/.config/home-manager/#ahmed
 
@@ -226,21 +229,27 @@ sudo btrfs filesystem mkswapfile --size 64g --uuid clear /var/swap/swapfile
 - home.nix example
 
 ```nix
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
-   xdg = {
-     enable = true;
-   };
-   xdg.mime.enable = true;
-   targets.genericLinux.enable = true;
-   fonts.fontconfig.enable = true;
+  xdg = {
+    enable = true;
+  };
+  xdg.mime.enable = true;
+  targets.genericLinux.enable = true;
+  fonts.fontconfig.enable = true;
 
-   nixpkgs.config.allowUnfreePredicate = pkg:
+  nixpkgs.config.allowUnfreePredicate =
+    pkg:
     builtins.elem ((builtins.parseDrvName pkg.pname).name) [
       "code"
       "vscode"
-  ];
+    ];
 
   programs.zsh = {
     enable = true;
@@ -249,76 +258,102 @@ sudo btrfs filesystem mkswapfile --size 64g --uuid clear /var/swap/swapfile
     autosuggestion.enable = true;
 
     sessionVariables = {
-      SHELL  = "${pkgs.zsh}/bin/zsh";
+      SHELL = "${pkgs.zsh}/bin/zsh";
     };
 
+    # Set Zsh to use a proper theme and manage plugins declaratively.
     oh-my-zsh = {
       enable = true;
       theme = "robbyrussell";
 
       plugins = [
-            "git"
-            "brew"
-            "cp"
-            "gradle"
-            "history"
-            "kind"
-            "kubectl"
-            "mise"
-            "podman"
-            "ssh"
-            "ssh-agent"
-            "sudo"
-            "systemd"
+        "git"
+        "brew"
+        "cp"
+        "gradle"
+        "history"
+        "kind"
+        "kubectl"
+        "mise"
+        "podman"
+        "ssh"
+        "ssh-agent"
+        "sudo"
+        "systemd"
         # NOTE: zsh-autosuggestions is better managed as a separate module
-        # { name = "zsh-autosuggestions"; } 
+        # { name = "zsh-autosuggestions"; }
       ];
     };
 
+    initContent =
+      let
+        zshConfigEarlyInit = lib.mkOrder 500 ''
+          echo "Early init"
+          source /etc/profile
+        '';
+        zshConfigBeforeCompletionInit = lib.mkOrder 550 ''echo "Before completion init"'';
+        zshConfig = lib.mkOrder 1000 ''echo "General Config init"'';
+        zshConfigLastToRun = lib.mkOrder 1500 ''
+          echo "Last to run init"
+          # Starship prompt
+          eval "$(starship init zsh)"
 
-    initContent = ''
-      source /etc/profile
-      # Starship prompt
-      eval "$(starship init zsh)"
+          # Mise activation for zsh
+          eval "$(mise activate zsh)"
 
-      # Mise activation for zsh
-      eval "$(mise activate zsh)"
+          # Distrobox home prefix
+          export DBX_CONTAINER_HOME_PREFIX=$HOME/distrobox
 
-      # Distrobox home prefix
-      export DBX_CONTAINER_HOME_PREFIX=$HOME/distrobox
-
-      # Nix auto-completion if you have it
-      if command -v determinate-nixd >/dev/null 2>&1; then
-        eval "$(determinate-nixd completion zsh)"
-      fi
-    '';
+          # Nix auto-completion if you have it
+          if command -v determinate-nixd >/dev/null 2>&1; then
+            eval "$(determinate-nixd completion zsh)"
+          fi
+        '';
+      in
+      lib.mkMerge [
+        zshConfigEarlyInit
+        zshConfigBeforeCompletionInit
+        zshConfig
+        zshConfigLastToRun
+      ];
 
   };
 
   xdg.desktopEntries.code = {
     name = "Visual Studio Code";
     genericName = "Text Editor";
-    # exec = "code %F";
     exec = "env ELECTRON_OZONE_PLATFORM_HINT=wayland ${pkgs.vscode}/bin/code --ozone-platform-hint=auto --enable-features=WaylandWindowDecorations %F";
     terminal = false;
-    categories = [ "Utility" "TextEditor" "Development" "IDE" ];
-    mimeType = [ "text/plain" "inode/directory" ];
+    categories = [
+      "Utility"
+      "TextEditor"
+      "Development"
+      "IDE"
+    ];
+    mimeType = [
+      "text/plain"
+      "inode/directory"
+    ];
     icon = "vscode";
-    settings = { Keywords = "vscode"; };
+    settings = {
+      Keywords = "vscode";
+    };
   };
 
 
   home.username = "ahmed";
   home.homeDirectory = "/home/ahmed";
 
-  
-  home.stateVersion = "25.05"; 
+  home.stateVersion = "25.05";
 
   home.packages = with pkgs; [
+
+
     terminator
     kdePackages.konsole
     mise
     vscode
+    nixfmt-rfc-style
 
     # zsh
     zsh
@@ -328,18 +363,50 @@ sudo btrfs filesystem mkswapfile --size 64g --uuid clear /var/swap/swapfile
     starship
   ];
 
-
   home.file = {
 
   };
 
- 
+
+
   home.sessionVariables = {
   };
 
   programs.home-manager.enable = true;
 
 }
+```
+
+flake.nix example using `github:nixos/nixpkgs/nixpkgs-unstable` for latest packages
+
+```nix
+{
+  description = "Home Manager configuration of ahmed";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs =
+    { nixpkgs, home-manager, ... }:
+    let
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${system};
+    in
+    {
+      homeConfigurations."ahmed" = home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+
+        modules = [ ./home.nix ];
+
+      };
+    };
+}
+
 ```
 
 - Commands
@@ -366,7 +433,6 @@ flatpak install -y flathub com.biglybt.BiglyBT \
     org.gtk.Gtk3theme.adw-gtk3 \
     org.kde.dolphin
 
-brew install mise
 brew install --cask font-jetbrains-mono-nerd-font
 
 mise use -g gradle java@25
@@ -399,4 +465,3 @@ distrobox enter java-dev-box -- /bin/zsh -l
 # cleanup container, home folder and volume folder (for directories exposed from the container)
 distrobox rm --rm-home -f java-dev-box; rm -rf ~/distrobox/java-dev-box; rm -rf ~/distrobox/java-dev-box-volume
 ```
-

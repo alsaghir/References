@@ -7,17 +7,9 @@ plugins {
     base
 }
 
-object Constants {
-    // Must be the same one in the dev-environment.ini file
-    const val CONTAINER_NAME = "java-dev-box"
-    const val CONFIG_FILE = "dev-environment.ini"
-    const val INIT_SCRIPT = "init.sh"
-
-}
-
 fun volumeDir(): java.nio.file.Path {
     val userHome = System.getProperty("user.home")
-    return Paths.get(userHome, "distrobox", "java-dev-box-volume")
+    return Paths.get(userHome, providers.gradleProperty("distroboxRoot").get(), "${providers.gradleProperty("contaienrName").get()}-volume")
 }
 
 fun miseDir(): java.nio.file.Path {
@@ -25,37 +17,10 @@ fun miseDir(): java.nio.file.Path {
     return volumeDir().resolve("mise")
 }
 
-tasks.register<Exec>("createDistrobox") {
-    group = "distrobox"
-    description =
-        "Creates/Replaces the development container if it doesn't exist. Should be run once at the start of the setup."
-
-    //environment("TERM", "dumb")
-    environment("TERM", "xterm-256color")
-
-    if (volumeDir().notExists()) {
-        Files.createDirectory(volumeDir())
-    }
-
-    if (miseDir().notExists()) {
-        Files.createDirectory(miseDir())
-    }
-
-    commandLine(
-        "sh", "-c",
-        "script -qefc 'distrobox assemble create --file ${Constants.CONFIG_FILE} -- nvidia' /dev/null"
-
-    )
-
-    standardOutput = System.out
-    isIgnoreExitValue = false
-}
-
 tasks.register<Exec>("verifyContainerCreated") {
     group = "distrobox"
     description = "Verifies that the container was created and capture its name."
     environment("TERM", "dumb")
-    dependsOn("createDistrobox")
 
     commandLine("distrobox", "ls", "--no-color")
     standardOutput = ByteArrayOutputStream()
@@ -65,7 +30,7 @@ tasks.register<Exec>("verifyContainerCreated") {
         val containerName = outText.lines().drop(1).firstOrNull { it.trim().isNotEmpty() }
             ?.split("|")
             ?.get(1)?.trim()
-            ?: Constants.CONTAINER_NAME
+            ?: providers.gradleProperty("contaienrName")
         logger.lifecycle("Container created: $containerName")
         project.ext.set("containerName", containerName)
     }
@@ -76,11 +41,11 @@ tasks.register<Exec>("setupDevTools") {
     description = "Installs tools inside the running container."
     dependsOn("verifyContainerCreated")
 
-    val containerName = Constants.CONTAINER_NAME
+    val containerName = providers.gradleProperty("contaienrName")
 
     commandLine(
-        "distrobox", "enter", containerName, "--",
-        "bash", "/tmp/${Constants.INIT_SCRIPT}"
+        "distrobox", "enter", containerName.get(), "--",
+        "bash", "/tmp/${providers.gradleProperty("initScript").get()}"
     )
 }
 
@@ -89,7 +54,7 @@ tasks.register<Exec>("cleanDesktopEntry") {
     description = "Clean desktop entry on the host"
     dependsOn("setupDevTools")
 
-    val containerName = Constants.CONTAINER_NAME
+    val containerName = providers.gradleProperty("contaienrName")
 
     commandLine("distrobox", "generate-entry", containerName, "--delete")
 
