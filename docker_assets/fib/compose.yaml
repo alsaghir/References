@@ -1,0 +1,63 @@
+services:
+  postgres-service:
+    image: 'postgres:latest'
+    environment:
+      - POSTGRES_PASSWORD=123
+      - PGDATA=/var/lib/postgresql/data
+    networks:
+      - cnetwork
+    ports:
+      - target: 5432
+        published: 5432
+        mode: host
+  redis-service:
+    image: 'redis:latest'
+    networks:
+      - cnetwork
+    ports:
+      - target: 6379
+        published: 6379
+        mode: host
+  fib-server:
+    image: 'fib-server'
+    environment:
+      - POSTGRES_HOST=postgres-service
+      - REDIS_HOST=redis-service
+    build:
+      dockerfile: Dockerfile
+      context: ./server
+    networks:
+      - cnetwork
+    ports:
+      - target: 8081
+        published: 8089
+        mode: host
+  fib-worker:
+    image: 'fib-worker'
+    environment:
+      - REDIS_HOST=redis-service
+    build:
+      dockerfile: Dockerfile
+      context: ./worker
+    networks:
+      - cnetwork
+    ports:
+      - target: 8082
+        published: 8088
+        mode: host
+  fib-client:
+    image: 'fib-client'
+    build:
+      dockerfile: Dockerfile
+      context: ./client
+    networks:
+      - cnetwork
+    ports:
+      - target: 80
+        published: 3000
+        mode: host
+
+networks:
+  cnetwork:
+    name: cnetwork
+    driver: bridge

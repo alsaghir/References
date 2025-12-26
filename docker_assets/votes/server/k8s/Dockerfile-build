@@ -1,0 +1,10 @@
+FROM gradle:7.6.0-jdk17-alpine
+
+ARG APP_HOME=/opt/app
+ARG ENTRY_POINT=./k8s/entrypoint.sh
+
+WORKDIR $APP_HOME
+
+COPY $ENTRY_POINT /opt/entrypoint.sh
+
+ENTRYPOINT /opt/entrypoint.sh

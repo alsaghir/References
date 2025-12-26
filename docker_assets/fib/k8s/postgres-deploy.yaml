@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: postgres # Selector for the container/pod which is coming below
+  template:
+    metadata:
+      labels:
+        component: postgres # This is the label for the container/pod
+    spec:
+      volumes:
+        - name: postgres-storage # Used for usage/mounting inside the container/POD
+          persistentVolumeClaim: # defined in postgres-pvc.yaml. This only to allocate that storage
+            claimName: database-persistent-volume-claim # Claim for all resources in that name
+      containers:
+        - name: postgres
+          image: postgres
+          ports:
+            - containerPort: 5432
+          volumeMounts: # Use the storage inside the POD
+            - name: postgres-storage # Must match the name above
+              mountPath: /var/lib/postgresql/data
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pgpassword
+                  key: PGPASSWORD

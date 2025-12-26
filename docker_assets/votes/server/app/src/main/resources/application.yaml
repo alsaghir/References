@@ -1,0 +1,31 @@
+server:
+  port: 8081
+
+spring:
+  jpa:
+
+    # no generation for database schema
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+
+    # Spring Boot by default registers OpenEntityManagerInViewInterceptor
+    # to apply the “Open EntityManager in View” pattern, to allow for lazy loading in web views.
+    open-in-view: false
+    show-sql: true
+  datasource:
+    url: jdbc:postgresql://${PGHOST:localhost}:5432/postgres
+
+    username: postgres
+    password: 123
+    driver-class-name: org.postgresql.Driver
+
+    # never create schema of databases (every type)
+    # set it always to initialize database for first run
+    # then bring it back to never
+  sql:
+    init:
+      mode: never
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}

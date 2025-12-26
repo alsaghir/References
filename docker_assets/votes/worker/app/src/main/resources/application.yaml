@@ -1,0 +1,7 @@
+server:
+  port: 8082
+
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}

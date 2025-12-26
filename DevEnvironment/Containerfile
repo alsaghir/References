@@ -1,0 +1,71 @@
+FROM registry.fedoraproject.org/fedora-toolbox:latest
+
+# System setup and repository configuration
+RUN dnf upgrade -y --refresh && \
+    dnf install -y dnf-plugins-core fedora-repos-rawhide && \
+    dnf install -y \
+        https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+        https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm && \
+    echo 'max_parallel_downloads=10' >> /etc/dnf/dnf.conf && \
+    echo 'fastestmirror=True' >> /etc/dnf/dnf.conf && \
+    echo 'deltarpm=True' >> /etc/dnf/dnf.conf && \
+    dnf install --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release -y && \
+    dnf config-manager setopt fedora-cisco-openh264.enabled=1 -y && \
+    dnf install -y rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted && \
+    dnf clean all
+
+# Multimedia optimization (single layer)
+RUN dnf swap ffmpeg-free ffmpeg --allowerasing -y && \
+    dnf update -y --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin && \
+    dnf swap mesa-va-drivers mesa-va-drivers-freeworld -y && \
+    dnf swap mesa-vdpau-drivers mesa-vdpau-drivers-freeworld -y
+
+# Install packages
+RUN dnf install -y \
+    jetbrainsmono-nerd-fonts \
+    zsh \
+    git \
+    curl \
+    wget \
+    jq \
+    tar \
+    podman-compose \
+    libatomic \
+    util-linux-user && \
+    dnf autoremove -y && \
+    dnf clean all && \
+    rm -rf /tmp/* /var/cache/dnf/*
+
+RUN chsh -s /usr/bin/zsh
+
+ARG HOST_USER_HOME
+ARG CUSTOM_USER_HOME
+ARG USER_NAME
+ARG USER_UID=1000
+ARG USER_GID=1000
+
+RUN groupadd --gid $USER_GID $USER_NAME && \
+    useradd --uid $USER_UID --gid $USER_GID -m -s /bin/zsh --home-dir $CUSTOM_USER_HOME $USER_NAME && \
+    echo '%wheel ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+RUN mkdir "/opt/mise-prewarm" && \
+    chown -R $USER_NAME:$USER_NAME "/opt/mise-prewarm"
+
+ARG MISE_ALWAYS_KEEP_DOWNLOAD=true
+ARG MISE_DATA_DIR="/opt/mise-prewarm"
+ARG MISE_CONFIG_DIR="/opt/mise-prewarm"
+ARG MISE_INSTALLS_DIR="/opt/mise-prewarm/installs"
+
+RUN dnf copr enable jdxcode/mise -y && \
+    dnf install mise -y
+
+RUN mise install usage
+
+RUN mise install pnpm node java@17 java@21 kubectl kind maven gradle@8 mvnd
+
+ENV HOME=$CUSTOM_USER_HOME
+USER $USER_NAME
+WORKDIR ${CUSTOM_USER_HOME}
+
+RUN echo $USER_NAME
+RUN echo ${CUSTOM_USER_HOME}
