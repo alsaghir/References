@@ -97,7 +97,7 @@ nh os switch ~/nix-config --hostname laptop
 nh os switch ~/nix-config --optimize --hostname laptop
 
 # Regularly apply and clean old generations
-nh clean all --keep 3 
+nh clean all --keep 3
 
 # Clean store manually
 nix store gc
@@ -122,7 +122,29 @@ nix build ~/nix-config#nixosConfigurations.laptop.pkgs.biglybt --impure
 # Build with logs
 nix build ~/nix-config#nixosConfigurations.laptop.pkgs.biglybt --impure --print-build-logs
 nix build ~/nix-config#nixosConfigurations.laptop.pkgs.biglybt --impure -L
+
+# build a package and print its path
+nix build nixpkgs#hello --print-out-paths --no-link
+
+# Check output that flake provides
+nix flake show github:NixOS/nixpkgs
+
+# run binary from a package in the flake
+nix run ~/nix-config#hello
+# run output.packages."SYSTEM".default
+nix run ~/nix-config
+# Same for each command with proper output
+nix develop ~/nix-config#somedevshell
+nix develop .#backend
+nixos-rebuild switch --flake ~/nix-config#someNixos
 ```
+
+- Each command look for specific output to run
+  - `nix run` - runs a package binary and looks for `output.packages."SYSTEM".default`
+  - `nix build` - builds a package and looks for `output.packages."SYSTEM".default`
+  - `nix develop` - activates a dev shell and looks for `output.devShells."SYSTEM".default`
+  - `nixos-rebuild` - builds a nixos system and looks for `output.nixosConfigurations."HOSTNAME"`
+  - `home-manager` - builds a home-manager configuration and looks for `output.homeConfigurations."USERNAME"`
 
 ### Commands mappings to new nix commands
 
@@ -130,7 +152,7 @@ nix build ~/nix-config#nixosConfigurations.laptop.pkgs.biglybt --impure -L
 
 ```sh
 # Enter development shell
-# develop for dev environments and shell for regular shells as temp ephemeral shells 
+# develop for dev environments and shell for regular shells as temp ephemeral shells
 # nix-shell is perfect for shell scripts only
 nix-shell <=> nix develop or nix shell
 nix-build <=> nix build
@@ -147,6 +169,7 @@ nix-repl <=> nix repl
 
 - Disko config check [this video](https://www.youtube.com/watch?v=bKx7V917b2Q)
 - [Packages overall configurations and aliases](https://github.com/NixOS/nixpkgs/blob/master/pkgs/top-level/all-packages.nix)
+- `output = { nixpkgs, ... } @ inputs: { ... }` allows you to reference all inputs as `inputs.nixpkgs` or `inputs.whateverotherinputs` and just `nixpkgs` directly.
 
 ```nix
 # hosts/laptop/disko-config.nix
@@ -208,6 +231,42 @@ nix-repl <=> nix repl
 }
 ```
 
+- To write shell script
+
+```nix
+{ pkgs }:
+
+pkgs.writeShellScriptBin "my-awesome-script" ''
+  echo "Hello from" | ${pkgs.cowsay}/bin/cowsay | ${pkgs.lolcat}/bin/lolcat
+''
+```
+
+- Then you can put in nixos configuration
+
+```nix
+{ config, pkgs, ... }:
+{
+  environment.systemPackages = [
+    (import ./my-awesome-script.nix { inherit pkgs; })
+  ];
+}
+```
+
+Or another syntax
+
+```nix
+{ config, pkgs, ... }:
+let
+  myAwesomeScript = import ./my-awesome-script.nix { inherit pkgs; };
+{
+  environment.systemPackages = [
+    myAwesomeScript
+  ];
+}
+```
+
+Then run `my-awesome-script` from terminal.
+
 ## Packaging
 
 - `nixpkgs` is flake input name while `<nixpkgs>` is the path to nixpkgs configured in nix.conf or NIX_PATH.
@@ -229,12 +288,11 @@ nix build nixpkgs#hello nixpkgs#cowsay
 ls -l result*
 nix eval --raw nixpkgs#hello.outPath
 nix eval --raw nixpkgs#hello.drvPath
-nix eval --raw nixpkgs#cowsay.drvPath 
+nix eval --raw nixpkgs#cowsay.drvPath
 ```
 
 - Sample package definition
   - [imports and callpackage](https://book.divnix.com/ch05-03-imports-and-callpackage.html) used to bind dependencies automatically
-  - 
 
 ```c
 #include <stdio.h>
@@ -310,7 +368,7 @@ stdenv.mkDerivation { # https://wiki.nixos.org/wiki/Build_Helpers
 # nix-build builds a nix expression. -E allows passing expression directly.
 # callPackage loads the default.nix file in the current directory
 # callPackage automatically provides the dependencies defined in the package
-nix-build -E 'with import <nixpkgs> {}; callPackage ./default.nix {}' 
+nix-build -E 'with import <nixpkgs> {}; callPackage ./default.nix {}'
 ```
 
 - `fetchFromGitea` and alike are used to fetch source code from git repositories.
@@ -366,11 +424,154 @@ in {
 }
 ```
 
+## Overlays and override
+
+- [Wiki: Nixpkgs Overlays](https://wiki.nixos.org/wiki/Overlays)
+- There are multiple ways to customize packages like
+  - overrideAttrs - Build process changes
+  - override - Function argument changes
+  - overlays - Global package modifications
+  - runCommand - Custom outputs via shell
+  - writeScriptBin - Simple wrapper scripts
+  - symlinkJoin - Merging/wrapping packages
+  - patches - Source code fixes/changes
+  - substituteInPlace - In-place file edits during build
+  - pkgs.callPackage - Custom package definitions
+
+### Example of using `callPackage` to create a customized package
+
+```nix
+{
+  pkgs,
+  ...
+}:
+{
+  whateverPackage-custom = pkgs.callPackage ./whateverPackage-override { 
+    waylandSupport = true; # This is input argument to the package
+    # The package source support such argument as input with default value false
+    # Like  for example at the top of the nix expression
+    # {lib, waylandSupport ? false, ...}:
+    # then whatever comes next uses waylandSupport
+    # variable to enable/disable wayland support in the build logic
+  };
+}
+```
+
+- This is similar to the following
+
+```nix
+{
+  pkgs,
+  ...
+}:
+{
+  whateverPackage-custom = pkgs.whateverPackage.override {
+    waylandSupport = true;
+  };
+}
+```
+
+### Example of `overrideAttrs` to use a specific version of a package dependency
+
+- Unlike `override` which is used to change function arguments, `overrideAttrs` is used to change the build process itself by overriding attributes (not function arguments at the top of the expression) like `pname`, `src`, `version`, `buildInputs`, `patches`, etc.
+
+```nix
+{
+  fetchFromGitHub,
+  n8n,
+  pnpm,
+}:
+n8n.overrideAttrs (oldAttrs: rec {
+  pname = oldAttrs.pname;
+  version = "1.63.0";
+
+  src = fetchFromGitHub {
+    owner = "n8n-io";
+    repo = "n8n";
+    rev = "n8n@${version}";
+    hash = "sha256-zJHveCbBPJs8qbgCsU+dgucoXpAKa7PVLH4tfdcJZlE=";
+  };
+
+  pnpmDeps = pnpm.fetchDeps {
+    inherit pname version src;
+    hash = "sha256-FsBA/QENfreCJnYCw8MnX5W2D+WJ3DUuTIakH78TYU8=";
+  };
+})
+```
+
+- Then simply use the customized package in your configuration
+
+```nix
+{pkgs, ...}:
+
+let
+  n8n-custom = pkgs.callPackage ./n8n-custom {};
+  in {
+
+    home.packages = with pkgs; [
+    n8n-custom
+    ];
+}
+```
+
+### Example of overlay
+
+```nix
+{inputs, ...}: {
+  # This one brings our custom packages from the 'pkgs' directory
+  additions = final: _prev: import ../pkgs {pkgs = final;};
+
+  # This one contains whatever you want to overlay
+  # You can change versions, add patches, set compilation flags, anything really.
+  # https://nixos.wiki/wiki/Overlays
+  modifications = final: prev: {
+
+    n8n = prev.n8n.overrideAttrs (oldAttrs: rec {
+      pname = oldAttrs.pname;
+      version = "1.63.0";
+
+      src = prev.fetchFromGitHub {
+        owner = "n8n-io";
+        repo = "n8n";
+        rev = "n8n@${version}";
+        hash = "sha256-zJHveCbBPJs8qbgCsU+dgucoXpAKa7PVLH4tfdcJZlE=";
+      };
+
+      pnpmDeps = prev.pnpm.fetchDeps {
+        inherit pname version src;
+        hash = "sha256-FsBA/QENfreCJnYCw8MnX5W2D+WJ3DUuTIakH78TYU8=";
+      };
+    });
+   };
+
+  stable-packages = final: _prev: {
+    stable = import inputs.nixpkgs-stable {
+      system = final.system;
+      config.allowUnfree = true;
+    };
+  };
+
+}
+
+- Then you can use the overlay in your nixpkgs input
+
+```nix
+{
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs.nixpkgs.overlays = [
+    ./overlays/additions.nix
+    ./overlays/modifications.nix
+    ./overlays/stable-packages.nix
+  ];
+}
+```
+
 ## Development
 
 - [Nix.dev: Developing with Nix](https://nix.dev/tutorials/first-steps/declarative-shell#declarative-reproducible-envs)
 - [NixOS & Flakes Book: Developing with Nix](https://nixos-and-flakes.thiscute.world/development/intro)
-- [How to learn Nix: Developing with Nix](https://ianthehenry.com/posts/how-to-learn-nix/developing-with-nix/)  
+- [How to learn Nix: Developing with Nix](https://ianthehenry.com/posts/how-to-learn-nix/developing-with-nix/)
+- `direnv` prevents you from executing `nix develop` manually every time you enter the project directory by automating the process.
 
 - Using flake.nix in project root.
 
@@ -423,4 +624,64 @@ direnv deny
 
 # Re-enable
 direnv allow
+```
+
+## nix repl
+
+- [Nix.dev: Nix REPL](https://nix.dev/manual/nix/latest/command-ref/new-cli/nix3-repl.html)
+
+```sh
+nix repl
+
+# experiment with nix expressions
+true || false
+{ a = true; b = 10 * 10; }
+
+# help
+:?
+
+# recursively evaluate expression
+:p [ { b = 2 + 2;  } [1] ]
+
+# variables can be used
+myVar = 10
+
+# expand the scope to find declared variables
+# and all the builtins that are accessible from
+# the scope by default
+:env
+
+# Takes attributes as set and them to the scope
+# as variables
+:a { x = 42; y = "hello"; }
+# Then use x and y variables directly
+x
+y
+
+# same as :a but for files
+:l ./my-nix-expression.nix
+:l <nixpkgs/,/ .9qIU>
+
+# same as :l but for flakes, works with github urls too
+:lf ./path/to/flakedir
+:lf nixpkgs
+:a legacyPackages.x86_64-linux
+lib.toCamelCase "hello-world"
+:doc lib.toCamelCase
+:e lib.toCamelCase
+nixosConfigurations.asus-laptop.config.system.stateVersion
+nixosConfigurations.asus-laptop.config.networking.firewall.enable
+# build a derivation and return the path to the output
+:b neovim
+
+# load nixos configuration in the repl
+nixos-rebuild repl --flake /path/to/flake#systemname
+config.networking.firewall.allowedTCPPorts
+pkgs.neovim
+flake.inputs
+# use for refreshing without building
+:r
+
+# inspect nix expression
+nix-inspect --expr 'builtins.getFlake "/home/whatever/nix-config"'
 ```
