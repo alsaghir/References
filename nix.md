@@ -137,6 +137,30 @@ nix run ~/nix-config
 nix develop ~/nix-config#somedevshell
 nix develop .#backend
 nixos-rebuild switch --flake ~/nix-config#someNixos
+
+# One time setup per project
+cd ~/projects/nestjs-backend
+echo "use flake" > .envrc
+direnv allow
+
+# Force reload
+direnv reload
+
+# Disable for current session
+direnv deny
+
+# Re-enable
+direnv allow
+# install devshells into user profile
+# nix profile is imperative installation for user without touching system profile
+nix profile add .#devShells.x86_64-linux.kotlin
+nix profile list
+nix profile remove <index-or-name-from-list>
+nix flake update
+nix profile upgrade <index-or-name-from-list>
+# or remove then re-add it again
+nix profile remove 0
+nix profile add .#devShells.x86_64-linux.nodejs
 ```
 
 - Each command look for specific output to run
@@ -167,6 +191,7 @@ nix-repl <=> nix repl
 
 ## For reference
 
+- [Nix shells](https://blog.ysndr.de/posts/guides/2021-12-01-nix-shells/)
 - Disko config check [this video](https://www.youtube.com/watch?v=bKx7V917b2Q)
 - [Packages overall configurations and aliases](https://github.com/NixOS/nixpkgs/blob/master/pkgs/top-level/all-packages.nix)
 - `output = { nixpkgs, ... } @ inputs: { ... }` allows you to reference all inputs as `inputs.nixpkgs` or `inputs.whateverotherinputs` and just `nixpkgs` directly.
@@ -265,7 +290,7 @@ let
 }
 ```
 
-Then run `my-awesome-script` from terminal.
+Then run `my-awesome-script` from terminal. [Check Trivial build helpers](https://nixos.org/manual/nixpkgs/stable/#chap-trivial-builders)
 
 ## Packaging
 
@@ -369,6 +394,21 @@ stdenv.mkDerivation { # https://wiki.nixos.org/wiki/Build_Helpers
 # callPackage loads the default.nix file in the current directory
 # callPackage automatically provides the dependencies defined in the package
 nix-build -E 'with import <nixpkgs> {}; callPackage ./default.nix {}'
+
+# Evaluate derivation with callPackage and get into isolated shell environment (but not file system)
+# with access to all dependencies needed to build the package
+# useful when building a package for interactive step by step phases
+nix-shell -E 'with import <nixpkgs> {}; callPackage ./default.nix {}'
+# At this point you can act like nix and build the package yourself step by step
+cd $(mktemp -d)
+unpackPhase
+configurePhase
+buildPhase
+# To do the same using flake way, simply define a flake with
+# packages."x86_64-linux".default = pkgs.callPackage (import ./default.nix) {};
+# then run nix develop command
+# in flakes shells are derivations. nix develop will activate devShells if there, if not, it will activate packages
+# so mkShell is just wrapper of mkDerivation
 ```
 
 - `fetchFromGitea` and alike are used to fetch source code from git repositories.

@@ -183,7 +183,7 @@ mvn clean install
 </plugin>
 ```
 
-- Parallel builds should be enabled by creating a `.mvn/maven.config` file and add `--threads=1.5C` or  `-T=1.5C`.
+- Parallel builds should be enabled by creating a `.mvn/maven.config` file and add `--threads=1.5C` or `-T=1.5C`.
 
 - Additional option is to customize clean phase
 
@@ -276,7 +276,7 @@ mvn clean install
 
 `mvn package --projects schedule-job -am` - Package sub-module and make other modules as well. To exclude projects use `--projects !schedule-job,!beans`
 
-`mvn compile dependency:tree` - Instead of looking at local repository for submodule, update  the current one
+`mvn compile dependency:tree` - Instead of looking at local repository for submodule, update the current one
 
 `mvn archetype:generate -Dfilter=maven-archetype=quickstart` - Use [archetype](https://maven.apache.org/archetype/maven-archetype-plugin/) plugin to create new project filtering specific archetype
 
@@ -361,7 +361,7 @@ gradle dependencies --configuration runtime
 # It allows to limit a dependencies tree only to selected dependency (also transitive).
 # https://docs.gradle.org/current/dsl/org.gradle.api.tasks.diagnostics.DependencyInsightReportTask.html
 gradle :app:dependencyInsight --configuration testRuntimeClassPath --dependency spring-core
-gradle :app:dependencyInsight --configuration testRuntimeClassPath --dependency org.slf4j:slf4j-simple:1.7.7 
+gradle :app:dependencyInsight --configuration testRuntimeClassPath --dependency org.slf4j:slf4j-simple:1.7.7
 ```
 
 #### Notes
@@ -389,7 +389,7 @@ gradle :app:dependencyInsight --configuration testRuntimeClassPath --dependency 
       project.gradle.gradleVersion
     ```
 
-- Action is actual work  performed during execution phase. `action` n<-->0 `task`. Examples are `doLast` and `doFirst` actions.
+- Action is actual work performed during execution phase. `action` n<-->0 `task`. Examples are `doLast` and `doFirst` actions.
 - Plugin provides reusable logic for a project. It configures domain objects as necessary and has access to them by name or type.
 
 #### Examples for Gradle
@@ -476,14 +476,14 @@ myCopy {
     include("**/*.txt", "**/*.xml", "**/*.properties")
 }
 
-// Makes the myProperty project property available 
+// Makes the myProperty project property available
 // via a myProperty delegated property
 // the project property must exist in this case
-// otherwise the build will fail when the build script 
+// otherwise the build will fail when the build script
 // attempts to use the myProperty value
 val myProperty: String by project
 
-// Extra properties are available on any 
+// Extra properties are available on any
 // object that implements the ExtensionAware interface
 // Creates a new extra property called myNewProperty
 // in the current context (the project in this case)
@@ -570,7 +570,7 @@ FINEST(LOWEST LEVEL)
 
 ### SecurityFilterChain
 
-The Security Filters in [SecurityFilterChain](https://docs.spring.io/spring-security/reference/servlet/architecture.html#servlet-securityfilterchain) are typically Beans, but they are registered with `FilterChainProxy` instead of `DelegatingFilterProxy`. `FilterChainProxy` provides a number of advantages to registering directly with the Servlet container or `DelegatingFilterProxy`. First, it provides a starting point for all of Spring Security’s Servlet support. For that reason, if you try to troubleshoot Spring Security’s Servlet support, ***adding a debug point*** in `FilterChainProxy` is a great place to start.
+The Security Filters in [SecurityFilterChain](https://docs.spring.io/spring-security/reference/servlet/architecture.html#servlet-securityfilterchain) are typically Beans, but they are registered with `FilterChainProxy` instead of `DelegatingFilterProxy`. `FilterChainProxy` provides a number of advantages to registering directly with the Servlet container or `DelegatingFilterProxy`. First, it provides a starting point for all of Spring Security’s Servlet support. For that reason, if you try to troubleshoot Spring Security’s Servlet support, **_adding a debug point_** in `FilterChainProxy` is a great place to start.
 
 Second, since `FilterChainProxy` is central to Spring Security usage, it can perform tasks that are not viewed as optional. For example, it clears out the `SecurityContext` to avoid memory leaks. It also applies Spring Security’s `HttpFirewall` to protect applications against certain types of attacks.
 
@@ -589,7 +589,7 @@ In addition, it provides more flexibility in determining when a `SecurityFilterC
 
 ### Module Types
 
-- System Modules – These are the modules listed when we run  `java --list-modules` and they include the Java SE and JDK modules.
+- System Modules – These are the modules listed when we run `java --list-modules` and they include the Java SE and JDK modules.
 - Application Modules – What we define in module-info.class file included in the assembled JAR.
 - Automatic Modules – Unofficial modules derived from the name of the JAR and have full read access to every other module loaded by the path.
 - Unnamed Module – When a class or JAR is loaded onto the classpath, but not the module path, it’s automatically added to the unnamed module. It’s a catch-all module to maintain backward compatibility with previously-written Java code.
@@ -609,3 +609,48 @@ Monitoring & Analyzing
 - [How to use JDK Flight Recorder (JFR)](https://access.redhat.com/solutions/662203)
 - [JCMD](https://docs.oracle.com/en/java/javase/11/tools/jcmd.html#GUID-59153599-875E-447D-8D98-0078A5778F05)
 - [Java Profilers](https://www.baeldung.com/java-profilers)
+
+## Kotlin
+
+### Tips
+
+- Use `vararg` for functions that accept a variable number of arguments. Use the argument as Array of type of the argument.
+- Prefer `val` over `var` to make variables immutable by default.
+- Use data classes for classes that primarily hold data.
+- Use extension functions to add functionality to existing classes without modifying them.
+- Use `when` expressions for conditional logic instead of multiple `if-else` statements.
+- Use string templates for easier string concatenation and formatting.
+- Use the safe call operator (`?.`) to return the value or null safely and the Elvis operator (`?:`) to return different value if null.
+- `!!` is non-null assertion operator.
+- `item?.let { println(it) }` - execute the block only if item is not null.
+- `as?` used for safe casting and returns null if the cast is not possible.
+- [let, run, with, apply, and also are scope functions](https://kotlinlang.org/docs/scope-functions.html#function-selection) that allow you to execute a block of code within the context of an object.
+- Use `inline` functions for performance optimization when using higher-order functions.
+- Use `object` declarations for singleton patterns.
+- Use `companion object` for static members in classes.
+- Use `const val` for compile-time constants.
+- `kotlinx.coroutines` library for asynchronous programming using coroutines.
+  - `suspend` keyword marks a function as suspendable, allowing it to be paused and resumed later. Such functions can only be called from other suspend functions or within a coroutine. This is the only language change required to use coroutines in Kotlin. Other coroutine-related features are provided by libraries such as `kotlinx.coroutines`.
+  - coroutine builders like `.launch()` and `.async()` are extension functions on `CoroutineScope` which defines the coroutine's lifecycle and provides the coroutine context. `Job` interface tracks the coroutine's lifecycle and enables structured concurrency. `CoroutineDispatcher` controls where the coroutine runs, such as on a background thread or the main thread in UI applications. `CoroutineExceptionHandler` handles uncaught exceptions.
+    - Coroutine builders are
+      - `launch` for fire-and-forget.
+      - `async` for tasks that return a result and can be awaited using `await()`.
+      - `runBlocking` to start a coroutine in a blocking way, typically used in main functions and tests.
+      - `withContext` to switch the context of a coroutine, such as moving from a background thread to the main thread.
+      - `coroutineScope()` to create a new scope for coroutines, allowing for structured concurrency and ensuring that all child coroutines complete before the parent coroutine finishes.
+  - To create a coroutine in Kotlin, you need the following:
+    - A suspending function.
+    - A coroutine scope in which it can run, for example inside the `withContext()` function. Needed to change where the coroutine but by default it inherits the context of the parent coroutine. If the coroutine context doesn't include a dispatcher, coroutine builders use `Dispatchers.Default`.
+    - A coroutine builder like `CoroutineScope.launch()` to start it.
+    - A dispatcher to control which threads it uses.
+  - To share data between coroutines
+    - use `Flow` which produces values only when a coroutine actively collects them.
+    - `Channel` which allows multiple coroutines to send and receive values, with each value delivered to exactly one coroutine.
+    - `SharedFlow` continuously shares every value with all active collecting coroutines.
+    - `StateFlow` is a specialized `SharedFlow` that holds and shares a single updatable data value. Safely manages shared mutable state.
+
+### Compose Multiplatform
+
+- Composables or composable functions are annotated with `@Composable` and are the building blocks of the UI in Jetpack Compose. They describe the UI and its behavior in a declarative way. Composables can be nested, allowing you to create complex UIs by combining simpler ones.
+
+- [Use `StateFlow`](https://developer.android.com/topic/architecture/ui-layer/state-production) for state management in Jetpack Compose. `StateFlow` is a state-holder observable flow that emits the current and new state updates to its collectors. It is designed to hold a single updatable data value and is ideal for managing UI state in a reactive way.
