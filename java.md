@@ -654,3 +654,5 @@ Monitoring & Analyzing
 - Composables or composable functions are annotated with `@Composable` and are the building blocks of the UI in Jetpack Compose. They describe the UI and its behavior in a declarative way. Composables can be nested, allowing you to create complex UIs by combining simpler ones.
 
 - [Use `StateFlow`](https://developer.android.com/topic/architecture/ui-layer/state-production) for state management in Jetpack Compose. `StateFlow` is a state-holder observable flow that emits the current and new state updates to its collectors. It is designed to hold a single updatable data value and is ideal for managing UI state in a reactive way.
+
+- Favour `collectAsStateWithLifecycle` observing `StateFlow` in the UI layer. This extension function collects values from a `StateFlow` and represents them as `State` in a composable, while automatically managing the collection based on the lifecycle of the composable. It ensures that the UI only updates when it is active, preventing memory leaks and unnecessary updates when the UI is not visible.

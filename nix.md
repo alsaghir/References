@@ -170,6 +170,52 @@ nix profile add .#devShells.x86_64-linux.nodejs
   - `nixos-rebuild` - builds a nixos system and looks for `output.nixosConfigurations."HOSTNAME"`
   - `home-manager` - builds a home-manager configuration and looks for `output.homeConfigurations."USERNAME"`
 
+- Validation workflow
+
+```sh
+
+# Syntax & Evaluation (Fastest, No Build)
+# Check flake structure and all inputs resolve correctly
+nix flake check ~/nix-config
+
+# Just evaluate — catches type errors, missing attrs, infinite recursions
+# without building anything
+nix eval ~/nix-config#nixosConfigurations.asus-laptop.config.system.build.toplevel
+# or in repl mode
+nix repl
+:lf ~/nix-config
+nixosConfigurations.asus-laptop.config.system.build.toplevel
+# explore interactively
+nixosConfigurations.asus-laptop.config.system.nixos.release
+nixosConfigurations.asus-laptop.pkgs.asusctl
+nixosConfigurations.asus-laptop.pkgs.asusctl.version
+nixosConfigurations.asus-laptop.config.boot.kernelPackages.kernel.version
+nixosConfigurations.asus-laptop.config.services.asusd.enable
+nixosConfigurations.asus-laptop.config.<TAB>
+
+
+# Dry Run (No Build, No Switch) Shows exactly what WOULD be activated — services started/stopped,
+# packages added/removed — without building or touching your system
+sudo nixos-rebuild dry-activate --flake ~/nix-config#asus-laptop
+
+# Build Only (Builds Everything, No Switch) and puts it in /nix/store
+sudo nixos-rebuild build --flake ~/nix-config#asus-laptop
+nh os build ~/nix-config --hostname asus-laptop
+# or from repl
+nix repl
+:lf ~/nix-config
+:b nixosConfigurations.asus-laptop.config.system.build.toplevel
+# Inspect result if wanted
+ls -la result/
+# Diff current system vs what would be activated
+nix store diff-closures /run/current-system ./result
+
+#Builds AND adds to bootloader as new entry, but does NOT activate now
+# You reboot and SELECT it — if it breaks, just pick previous entry
+sudo nixos-rebuild boot --flake ~/nix-config#asus-laptop
+nh os boot ~/nix-config --hostname asus-laptop
+```
+
 ### Commands mappings to new nix commands
 
 - nix
