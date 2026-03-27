@@ -633,11 +633,11 @@ Monitoring & Analyzing
   - `suspend` keyword marks a function as suspendable, allowing it to be paused and resumed later. Such functions can only be called from other suspend functions or within a coroutine. This is the only language change required to use coroutines in Kotlin. Other coroutine-related features are provided by libraries such as `kotlinx.coroutines`.
   - coroutine builders like `.launch()` and `.async()` are extension functions on `CoroutineScope` which defines the coroutine's lifecycle and provides the coroutine context. `Job` interface tracks the coroutine's lifecycle and enables structured concurrency. `CoroutineDispatcher` controls where the coroutine runs, such as on a background thread or the main thread in UI applications. `CoroutineExceptionHandler` handles uncaught exceptions.
     - Coroutine builders are
-      - `launch` for fire-and-forget.
-      - `async` for tasks that return a result and can be awaited using `await()`.
-      - `runBlocking` to start a coroutine in a blocking way, typically used in main functions and tests.
-      - `withContext` to switch the context of a coroutine, such as moving from a background thread to the main thread.
-      - `coroutineScope()` to create a new scope for coroutines, allowing for structured concurrency and ensuring that all child coroutines complete before the parent coroutine finishes.
+      - `launch` non-suspending/concurrent for fire-and-forget.
+      - `async` non-suspending/concurrent for tasks that return a result and can be awaited using `await()`.
+      - `runBlocking` suspending/sequential to start a coroutine in a blocking way, typically used in main functions and tests.
+      - `withContext` suspending/sequential function to switch the context of a coroutine, such as moving from a background thread to the main thread.
+      - `coroutineScope()` and `supervisorScope()` are suspending/sequential functions that create a new coroutine scope and suspend until all child coroutines complete. The difference is that `coroutineScope()` cancels all children if any child fails, while `supervisorScope()` allows other children to continue if one child fails. More about scopes in the next point.
   - To create a coroutine in Kotlin, you need the following:
     - A suspending function.
     - A coroutine scope in which it can run, for example inside the `withContext()` function. Needed to change where the coroutine but by default it inherits the context of the parent coroutine. If the coroutine context doesn't include a dispatcher, coroutine builders use `Dispatchers.Default`.
@@ -648,6 +648,23 @@ Monitoring & Analyzing
     - `Channel` which allows multiple coroutines to send and receive values, with each value delivered to exactly one coroutine.
     - `SharedFlow` continuously shares every value with all active collecting coroutines.
     - `StateFlow` is a specialized `SharedFlow` that holds and shares a single updatable data value. Safely manages shared mutable state.
+  - Mental model
+    - `Scope` = lifetime boundary
+    - `Builder` = what kind of work and what you get back
+    - `Dispatcher` = which thread pool runs it
+    - Scopes in compose multiplatform
+      - `GlobalScope` never cancelled automatically and lives as long as the process. almost never use this.
+      - `viewModelScope` cancelled when ViewModel clears screen is gone
+      - `lifecycleScope` cancelled when Activity/Fragment destroyed
+      - `coroutineScope { }` cancelled when the block returns or any child throws suspends the caller until all children finish
+      - `supervisorScope { }` same as coroutineScope BUT one child failing does NOT cancel siblings
+      - `rememberCoroutineScope` returns a `CoroutineScope` that is cancelled when the composable leaves the composition. It is used to launch coroutines from composables, ensuring that they are properly cleaned up when the composable is no longer in use. use it when you need to launch a coroutine from inside a callback (onClick, onDrag, onSubmit), not from inside a composable body. Trap To Avoid, `rememberCoroutineScope` is for UI mechanics — animations, scroll, snackbars, clipboard. Business logic belongs in the ViewModel with viewModelScope.
+      - `LaunchedEffect(key)` launched ON composition, not from a callback relaunched when key changes, use for: loading data when screen opens, reacting to state changes.
+    - Scope is a parent that:
+      - defines when children are CANCELLED  (lifetime)
+      - receives EXCEPTIONS from children    (error propagation)
+      - WAITS for all children before it completes (completion)
+      - owns every child — no orphaned coroutines (structured concurrency)
 
 ### Compose Multiplatform
 
@@ -656,3 +673,5 @@ Monitoring & Analyzing
 - [Use `StateFlow`](https://developer.android.com/topic/architecture/ui-layer/state-production) for state management in Jetpack Compose. `StateFlow` is a state-holder observable flow that emits the current and new state updates to its collectors. It is designed to hold a single updatable data value and is ideal for managing UI state in a reactive way.
 
 - Favour `collectAsStateWithLifecycle` observing `StateFlow` in the UI layer. This extension function collects values from a `StateFlow` and represents them as `State` in a composable, while automatically managing the collection based on the lifecycle of the composable. It ensures that the UI only updates when it is active, preventing memory leaks and unnecessary updates when the UI is not visible.
+
+- Convert `Flow` to hot `StateFlow` using `stateIn` operator. This allows you to share the latest value of a `Flow` with multiple collectors, and it will emit the current value to new collectors immediately upon subscription.

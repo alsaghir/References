@@ -514,9 +514,9 @@ in {
 
 - [Wiki: Nixpkgs Overlays](https://wiki.nixos.org/wiki/Overlays)
 - There are multiple ways to customize packages like
-  - overrideAttrs - Build process changes
+  - overrideAttrs - Build process changes. function on a derivation that returns a modified derivation. Simply it creates a custom package derivation keeping the original as a base that system still sees as it is.
   - override - Function argument changes
-  - overlays - Global package modifications
+  - overlays - Global package modifications. An overlay modifies the package set itself.
   - runCommand - Custom outputs via shell
   - writeScriptBin - Simple wrapper scripts
   - symlinkJoin - Merging/wrapping packages
@@ -585,7 +585,7 @@ n8n.overrideAttrs (oldAttrs: rec {
 })
 ```
 
-- Then simply use the customized package in your configuration
+- Then simply use the customized package in your configuration. Notice this is new package name `n8n-custom` that is created based on the original `n8n` package but with the overridden attributes. Original `n8n` package is still available in the system and can be used if needed.
 
 ```nix
 {pkgs, ...}:
