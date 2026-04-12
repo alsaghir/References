@@ -61,6 +61,39 @@ age-keygen -o ~/.config/sops/age/keys.txt
 # Move keys.txt to /var secure and set proper permissions
 sudo install -d -m700 /var/lib/sops-nix/age
 sudo install -m600 -o root -g root /home/ahmed/.config/sops/age/keys.txt /var/lib/sops-nix/age/keys.txt
+
+# GC root (Garbage Collection root) is simply A reference (usually a symlink) that tells Nix: “do NOT delete this store path.”. In other words, it’s a way to protect certain store paths from being garbage collected. When you create a GC root, you are essentially creating a reference to a specific store path (like a package or a build output) that you want to keep around. As long as there is at least one GC root referencing a store path, that path will not be deleted during garbage collection.
+
+# Common GC roots or typical roots include:
+
+# System generations (NixOS)
+# /nix/var/nix/profiles/system-558-link
+# These keep old system builds.
+
+# User profiles
+# ~/.local/state/nix/profiles/profile
+# Keeps installed packages.
+
+# Home Manager profiles
+# ~/.local/state/nix/profiles/home-manager
+
+# Flake build outputs
+# ./result -> /nix/store/...
+# created by:
+# nix build
+
+# direnv devshells
+# project/.direnv/flake-profile-*
+# created by nix-direnv.
+
+# Take a look at all GC roots in the system and what they reference
+nix-store --gc --print-roots
+
+# When you want to know why a store path cannot be deleted:
+# It will show exactly which GC root protects it.
+nix-store --query --roots /nix/store/<hash>
+# Example:
+nix-store --query --roots /nix/store/hb0ddcbjv4qm68jz85a2ch8kpc5116qf-kotlin-multiplatform-shell
 ```
 
 - script example
@@ -95,6 +128,28 @@ nix flake check
 sudo nixos-rebuild switch --flake ~/nix-config#laptop
 nh os switch ~/nix-config --hostname laptop
 nh os switch ~/nix-config --optimize --hostname laptop
+
+# HM only
+nix run home-manager -- switch --flake ~/nix-config#ahmed@asus-laptop
+nh home switch ~/nix-config --configuration ahmed@asus-laptop
+home-manager switch --flake ~/nix-config#ahmed@asus-laptop
+
+nix build '.#homeConfigurations."ahmed@asus-laptop".config.home.activationPackage'
+/result/activate
+
+# Create a persistent GC root outside projects
+# This is useful for dev shells that you want to keep around and not be garbage collected after you exit the shell. You can have multiple links for different dev shells.
+# This prevents nh clean from removing gc roots and their linked outputs. Since 'result' inside project will be deleted by nh and '.direnv' will be deleted by nh.
+# This also does not require cleanup after nix flake update is done but must be executed again after each update to point to the new output.
+nix build .#devShells.x86_64-linux.kotlin --out-link ~/.nix-gcroots/devshells/kotlin-shell
+
+# Or same using nix develop/build with profiles instead of --out-link
+# however this requires manual cleaning of older generations since it creates a new generation each time and old generations will still point to old outputs that will be garbage collected after some time.
+nix develop .#devShells.x86_64-linux.default --profile ~/.nix-gcroots/devshells/kotlin
+# Best option
+nix build .#devShells.x86_64-linux.kotlin --profile ~/.nix-gcroots/kotlin-shell
+# Clean older generations in this case
+nix profile wipe-history --profile ~/.nix-gcroots/devshells/kotlin
 
 # Regularly apply and clean old generations
 nh clean all --keep 3
