@@ -675,3 +675,5 @@ Monitoring & Analyzing
 - Favour `collectAsStateWithLifecycle` observing `StateFlow` in the UI layer. This extension function collects values from a `StateFlow` and represents them as `State` in a composable, while automatically managing the collection based on the lifecycle of the composable. It ensures that the UI only updates when it is active, preventing memory leaks and unnecessary updates when the UI is not visible.
 
 - Convert `Flow` to hot `StateFlow` using `stateIn` operator. This allows you to share the latest value of a `Flow` with multiple collectors, and it will emit the current value to new collectors immediately upon subscription.
+
+- `remember` is caching that survives recomposition while `rememberSaveable` is caching that survives recomposition and process death (e.g. configuration changes)
