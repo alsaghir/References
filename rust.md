@@ -13,6 +13,8 @@
   - `mut` on a variable always means "I can reassign this variable.". Now the content or value that it points to can be modified or not is another matter.
     - If the variable directly owns data (not a reference), it also means the data's contents can be modified. And this is a side effect like `String` or `Vec` because it unlocks calling `&mut self` methods on it.
     - If the variable is a reference, `mut` on the variable tells you nothing about whether you can modify what it points to — that's determined separately by whether the reference type is `&T` or `&mut` T.
+    - In a pattern, `&` works backwards from an expression. In an expression, `&x` means "make a reference to `x`". In a pattern, `&x` means "this value IS a reference, so unpack it and bind the value it points to to `x`". In a pattern, `&mut` works similarly, but for mutable references.
+    - `*` is the dereference operator. Given a reference, it gives you the value it points to. It's the expression-side counterpart of the `&` pattern.
 - The rule is, at any given time, you can have either **one mutable reference** or **any number of immutable references**.
 - `{}` and `{:?}` invoke two different formatting traits, and which one works depends on what the type implements. `{:#?}` is "pretty debug".
 - Error handling
@@ -46,6 +48,65 @@
     - `async fn` returns a `Future` while tasks execute `Future`.
     - Use `await` to wait for a `Future` to complete and get its result.
     - Use `tokio::spawn()` or `async_std::task::spawn()` to spawn an async task.
+- Package is set of crates. It's managed by `Cargo.toml` file.
+  - Can contain at most one `lib` crate and any number of `bin` crates.
+  - `lib` crate is a library crate that can be used by other crates. It is defined in `src/lib.rs` file.
+  - `workspace` is a set of packages that share the same `Cargo.lock` and output directory. It is defined in `Cargo.toml` file with `[workspace]` section.
+  - `module` is a way to organize code into separate namespaces. It is defined using the `mod` keyword and can be declared in the same file or in separate files. Use `pub` keyword to make a module or its items public and accessible from other modules. i.e. when using `mod components` in `src/lib.rs` file, it will look for `src/components.rs` file or `src/components/mod.rs` file.
+    - `mod` declares a module
+    - `use` brings a module or its items into scope
+    - `pub use` re-exports a module or its items to make them accessible from other modules
+  - Features are a way to conditionally compile code based on the specified configuration. They are defined in `Cargo.toml` file with `[features]` section. Use `#[cfg(feature = "feature_name")]` attribute in rust code to conditionally compile code based on the specified feature.
+    - To enable a feature for a dependency in `Cargo.toml`, use the following syntax:
+
+      ```toml
+      [dependencies]
+      dependency_name = { version = "x.y.z", features = ["feature_name"] }
+      ```
+
+    - To enable a feature for your own crate, use the following syntax:
+
+      ```toml
+      [dependencies]
+      dioxus = { workspace = true, features = ["router"] }
+      ```
+
+      enables Dioxus’s `router` feature whenever this dependency is used. 
+
+    - Example
+
+      ```toml
+      default = ["web"]       # Enable our package's "web" feature by default.
+      web = ["dioxus/web"]    # When our "web" feature is enabled, also enable Dioxus's "web" feature.
+      ```
+
+- Cargo’s built-in build profiles
+  - A **profile controls how code is compiled**—optimisation, debug information, overflow checks, etc. **Features control what capabilities/code are enabled.** Separate concepts
+  - dev - normally used by `cargo build`, `cargo run` & `cargo check`. Default behavior is fast compilation, no optimization, debug information and checks enabled.
+  - release - normally used by `cargo build --release` & `cargo run --release`. Default behavior is slower compilation, optimizations enabled, no debug information and checks disabled.
+  - test - normally used by `cargo test`. Inherits dev settings.
+  - bench - normally used by `cargo bench`. Inherits release settings.
+
+
+- Common attributes
+  - `#[derive(...)]` - automatically implements common traits for a type.
+    - `Copy` says "this is a plain value like a number; duplicating it is free and nobody needs to track copies.". Types like `i32` and `bool` implement `Copy`. Types like `String` and `Vec` do not implement `Copy` because they manage heap memory and duplicating them requires a deep copy.
+    - `Clone` says "this is a value that can be duplicated, but duplicating it may be expensive and the caller should be aware of that." Types like `String` and `Vec` implement `Clone`. Types like `i32` and `bool` also implement `Clone`, but their implementation is trivial.
+      - The mental model for ownership is
+        - `&T` borrow the original; ownership stays with the caller.
+        - `T` with `Copy` implicitly duplicate; pass ownership of the copy.
+        - `T` otherwise move ownership of the original.
+        - `t.clone()` explicitly duplicate; the result can be passed independently.
+    - `PartialEq` & `Eq` derived means "equal if every field is equal."
+    - `PartialOrd` & `Ord` derived on an enum orders variants by declaration order. For Status, NotStarted < Started < InProgress < Finished might be meaningful. But if someone later reorders the variants for readability, comparisons silently change behavior.
+    - `Default` derived means "there's a sensible empty or starting value". 
+  - `#[cfg(...)]` - conditionally compiles code based on the specified configuration.
+    - `#[cfg(not(target_arch = "wasm32"))]` for example, compiles the annotated code only if the target architecture is not `wasm32`.
+  - `#[allow(...)]` - suppresses specific compiler warnings for the annotated item.
+  - `#[deny(...)]` - treats specific compiler warnings as errors for the annotated item.
+  - `#[inline]` - suggests to the compiler to inline the annotated function or method.
+  - `#[test]` - marks a function as a test case to be run by the test harness.
+  - `#[bench]` - marks a function as a benchmark to be run by the benchmark harness.
 
 ### Code example
 
@@ -53,5 +114,30 @@
 
 ```
 
-## Questions
+## Remember
 
+- For Domain Types, use `derive` attributes to automatically implement common traits:
+  - `Debug` almost always. It's free, harmless, and needed for assert_eq! and logging.
+  - `Clone` usually, when the type is plain data.
+  - `Serialize`/`Deserialize` when the type crosses a boundary (JSON, storage, network).
+  - Everything else (`Copy`, `Eq`, `Hash`, `Ord`, `Default`) only when the derived meaning matches your domain's meaning and something needs it now.
+- Use `fn whatever(whatever: impl Into<String>)` for functions that accept a string-like argument. It allows the caller to pass in a `String`, `&str`, or any other type that can be converted into a `String`. This makes the function more flexible and easier to use.
+
+## Packages Well Known
+
+- [serde](https://crates.io/crates/serde) - Serialization framework for Rust.
+- [thiserror](https://crates.io/crates/thiserror) - A library for deriving error types in Rust.
+- [chrono](https://crates.io/crates/chrono) - A date and time library for Rust.
+- [ulid](https://crates.io/crates/ulid) - A library for generating ULIDs (Universally Unique Lexicographically Sortable Identifiers) in Rust.
+- [futures](https://crates.io/crates/futures) - Async utilities around the core Future trait, including combinators, executors, Stream/sink utility methods and more.
+- [tokio](https://crates.io/crates/tokio) - An asynchronous runtime for Rust, providing utilities for async programming, including an event loop, task scheduling, and I/O. In a browser, APIs and event loop already provided and tokio is not needed.
+- `wasm-bindgen-futures` - A library for working with JavaScript Promises and Rust Futures in WebAssembly. It provides utilities for converting between the two and allows you to write async code in Rust that can interoperate with JavaScript. Not needed in native Rust.On web, **the browser already supplies the networking and event loop**. `wasm-bindgen-futures` integrates Rust futures with that environment.
+- [tracing](https://crates.io/crates/tracing) - A framework for instrumenting Rust programs to collect structured, event-based diagnostic information. Logging too.
+- [getrandom](https://crates.io/crates/getrandom) - A library for generating random numbers in Rust, providing a cross-platform interface to the underlying operating system's random number generator. Example is below for wasm32 target. `[target.'cfg(target_arch = "wasm32")'.dependencies]` means that the following dependencies are only included when compiling for the `wasm32` target architecture. The `getrandom` crate is included as a dependency with the `wasm_js` feature enabled, which allows it to use the JavaScript `crypto.getRandomValues()` API for generating random numbers in WebAssembly environments.
+- `reqwest` - A high-level HTTP client library for Rust, built on top of the `hyper` crate. It provides a convenient API for making HTTP requests and handling responses, including support for async programming, JSON serialization/deserialization, and more.
+- `gloo` - A set of libraries for building web applications in Rust, providing utilities for interacting with the browser, including DOM manipulation, event handling, and more.
+- `gloo-timers` - A library for working with timers in Rust, providing utilities for creating and managing timeouts, intervals, and delays in web applications.
+- `tokio-tungstenite` - A WebSocket library for Rust, built on top of the `tokio` async runtime and the `tungstenite` WebSocket library. Not for web.
+- `gloo-net` - Websocket library for Rust, built on top of the `gloo` library and the `web-sys` crate. Not for native Rust.
+- `async-trait` - A library that allows you to define async functions in traits, enabling you to write async code in a more ergonomic way. It provides a procedural macro that generates the necessary boilerplate code for async trait methods, allowing you to use async/await syntax in trait definitions and implementations.
+  - Example is `#[async_trait(?Send)]`. `?Send` part prevent macro from adding `Send` bound to the generated future. That is useful when the future returned need not be transferable between threads. `async_trait` attribute macro itself rewrites the annotated trait or implementation to use a boxed future type, which allows the async methods to be called without requiring the caller to know the concrete future type. This is particularly useful when working with trait objects or when you want to hide the implementation details of an async method behind a trait. In other words, it simplifies the usage of async methods in traits by providing a way to define and call them without exposing the underlying future type.

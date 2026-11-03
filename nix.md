@@ -153,6 +153,7 @@ nix profile wipe-history --profile ~/.nix-gcroots/devshells/kotlin
 
 # Regularly apply and clean old generations
 nh clean all --keep 3
+nh clean all --ask --keep 3 --keep-since 30d --keep-one
 
 # Clean store manually
 nix store gc
@@ -191,6 +192,10 @@ nix run ~/nix-config
 # Same for each command with proper output
 nix develop ~/nix-config#somedevshell
 nix develop .#backend
+# run output.devShells."SYSTEM".default with specific shell
+# this is useful for dev shells with multiple shells like bash, zsh, fish, etc.
+# and you want to use a specific shell and its configuration instead of the default shell.
+nix develop ~/Projects/nix-config#dioxus -c $SHELL
 nixos-rebuild switch --flake ~/nix-config#someNixos
 
 # One time setup per project
